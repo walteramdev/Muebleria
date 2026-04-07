@@ -75,6 +75,13 @@ const Header = ({
           >
             Inicio
           </button>
+          <button
+            type="button"
+            className={isActive("about") ? "active" : ""}
+            onClick={handleNavClick("/nosotros")}
+          >
+            Nosotros
+          </button>
           <div className="nav-dropdown">
             {/* Este bloque abre un submenu con tipos de producto. */}
             <button
@@ -114,6 +121,13 @@ const Header = ({
           </div>
           <button type="button" onClick={handleNavClick("destacados")}>
             Destacados
+          </button>
+          <button
+            type="button"
+            className={isActive("contact") ? "active" : ""}
+            onClick={handleNavClick("/contacto")}
+          >
+            Contacto
           </button>
           {currentUser && (
             <button type="button" onClick={handleLogoutClick}>

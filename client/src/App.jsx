@@ -13,6 +13,8 @@ import HomePage from "./pages/HomePage.jsx";
 import CatalogPage from "./pages/CatalogPage.jsx";
 import ProductDetailPage from "./pages/ProductDetailPage.jsx";
 import CartPage from "./pages/CartPage.jsx";
+import AboutPage from "./pages/AboutPage.jsx";
+import ContactPage from "./pages/ContactPage.jsx";
 
 const categoryDefinitions = [
   {
@@ -293,6 +295,10 @@ function App() {
             ? "home"
             : location.pathname.startsWith("/productos")
               ? "catalog"
+              : location.pathname === "/nosotros"
+                ? "about"
+                : location.pathname === "/contacto"
+                  ? "contact"
               : location.pathname === "/carrito"
                 ? "cart"
               : ""
@@ -321,6 +327,8 @@ function App() {
           path="/productos"
           element={<CatalogRoute />}
         />
+        <Route path="/nosotros" element={<AboutPage />} />
+        <Route path="/contacto" element={<ContactPage />} />
         {/* Detalle individual de cada producto */}
         <Route path="/productos/:id" element={<ProductDetailRoute />} />
         {/* Resumen del carrito */}
