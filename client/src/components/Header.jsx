@@ -3,9 +3,10 @@ import "../css/header.css";
 
 const Header = ({
   onNavigate = () => {},
-  productTypes = [],
+  categoryDefinitions = [],
   activeView = "home",
   cartCount = 0,
+  cartEnabled = true,
   onClearCart = () => {},
   onViewCart = () => {},
   currentUser = null,
@@ -31,6 +32,9 @@ const Header = ({
 
   const handleCheckout = (event) => {
     event.stopPropagation();
+    if (!cartEnabled) {
+      return;
+    }
     onViewCart();
     toggleCartPopup(false);
   };
@@ -88,31 +92,28 @@ const Header = ({
               <button type="button" onClick={handleNavClick("/productos")}>
                 Todos
               </button>
-              {productTypes.map((type) => (
-                <button
-                  type="button"
-                  key={type}
-                  onClick={handleNavClick(
-                    `/productos?categoria=${encodeURIComponent(type)}`,
-                  )}
-                >
-                  {type}
-                </button>
+              {categoryDefinitions.map((category) => (
+                <div className="nav-dropdown__group" key={category.name}>
+                  <button
+                    type="button"
+                    className="nav-dropdown__title"
+                    onClick={handleNavClick(
+                      `/productos?categoria=${encodeURIComponent(category.name)}`,
+                    )}
+                  >
+                    {category.name}
+                  </button>
+                  <div className="nav-dropdown__tags">
+                    {category.subcategories.map((subcategory) => (
+                      <span key={subcategory}>{subcategory}</span>
+                    ))}
+                  </div>
+                </div>
               ))}
             </div>
           </div>
           <button type="button" onClick={handleNavClick("destacados")}>
             Destacados
-          </button>
-          <button type="button" onClick={handleNavClick("contacto")}>
-            Siguiente paso
-          </button>
-          <button
-            type="button"
-            className={isActive("cart") ? "active" : ""}
-            onClick={handleNavClick("/carrito")}
-          >
-            Carrito
           </button>
           {currentUser && (
             <button type="button" onClick={handleLogoutClick}>
@@ -122,11 +123,32 @@ const Header = ({
         </nav>
 
         <div
-          className={`cart ${isPopupOpen ? "open" : ""}`}
-          onClick={() => toggleCartPopup()}
+          className={`cart ${isPopupOpen ? "open" : ""} ${cartEnabled ? "" : "is-disabled"}`}
+          onClick={() => {
+            if (!cartEnabled) {
+              return;
+            }
+            toggleCartPopup();
+          }}
         >
           <span className="icono-carro" aria-hidden="true">
-            Carrito
+            <svg
+              viewBox="0 0 24 24"
+              role="img"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <path
+                d="M3 5h2l1.2 6.2A2 2 0 0 0 8.2 13H17a2 2 0 0 0 1.9-1.4L20.7 6H7.1"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+              <circle cx="9" cy="18.5" r="1.5" fill="currentColor" />
+              <circle cx="17" cy="18.5" r="1.5" fill="currentColor" />
+            </svg>
           </span>
 
           <span id="cart-count">{cartCount}</span>

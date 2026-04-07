@@ -3,6 +3,13 @@ const ProductDetailPage = ({
   onBack = () => {},
   onAddToCart = () => {},
 }) => {
+  const formatPrice = (value) =>
+    new Intl.NumberFormat("es-AR", {
+      style: "currency",
+      currency: "ARS",
+      maximumFractionDigits: 0,
+    }).format(value);
+
   // Si no encontramos el producto por id, evitamos que la pantalla quede rota.
   if (!product) {
     return (
@@ -27,28 +34,28 @@ const ProductDetailPage = ({
 
       <section className="detail-layout">
         <div className="detail-media">
-          <img src={product.image} alt={product.name} />
+          <img src={product.imagenUrl} alt={product.name} />
         </div>
 
         <div className="detail-content">
           <p className="eyebrow">{product.category}</p>
           <h1>{product.name}</h1>
-          <p className="detail-price">{product.priceLabel}</p>
+          <p className="detail-price">{formatPrice(product.price)}</p>
           <p className="detail-description">{product.description}</p>
 
           <div className="detail-summary">
             {/* Este bloque junta los datos mas utiles del producto en una vista rapida. */}
             <div>
               <span className="detail-summary__label">Material</span>
-              <strong>{product.material}</strong>
+              <strong>{product.features?.materiales || "A definir"}</strong>
             </div>
             <div>
               <span className="detail-summary__label">Medidas</span>
-              <strong>{product.size}</strong>
+              <strong>{product.features?.medidas || "A definir"}</strong>
             </div>
             <div>
               <span className="detail-summary__label">Stock</span>
-              <strong>{product.stock}</strong>
+              <strong>{product.stock} unidad(es)</strong>
             </div>
           </div>
 

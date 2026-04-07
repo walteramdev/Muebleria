@@ -7,6 +7,12 @@ const CartPage = ({
   onRemoveItem = () => {},
 }) => {
   const isEmpty = cartItems.length === 0;
+  const formatPrice = (value) =>
+    new Intl.NumberFormat("es-AR", {
+      style: "currency",
+      currency: "ARS",
+      maximumFractionDigits: 0,
+    }).format(value);
 
   return (
     <main className="cart-page">
@@ -36,28 +42,34 @@ const CartPage = ({
           <div className="cart-list">
             {/* Cada item del carrito puede aumentar, bajar o quitarse. */}
             {cartItems.map((item) => (
-              <article className="cart-item" key={item.id}>
-                <img className="cart-item__image" src={item.image} alt={item.name} />
+              <article className="cart-item" key={item._id}>
+                <img
+                  className="cart-item__image"
+                  src={item.imagenUrl}
+                  alt={item.name}
+                />
 
                 <div className="cart-item__content">
                   <p className="product-card__category">{item.category}</p>
                   <h2>{item.name}</h2>
-                  <p className="cart-item__material">{item.material}</p>
-                  <strong>{item.priceLabel}</strong>
+                  <p className="cart-item__material">
+                    {item.features?.materiales || "Material a definir"}
+                  </p>
+                  <strong>{formatPrice(item.price)}</strong>
                 </div>
 
                 <div className="cart-item__controls">
                   <div className="quantity-control">
                     <button
                       type="button"
-                      onClick={() => onUpdateQuantity(item.id, item.quantity - 1)}
+                      onClick={() => onUpdateQuantity(item._id, item.quantity - 1)}
                     >
                       -
                     </button>
                     <span>{item.quantity}</span>
                     <button
                       type="button"
-                      onClick={() => onUpdateQuantity(item.id, item.quantity + 1)}
+                      onClick={() => onUpdateQuantity(item._id, item.quantity + 1)}
                     >
                       +
                     </button>
@@ -66,7 +78,7 @@ const CartPage = ({
                   <button
                     type="button"
                     className="remove-link"
-                    onClick={() => onRemoveItem(item.id)}
+                    onClick={() => onRemoveItem(item._id)}
                   >
                     Quitar
                   </button>

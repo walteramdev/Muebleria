@@ -1,4 +1,5 @@
 const CatalogPage = ({
+  categoryDefinitions = [],
   products = [],
   selectedCategory = "Todos",
   categories = [],
@@ -6,6 +7,17 @@ const CatalogPage = ({
   onAddToCart = () => {},
   onCategorySelect = () => {},
 }) => {
+  const formatPrice = (value) =>
+    new Intl.NumberFormat("es-AR", {
+      style: "currency",
+      currency: "ARS",
+      maximumFractionDigits: 0,
+    }).format(value);
+
+  const selectedCategoryDefinition = categoryDefinitions.find(
+    (category) => category.name === selectedCategory,
+  );
+
   return (
     <main className="catalog-page">
       <section className="page-hero">
@@ -15,6 +27,14 @@ const CatalogPage = ({
           Esta pagina ya queda lista para mostrar productos reales cuando el
           backend empiece a devolverlos.
         </p>
+
+        {selectedCategoryDefinition && (
+          <div className="catalog-subcategories">
+            {selectedCategoryDefinition.subcategories.map((subcategory) => (
+              <span key={subcategory}>{subcategory}</span>
+            ))}
+          </div>
+        )}
 
         <div className="catalog-filters">
           {/* Botones rapidos para cambiar de categoria sin volver al header. */}
@@ -47,20 +67,23 @@ const CatalogPage = ({
         )}
         {/* Cada tarjeta resume el producto y deja dos acciones: ver o agregar. */}
         {products.map((product) => (
-          <article className="catalog-card" key={product.id}>
+          <article className="catalog-card" key={product._id}>
             <div className="catalog-card__media">
-              <img src={product.image} alt={product.name} />
+              <img src={product.imagenUrl} alt={product.name} />
             </div>
 
             <div className="catalog-card__body">
               <p className="product-card__category">{product.category}</p>
+              <p className="catalog-card__subcategory">{product.subcategory}</p>
               <h2>{product.name}</h2>
               <p className="catalog-card__description">{product.description}</p>
-              <p className="catalog-card__meta">{product.material}</p>
+              <p className="catalog-card__meta">
+                {product.features?.materiales || "Material a definir"}
+              </p>
             </div>
 
             <div className="catalog-card__footer">
-              <strong>{product.priceLabel}</strong>
+              <strong>{formatPrice(product.price)}</strong>
               <div className="catalog-card__actions">
                 <button
                   type="button"
