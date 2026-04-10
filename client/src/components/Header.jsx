@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "../css/header.css";
 
 const Header = ({
@@ -7,6 +7,7 @@ const Header = ({
   activeView = "home",
   cartCount = 0,
   cartEnabled = true,
+  isOverlay = false,
   onClearCart = () => {},
   onViewCart = () => {},
   currentUser = null,
@@ -15,6 +16,35 @@ const Header = ({
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   // Controla el desplegable de categorias dentro del boton "Productos".
   const [isProductsMenuOpen, setIsProductsMenuOpen] = useState(false);
+  const [isHeaderVisible, setIsHeaderVisible] = useState(true);
+
+  useEffect(() => {
+    let lastScrollY = window.scrollY;
+
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+
+      if (currentScrollY <= 24) {
+        setIsHeaderVisible(true);
+        lastScrollY = currentScrollY;
+        return;
+      }
+
+      if (currentScrollY > lastScrollY + 8) {
+        setIsHeaderVisible(false);
+      } else if (currentScrollY < lastScrollY - 8) {
+        setIsHeaderVisible(true);
+      }
+
+      lastScrollY = currentScrollY;
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
 
   const toggleCartPopup = (open) => {
     if (typeof open === "boolean") {
@@ -57,7 +87,9 @@ const Header = ({
   const isActive = (view) => activeView === view;
 
   return (
-    <div className="main-header-wrapper">
+    <div
+      className={`main-header-wrapper ${isOverlay ? "is-overlay" : ""} ${isHeaderVisible ? "" : "is-hidden"}`}
+    >
       <header className="main-header">
         <button
           type="button"

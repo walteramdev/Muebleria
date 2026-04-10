@@ -1,9 +1,12 @@
-﻿const formatPrice = (value) =>
+const formatPrice = (value) =>
   new Intl.NumberFormat("es-AR", {
     style: "currency",
     currency: "ARS",
     maximumFractionDigits: 0,
   }).format(value);
+
+const heroImage =
+  "https://wrfefas.my.canva.site/_assets/media/787090af7cd9a097a130f1f82951a959.jpg";
 
 const HomePage = ({
   categoryDefinitions = [],
@@ -16,57 +19,60 @@ const HomePage = ({
 
   return (
     <main className="home-page">
-      <section className="showcase-hero" id="inicio">
-        <div className="showcase-hero__lead">
-          <p className="eyebrow">Chenille Casa y Mobiliario</p>
-          <h1>Muebles contemporaneos para vivir, compartir y descansar mejor.</h1>
-          <p className="showcase-hero__text">
-            Diseñamos una vidriera digital con lenguaje de tienda real: categorias
-            claras, productos destacados y una presentacion mas comercial para
-            despues personalizar con la identidad final de la marca.
-          </p>
-          <div className="showcase-hero__actions">
-            <a className="btn-primary" href="/productos">
-              Ver tienda
-            </a>
+      <section
+        className="home-immersive-hero"
+        id="inicio"
+        style={{ "--hero-image": `url(${heroImage})` }}
+      >
+        <div className="home-immersive-hero__overlay" />
+        <div className="home-immersive-hero__inner">
+          <div className="home-immersive-hero__copy">
+            <p className="eyebrow eyebrow--light">Chenille Casa y Mobiliario</p>
+            <span className="hero-kicker">Coleccion curada para el hogar</span>
+            <h1>Handmade calm for the spaces you live every day.</h1>
+            <p className="home-immersive-hero__text">
+              Tomamos la energia del dise�o que te gusto y la llevamos a Chenille:
+              una portada mas cinematografica, limpia y visual para que la marca se
+              sienta editorial desde el primer segundo.
+            </p>
+            <div className="home-immersive-hero__actions">
+              <a className="hero-shop-button" href="/productos">
+                Shop now
+              </a>
+              <span className="hero-note">Living, comedor y dormitorio</span>
+            </div>
           </div>
-        </div>
 
-        <div className="showcase-hero__grid">
-          {spotlightProducts.map((product) => (
-            <article className="showcase-hero__card" key={product._id}>
-              <img src={product.imagenUrl} alt={product.name} />
-              <div>
-                <p className="product-card__category">
-                  {product.category} / {product.subcategory}
-                </p>
-                <h3>{product.name}</h3>
-                <p>{formatPrice(product.price)}</p>
-              </div>
+          <aside className="home-immersive-hero__aside">
+            <article className="hero-floating-card hero-floating-card--intro">
+              <p className="eyebrow">Nueva temporada</p>
+              <strong>Texturas nobles, formas suaves y una tienda mas visual.</strong>
             </article>
-          ))}
-        </div>
-      </section>
 
-      <section className="home-strip">
-        <article>
-          <p className="eyebrow">Marca</p>
-          <strong>Diseño sobrio, materiales nobles y una experiencia de compra clara.</strong>
-        </article>
-        <article>
-          <p className="eyebrow">Categorias</p>
-          <strong>Living, comedor y dormitorio como base para crecer sin rehacer.</strong>
-        </article>
-        <article>
-          <p className="eyebrow">Modo de trabajo</p>
-          <strong>Frontend comercial hoy, integracion real con backend despues.</strong>
-        </article>
+            {spotlightProducts.slice(0, 2).map((product) => (
+              <article className="hero-floating-card" key={product._id}>
+                <img src={product.imagenUrl} alt={product.name} />
+                <div>
+                  <p className="product-card__category">
+                    {product.category} / {product.subcategory}
+                  </p>
+                  <h3>{product.name}</h3>
+                  <p>{formatPrice(product.price)}</p>
+                </div>
+              </article>
+            ))}
+          </aside>
+        </div>
       </section>
 
       <section className="home-section home-section--catalog" id="colecciones">
         <div className="section-heading">
           <p className="eyebrow">Colecciones</p>
-          <h2>Una estructura general para despues personalizar con el catalogo real</h2>
+          <h2>Una base elegante para ordenar el catalogo antes de personalizarlo.</h2>
+          <p>
+            Las tres categorias siguen siendo provisorias, pero ya viven dentro de
+            un lenguaje mas refinado y cercano a una tienda real.
+          </p>
         </div>
 
         <div className="collection-grid">
@@ -93,7 +99,7 @@ const HomePage = ({
       <section className="home-section home-section--featured" id="destacados">
         <div className="section-heading">
           <p className="eyebrow">Destacados</p>
-          <h2>Una seleccion inicial para mostrar la tienda como si ya estuviera en marcha</h2>
+          <h2>Piezas seleccionadas para que la vidriera ya tenga presencia propia.</h2>
         </div>
 
         {isLoading && <p className="state-message">Cargando productos...</p>}
@@ -132,14 +138,14 @@ const HomePage = ({
         )}
       </section>
 
-      <section className="home-section" id="contacto">
-        <article className="story-card">
+      <section className="home-section home-section--quote" id="contacto">
+        <article className="story-card story-card--quote">
           <p className="eyebrow">Texto de marca</p>
-          <h2>Chenille acompaña espacios cotidianos con muebles honestos, calidos y duraderos.</h2>
+          <h2>Chenille propone interiores serenos, tactiles y faciles de habitar.</h2>
           <p className="story-copy">
-            Esta propuesta busca una estetica limpia, comercial y confiable,
-            pensada para mostrar producto y facilitar la eleccion desde el primer
-            vistazo.
+            La idea no es solo mostrar muebles: es dejar una impresion de marca mas
+            cuidada, para que despues ustedes personalicen fotos, productos y
+            categorias sin tener que rehacer la base visual.
           </p>
         </article>
       </section>

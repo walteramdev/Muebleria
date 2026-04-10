@@ -10,6 +10,12 @@
   box-shadow: 0 16px 32px rgba(45, 42, 38, 0.08);
 }
 
+.main-header-wrapper.is-hidden {
+  transform: translateY(-110%);
+  opacity: 0;
+  pointer-events: none;
+}
+
 .main-header {
   display: grid;
   grid-template-columns: auto 1fr auto;
@@ -334,4 +340,68 @@
     height: 22px;
     font-size: 0.7rem;
   }
+}
+.main-header-wrapper {
+  transition:
+    background-color 0.25s ease,
+    border-color 0.25s ease,
+    box-shadow 0.25s ease,
+    transform 0.3s ease,
+    opacity 0.3s ease;
+}
+
+.main-header-wrapper.is-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: transparent;
+  backdrop-filter: none;
+  border-bottom-color: transparent;
+  box-shadow: none;
+}
+
+.main-header-wrapper.is-overlay .main-header::after {
+  display: none;
+}
+
+.main-header-wrapper.is-overlay .recuadro-logo {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.18);
+  box-shadow: none;
+}
+
+.main-header-wrapper.is-overlay .logo-mark,
+.main-header-wrapper.is-overlay .menu-navegacion button,
+.main-header-wrapper.is-overlay .icono-carro {
+  color: #fff;
+}
+
+.main-header-wrapper.is-overlay .menu-navegacion button::after {
+  background: rgba(255, 255, 255, 0.88);
+}
+
+.main-header-wrapper.is-overlay .menu-navegacion button.active {
+  color: #fff;
+}
+
+.main-header-wrapper.is-overlay .nav-dropdown__menu {
+  background: rgba(255, 253, 249, 0.94);
+  backdrop-filter: blur(14px);
+}
+
+.main-header-wrapper.is-overlay .cart {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.18);
+  box-shadow: none;
+}
+
+.main-header-wrapper.is-overlay .cart.is-disabled:hover {
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: none;
+}
+
+.main-header-wrapper.is-overlay #cart-count {
+  background: #fff;
+  color: #14110f;
 }

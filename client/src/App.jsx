@@ -305,6 +305,7 @@ function App() {
         }
         cartCount={cartCount}
         cartEnabled={false}
+        isOverlay={location.pathname === "/"}
         onClearCart={handleClearCart}
         onViewCart={() => navigate("/carrito")}
       />
