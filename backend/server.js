@@ -1,11 +1,13 @@
+require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
-require("dotenv").config();
+
 const connectDB = require("./src/config/db");
 
-// const userRouter = require("./src/routes/userRoutes");
+const userRouter = require("./src/routes/userRoutes");
 const productRouter = require("./src/routes/productRoutes");
-// const clientRouter = require("./src/routes/clientRoutes");
+const clientRouter = require("./src/routes/clientRoutes");
+
 const loggerMiddleware = require("./src/middleware/loggerMiddleware");
 const cookieParser = require("cookie-parser");
 
@@ -24,9 +26,9 @@ app.use(express.json());
 app.use(loggerMiddleware);
 connectDB();
 
-// app.use("/api/users", userRouter);
+app.use("/api/users", userRouter);
 app.use("/api/products", productRouter);
-// app.use("/api/clients", clientRouter);
+app.use("/api/clients", clientRouter);
 
 // Manejo centralizado para rutas inexistentes.
 app.use((req, res, next) => {
