@@ -4,9 +4,20 @@ const jwt = require("jsonwebtoken");
 
 const registerUser = async (req, res, next) => {
   try {
-    const { username, email, password, roles } = req.body;
-    const existUSer = await Usuario.findOne({ $or: [{ email }, { username }] });
-    if (existUSer) {
+    const { username, email, password } = req.body;
+
+    if (!username || !email || !password) {
+      return res
+        .status(400)
+        .json({ message: "Todos los campos son obligatorios" });
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ message: "Email inválido" });
+    }
+    const existUser = await User.findOne({ $or: [{ email }, { username }] });
+    if (existUser) {
       return res
         .status(400)
         .json({ message: "El email o nombre ya estan en uso." });
@@ -18,15 +29,15 @@ const registerUser = async (req, res, next) => {
       username,
       email,
       password: hashedPassword,
-      roles,
+      role: "client",
     });
     const savedUser = await newUser.save();
 
     res.status(201).json({
-      _id: savedUSer._id,
+      _id: savedUser._id,
       username: savedUser.username,
       email: savedUser.email,
-      roles: savedUser.roles,
+      role: savedUser.role,
     });
   } catch (error) {
     console.error("Error al crear usuario:", error.message);
@@ -36,21 +47,17 @@ const registerUser = async (req, res, next) => {
 
 const loginUser = async (req, res, next) => {
   try {
-    const user = await User.findOne({ email: req.body.email });
-    if (!user) {
-      return res.status(400).json({ message: "Credenciales invalidas." });
-    }
+    const user = await User.findOne({
+      email: req.body.email,
+      isDeleted: false,
+    }).select("+password");
 
-    const isValidPassword = await bcrypt.compare(
-      req.body.password,
-      user.password,
-    );
-    if (!isValidPassword) {
-      return res.status(400).json({ message: "Credenciales invalidas." });
+    if (!user || !(await bcrypt.compare(req.body.password, user.password))) {
+      return res.status(400).json({ message: "Credenciales inválidas." });
     }
 
     const token = jwt.sign(
-      { id: user._id, username: suer.username, rol: user.roles },
+      { id: user._id, username: user.username, role: user.role },
       process.env.JWT_SECRET,
       { expiresIn: "1h" },
     );
@@ -68,7 +75,7 @@ const loginUser = async (req, res, next) => {
           id: user._id,
           username: user.username,
           email: user.email,
-          roles: user.roles,
+          role: user.role,
         },
       });
   } catch (error) {
@@ -100,15 +107,99 @@ const logoutUser = (req, res) => {
     .json({ message: "Logout exitoso" });
 };
 const checkSession = (req, res) => {
-  // verifyToken ya cargó el usuario en req.user
   res.json({
     user: req.user,
   });
 };
 
+const updateUser = async (req, res) => {
+  try {
+    const userId = req.params.id;
+
+    // Campos permitidos
+    const allowedFields = ["username", "email", "password"];
+    const updates = {};
+
+    for (let key of allowedFields) {
+      if (req.body[key]) {
+        updates[key] = req.body[key];
+      }
+    }
+
+    // Si actualiza password → re-hashear
+    if (updates.password) {
+      updates.password = await bcrypt.hash(updates.password, 10);
+    }
+
+    const updatedUser = await User.findOneAndUpdate(
+      { _id: userId, isDeleted: false },
+      updates,
+      { returnDocument: "after" },
+    ).select("-password");
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: "Usuario no encontrado" });
+    }
+
+    res.json(updatedUser);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error al actualizar usuario" });
+  }
+};
+
+const softDeleteUser = async (req, res) => {
+  try {
+    const userId = req.params.id;
+
+    const deletedUser = await User.findByIdAndUpdate(
+      userId,
+      {
+        isDeleted: true,
+        deletedAt: new Date(),
+      },
+      { returnDocument: "after" },
+    );
+
+    if (!deletedUser) {
+      return res.status(404).json({ message: "Usuario no encontrado" });
+    }
+
+    res.json({ message: "Usuario eliminado correctamente" });
+  } catch (error) {
+    res.status(500).json({ message: "Error al eliminar usuario" });
+  }
+};
+
+const restoreUser = async (req, res) => {
+  try {
+    const userId = req.params.id;
+
+    const restoredUser = await User.findByIdAndUpdate(
+      userId,
+      {
+        isDeleted: false,
+        deletedAt: null,
+      },
+      { returnDocument: "after" },
+    );
+
+    if (!restoredUser) {
+      return res.status(404).json({ message: "Usuario no encontrado" });
+    }
+
+    res.json({ message: "Usuario restaurado correctamente" });
+  } catch (error) {
+    res.status(500).json({ message: "Error al restaurar usuario" });
+  }
+};
+
 module.exports = {
   registerUser,
   loginUser,
+  updateUser,
+  softDeleteUser,
+  restoreUser,
   getUserProfile,
   logoutUser,
   checkSession,
