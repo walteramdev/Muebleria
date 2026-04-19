@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import "../css/header.css";
+import "../styles/Header.css";
 
 const Header = ({
   onNavigate = () => {},

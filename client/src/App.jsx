@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
-import Header from "./components/Header";
-import Footer from "./components/Footer";
+import Header from "./layouts/Header";
+import Footer from "./layouts/Footer";
 // import ProductForm from "./features/products/ProductForm";
 // import ProductList from "./features/products/ProductList.jsx";
 import Homepage from "./pages/HomePage.jsx";
