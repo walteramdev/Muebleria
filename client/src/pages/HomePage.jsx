@@ -32,6 +32,8 @@ const HomePage = ({
   const sectionRefs = useRef({});
   const homeRef = useRef(null);
   const scrollLockRef = useRef(false);
+  const animationFrameRef = useRef(null);
+  const touchStartRef = useRef(null);
   const [activeSection, setActiveSection] = useState("inicio");
 
   const categoryShowcase = useMemo(
@@ -57,7 +59,7 @@ const HomePage = ({
         }
       },
       {
-        threshold: [0.45, 0.6, 0.75],
+        threshold: [0.45, 0.6, 0.78],
       },
     );
 
@@ -74,7 +76,102 @@ const HomePage = ({
   }, []);
 
   useEffect(() => {
+    const stopAnimation = () => {
+      if (animationFrameRef.current) {
+        window.cancelAnimationFrame(animationFrameRef.current);
+        animationFrameRef.current = null;
+      }
+    };
+
+    const getSections = () =>
+      sectionIds
+        .map((sectionId) => sectionRefs.current[sectionId])
+        .filter(Boolean);
+
+    const getCurrentSectionIndex = () => {
+      const sections = getSections();
+      const viewportAnchor = window.scrollY + window.innerHeight * 0.35;
+      let closestIndex = 0;
+      let closestDistance = Number.POSITIVE_INFINITY;
+
+      sections.forEach((section, index) => {
+        const distance = Math.abs(section.offsetTop - viewportAnchor);
+
+        if (distance < closestDistance) {
+          closestDistance = distance;
+          closestIndex = index;
+        }
+      });
+
+      return closestIndex;
+    };
+
+    const animateScrollTo = (targetSectionId) => {
+      const targetSection = sectionRefs.current[targetSectionId];
+
+      if (!targetSection) {
+        return;
+      }
+
+      stopAnimation();
+      scrollLockRef.current = true;
+
+      const startY = window.scrollY;
+      const targetY = targetSection.offsetTop;
+      const distance = targetY - startY;
+
+      if (Math.abs(distance) < 4) {
+        window.scrollTo({ top: targetY, behavior: "auto" });
+        setActiveSection(targetSectionId);
+        scrollLockRef.current = false;
+        return;
+      }
+
+      const duration = 1150;
+      const startTime = performance.now();
+      const easeInOutCubic = (progress) =>
+        progress < 0.5
+          ? 4 * progress * progress * progress
+          : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+
+      const step = (currentTime) => {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const easedProgress = easeInOutCubic(progress);
+
+        window.scrollTo({
+          top: startY + distance * easedProgress,
+          behavior: "auto",
+        });
+
+        if (progress < 1) {
+          animationFrameRef.current = window.requestAnimationFrame(step);
+          return;
+        }
+
+        animationFrameRef.current = null;
+        setActiveSection(targetSectionId);
+        scrollLockRef.current = false;
+      };
+
+      animationFrameRef.current = window.requestAnimationFrame(step);
+    };
+
     const isDesktop = () => window.matchMedia("(min-width: 961px)").matches;
+
+    const jumpToSection = (direction) => {
+      const currentIndex = getCurrentSectionIndex();
+      const nextIndex = Math.min(
+        Math.max(currentIndex + direction, 0),
+        sectionIds.length - 1,
+      );
+
+      if (nextIndex === currentIndex) {
+        return;
+      }
+
+      animateScrollTo(sectionIds[nextIndex]);
+    };
 
     const handleWheel = (event) => {
       if (!isDesktop()) {
@@ -90,45 +187,100 @@ const HomePage = ({
         return;
       }
 
-      if (Math.abs(event.deltaY) < 18) {
-        return;
-      }
-
-      const currentIndex = sectionIds.findIndex((sectionId) => sectionId === activeSection);
-      const direction = event.deltaY > 0 ? 1 : -1;
-      const nextIndex = Math.min(
-        Math.max(currentIndex + direction, 0),
-        sectionIds.length - 1,
-      );
-
-      if (nextIndex === currentIndex) {
+      if (Math.abs(event.deltaY) < 22) {
         return;
       }
 
       event.preventDefault();
-      scrollLockRef.current = true;
-      sectionRefs.current[sectionIds[nextIndex]]?.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-      });
+      jumpToSection(event.deltaY > 0 ? 1 : -1);
+    };
 
-      window.setTimeout(() => {
-        scrollLockRef.current = false;
-      }, 850);
+    const handleTouchStart = (event) => {
+      touchStartRef.current = event.touches[0]?.clientY ?? null;
+    };
+
+    const handleTouchEnd = (event) => {
+      if (!isDesktop()) {
+        return;
+      }
+
+      const touchStart = touchStartRef.current;
+      const touchEnd = event.changedTouches[0]?.clientY ?? null;
+
+      if (touchStart === null || touchEnd === null || scrollLockRef.current) {
+        return;
+      }
+
+      const delta = touchStart - touchEnd;
+
+      if (Math.abs(delta) < 42) {
+        return;
+      }
+
+      jumpToSection(delta > 0 ? 1 : -1);
     };
 
     window.addEventListener("wheel", handleWheel, { passive: false });
+    window.addEventListener("touchstart", handleTouchStart, { passive: true });
+    window.addEventListener("touchend", handleTouchEnd, { passive: true });
 
     return () => {
+      stopAnimation();
       window.removeEventListener("wheel", handleWheel);
+      window.removeEventListener("touchstart", handleTouchStart);
+      window.removeEventListener("touchend", handleTouchEnd);
     };
-  }, [activeSection]);
+  }, []);
 
   const handleSectionJump = (sectionId) => {
-    sectionRefs.current[sectionId]?.scrollIntoView({
-      behavior: "smooth",
-      block: "start",
-    });
+    const targetSection = sectionRefs.current[sectionId];
+
+    if (!targetSection) {
+      return;
+    }
+
+    scrollLockRef.current = true;
+
+    const startY = window.scrollY;
+    const targetY = targetSection.offsetTop;
+    const distance = targetY - startY;
+    const duration = 1150;
+    let startTime = null;
+    const easeInOutCubic = (progress) =>
+      progress < 0.5
+        ? 4 * progress * progress * progress
+        : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+
+    if (animationFrameRef.current) {
+      window.cancelAnimationFrame(animationFrameRef.current);
+      animationFrameRef.current = null;
+    }
+
+    const step = (currentTime) => {
+      if (startTime === null) {
+        startTime = currentTime;
+      }
+
+      const elapsed = currentTime - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const easedProgress = easeInOutCubic(progress);
+
+      window.scrollTo({
+        top: startY + distance * easedProgress,
+        behavior: "auto",
+      });
+
+      if (progress < 1) {
+        animationFrameRef.current = window.requestAnimationFrame(step);
+        return;
+      }
+
+      animationFrameRef.current = null;
+      setActiveSection(sectionId);
+      scrollLockRef.current = false;
+    };
+
+    animationFrameRef.current = window.requestAnimationFrame(step);
   };
 
   return (
@@ -161,7 +313,7 @@ const HomePage = ({
             <h1>Muebles pensados para habitar con calma.</h1>
             <p className="home-immersive-hero__text">
               Piezas contemporaneas para living, comedor y dormitorio, con una
-              seleccion curada para espacios serenos, funcionales y propios.
+              seleccion pensada para espacios serenos, funcionales y propios.
             </p>
             <div className="home-immersive-hero__actions">
               <a className="hero-shop-button" href="/productos">
@@ -183,9 +335,9 @@ const HomePage = ({
       >
         <div className="home-screen__overlay" />
         <div className="home-screen__content home-screen__content--wide is-active-panel">
-          <div className="screen-heading screen-heading--light">
+          <div className="screen-heading screen-heading--light screen-heading--compact">
             <p className="eyebrow eyebrow--light">Colecciones</p>
-            <h2>Tres formas de recorrer la casa desde una misma mirada.</h2>
+            <h2>Tres atmósferas para habitar la casa.</h2>
           </div>
 
           <div className="category-spotlight-row">
@@ -222,9 +374,9 @@ const HomePage = ({
       >
         <div className="home-screen__overlay" />
         <div className="home-screen__content home-screen__content--wide is-active-panel">
-          <div className="screen-heading screen-heading--light">
+          <div className="screen-heading screen-heading--light screen-heading--compact">
             <p className="eyebrow eyebrow--light">Destacados</p>
-            <h2>Una seleccion inicial para mostrar el caracter de la marca.</h2>
+            <h2>Selección que define a Chenille.</h2>
           </div>
 
           {isLoading && <p className="state-message state-message--light">Cargando productos...</p>}
@@ -299,10 +451,10 @@ const HomePage = ({
             </svg>
           </div>
           <p className="eyebrow eyebrow--light">Manifiesto</p>
-          <h2>Diseno calido para espacios que se viven de verdad.</h2>
+          <h2>Diseño calido para espacios que se viven de verdad.</h2>
           <p className="story-copy story-copy--light">
             Menos ruido visual, mas hogar. Chenille busca proponer interiores
-            serenos, tactiles y nobles, donde cada pieza acompane lo cotidiano con
+            serenos, táctiles y nobles, donde cada pieza acompaña lo cotidiano con
             equilibrio y calma.
           </p>
         </div>
