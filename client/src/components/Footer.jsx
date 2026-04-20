@@ -1,8 +1,8 @@
 import "../css/footer.css";
 
-const Footer = () => {
+const Footer = ({ variant = "default" }) => {
   return (
-    <footer className="env-footer">
+    <footer className={`env-footer env-footer--${variant}`}>
       <div className="showroom-taller">
         <h3 className="destacado">Showroom y Taller</h3>
         <p className="sub">Chenille - Casa Taller</p>

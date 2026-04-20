@@ -305,7 +305,7 @@ function App() {
         }
         cartCount={cartCount}
         cartEnabled={false}
-        isOverlay={location.pathname === "/"}
+        isOverlay
         onClearCart={handleClearCart}
         onViewCart={() => navigate("/carrito")}
       />
@@ -360,7 +360,7 @@ function App() {
           }
         />
       </Routes>
-      <Footer />
+      {location.pathname !== "/" && <Footer />}
     </>
   );
 }

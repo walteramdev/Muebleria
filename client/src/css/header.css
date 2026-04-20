@@ -405,3 +405,8 @@
   background: #fff;
   color: #14110f;
 }
+.main-header-wrapper.is-overlay {
+  background: rgba(20, 17, 15, 0.18);
+  backdrop-filter: blur(12px);
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+}
