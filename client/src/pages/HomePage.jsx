@@ -31,6 +31,8 @@ const HomePage = ({
 }) => {
   const sectionRefs = useRef({});
   const homeRef = useRef(null);
+  const activeSectionRef = useRef("inicio");
+  const wheelCooldownRef = useRef(false);
   const [activeSection, setActiveSection] = useState("inicio");
 
   const categoryShowcase = useMemo(
@@ -43,6 +45,10 @@ const HomePage = ({
   );
 
   const featuredRow = products.slice(0, 3);
+
+  useEffect(() => {
+    activeSectionRef.current = activeSection;
+  }, [activeSection]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -70,6 +76,69 @@ const HomePage = ({
     return () => {
       sections.forEach((section) => observer.unobserve(section));
       observer.disconnect();
+    };
+  }, []);
+
+  useEffect(() => {
+    const homeElement = homeRef.current;
+
+    if (!homeElement) {
+      return undefined;
+    }
+
+    const isDesktop = () => window.matchMedia("(min-width: 961px)").matches;
+
+    const handleWheel = (event) => {
+      if (!isDesktop()) {
+        return;
+      }
+
+      const isMouseWheel =
+        event.deltaMode === 1 || (Math.abs(event.deltaY) >= 40 && event.deltaMode === 0);
+
+      if (!isMouseWheel) {
+        return;
+      }
+
+      if (wheelCooldownRef.current) {
+        event.preventDefault();
+        return;
+      }
+
+      const currentIndex = sectionIds.findIndex(
+        (sectionId) => sectionId === activeSectionRef.current,
+      );
+
+      if (currentIndex === -1) {
+        return;
+      }
+
+      const nextIndex = Math.min(
+        Math.max(currentIndex + (event.deltaY > 0 ? 1 : -1), 0),
+        sectionIds.length - 1,
+      );
+
+      if (nextIndex === currentIndex) {
+        return;
+      }
+
+      event.preventDefault();
+      wheelCooldownRef.current = true;
+
+      sectionRefs.current[sectionIds[nextIndex]]?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+
+      window.setTimeout(() => {
+        wheelCooldownRef.current = false;
+      }, 520);
+    };
+
+    homeElement.addEventListener("wheel", handleWheel, { passive: false });
+
+    return () => {
+      homeElement.removeEventListener("wheel", handleWheel);
     };
   }, []);
 

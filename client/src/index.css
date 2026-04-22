@@ -1172,7 +1172,7 @@ body {
   height: 100svh;
   overflow-y: auto;
   scroll-behavior: smooth;
-  scroll-snap-type: y mandatory;
+  scroll-snap-type: y proximity;
   overscroll-behavior-y: contain;
 }
 
@@ -1215,7 +1215,6 @@ body {
   background-position: center;
   padding: 108px 24px 32px;
   scroll-snap-align: start;
-  scroll-snap-stop: always;
 }
 
 .home-screen__overlay {
