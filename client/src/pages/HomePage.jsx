@@ -31,9 +31,6 @@ const HomePage = ({
 }) => {
   const sectionRefs = useRef({});
   const homeRef = useRef(null);
-  const scrollLockRef = useRef(false);
-  const animationFrameRef = useRef(null);
-  const touchStartRef = useRef(null);
   const [activeSection, setActiveSection] = useState("inicio");
 
   const categoryShowcase = useMemo(
@@ -59,6 +56,7 @@ const HomePage = ({
         }
       },
       {
+        root: homeRef.current,
         threshold: [0.45, 0.6, 0.78],
       },
     );
@@ -75,160 +73,6 @@ const HomePage = ({
     };
   }, []);
 
-  useEffect(() => {
-    const stopAnimation = () => {
-      if (animationFrameRef.current) {
-        window.cancelAnimationFrame(animationFrameRef.current);
-        animationFrameRef.current = null;
-      }
-    };
-
-    const getSections = () =>
-      sectionIds
-        .map((sectionId) => sectionRefs.current[sectionId])
-        .filter(Boolean);
-
-    const getCurrentSectionIndex = () => {
-      const sections = getSections();
-      const viewportAnchor = window.scrollY + window.innerHeight * 0.35;
-      let closestIndex = 0;
-      let closestDistance = Number.POSITIVE_INFINITY;
-
-      sections.forEach((section, index) => {
-        const distance = Math.abs(section.offsetTop - viewportAnchor);
-
-        if (distance < closestDistance) {
-          closestDistance = distance;
-          closestIndex = index;
-        }
-      });
-
-      return closestIndex;
-    };
-
-    const animateScrollTo = (targetSectionId) => {
-      const targetSection = sectionRefs.current[targetSectionId];
-
-      if (!targetSection) {
-        return;
-      }
-
-      stopAnimation();
-      scrollLockRef.current = true;
-
-      const startY = window.scrollY;
-      const targetY = targetSection.offsetTop;
-      const distance = targetY - startY;
-
-      if (Math.abs(distance) < 4) {
-        window.scrollTo({ top: targetY, behavior: "auto" });
-        setActiveSection(targetSectionId);
-        scrollLockRef.current = false;
-        return;
-      }
-
-      const duration = 700;
-      const startTime = performance.now();
-      const easeOutCubic = (progress) => 1 - Math.pow(1 - progress, 3);
-
-      const step = (currentTime) => {
-        const elapsed = currentTime - startTime;
-        const progress = Math.min(elapsed / duration, 1);
-        const easedProgress = easeOutCubic(progress);
-
-        window.scrollTo({
-          top: startY + distance * easedProgress,
-          behavior: "auto",
-        });
-
-        if (progress < 1) {
-          animationFrameRef.current = window.requestAnimationFrame(step);
-          return;
-        }
-
-        animationFrameRef.current = null;
-        setActiveSection(targetSectionId);
-        scrollLockRef.current = false;
-      };
-
-      animationFrameRef.current = window.requestAnimationFrame(step);
-    };
-
-    const isDesktop = () => window.matchMedia("(min-width: 961px)").matches;
-
-    const jumpToSection = (direction) => {
-      const currentIndex = getCurrentSectionIndex();
-      const nextIndex = Math.min(
-        Math.max(currentIndex + direction, 0),
-        sectionIds.length - 1,
-      );
-
-      if (nextIndex === currentIndex) {
-        return;
-      }
-
-      animateScrollTo(sectionIds[nextIndex]);
-    };
-
-    const handleWheel = (event) => {
-      if (!isDesktop()) {
-        return;
-      }
-
-      if (!homeRef.current?.contains(event.target)) {
-        return;
-      }
-
-      if (scrollLockRef.current) {
-        event.preventDefault();
-        return;
-      }
-
-      if (Math.abs(event.deltaY) < 22) {
-        return;
-      }
-
-      event.preventDefault();
-      jumpToSection(event.deltaY > 0 ? 1 : -1);
-    };
-
-    const handleTouchStart = (event) => {
-      touchStartRef.current = event.touches[0]?.clientY ?? null;
-    };
-
-    const handleTouchEnd = (event) => {
-      if (!isDesktop()) {
-        return;
-      }
-
-      const touchStart = touchStartRef.current;
-      const touchEnd = event.changedTouches[0]?.clientY ?? null;
-
-      if (touchStart === null || touchEnd === null || scrollLockRef.current) {
-        return;
-      }
-
-      const delta = touchStart - touchEnd;
-
-      if (Math.abs(delta) < 42) {
-        return;
-      }
-
-      jumpToSection(delta > 0 ? 1 : -1);
-    };
-
-    window.addEventListener("wheel", handleWheel, { passive: false });
-    window.addEventListener("touchstart", handleTouchStart, { passive: true });
-    window.addEventListener("touchend", handleTouchEnd, { passive: true });
-
-    return () => {
-      stopAnimation();
-      window.removeEventListener("wheel", handleWheel);
-      window.removeEventListener("touchstart", handleTouchStart);
-      window.removeEventListener("touchend", handleTouchEnd);
-    };
-  }, []);
-
   const handleSectionJump = (sectionId) => {
     const targetSection = sectionRefs.current[sectionId];
 
@@ -236,45 +80,10 @@ const HomePage = ({
       return;
     }
 
-    scrollLockRef.current = true;
-
-    const startY = window.scrollY;
-    const targetY = targetSection.offsetTop;
-    const distance = targetY - startY;
-    const duration = 700;
-    let startTime = null;
-    const easeOutCubic = (progress) => 1 - Math.pow(1 - progress, 3);
-
-    if (animationFrameRef.current) {
-      window.cancelAnimationFrame(animationFrameRef.current);
-      animationFrameRef.current = null;
-    }
-
-    const step = (currentTime) => {
-      if (startTime === null) {
-        startTime = currentTime;
-      }
-
-      const elapsed = currentTime - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-      const easedProgress = easeOutCubic(progress);
-
-      window.scrollTo({
-        top: startY + distance * easedProgress,
-        behavior: "auto",
-      });
-
-      if (progress < 1) {
-        animationFrameRef.current = window.requestAnimationFrame(step);
-        return;
-      }
-
-      animationFrameRef.current = null;
-      setActiveSection(sectionId);
-      scrollLockRef.current = false;
-    };
-
-    animationFrameRef.current = window.requestAnimationFrame(step);
+    targetSection.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
   };
 
   return (
@@ -304,7 +113,7 @@ const HomePage = ({
           <div className="home-immersive-hero__copy">
             <p className="eyebrow eyebrow--light">Chenille Casa y Mobiliario</p>
             <span className="hero-kicker">Coleccion curada para el hogar</span>
-            <h1>Muebles pensados para habitar con calma.</h1>
+            <h1>Muebles pensados para habitar con calma</h1>
             <p className="home-immersive-hero__text">
               Piezas contemporaneas para living, comedor y dormitorio, con una
               seleccion pensada para espacios serenos, funcionales y propios.
@@ -313,7 +122,6 @@ const HomePage = ({
               <a className="hero-shop-button" href="/productos">
                 Ver coleccion
               </a>
-              <span className="hero-note">Living, comedor y dormitorio</span>
             </div>
           </div>
         </div>

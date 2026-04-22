@@ -1169,6 +1169,11 @@ body {
   width: 100%;
   max-width: none;
   padding: 0;
+  height: 100svh;
+  overflow-y: auto;
+  scroll-behavior: smooth;
+  scroll-snap-type: y mandatory;
+  overscroll-behavior-y: contain;
 }
 
 .home-side-nav {
@@ -1209,6 +1214,8 @@ body {
   background-size: cover;
   background-position: center;
   padding: 108px 24px 32px;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
 }
 
 .home-screen__overlay {
@@ -1448,6 +1455,13 @@ body {
 }
 
 @media (max-width: 960px) {
+  .home-page--immersive {
+    height: auto;
+    overflow-y: visible;
+    scroll-snap-type: none;
+    overscroll-behavior-y: auto;
+  }
+
   .home-side-nav {
     display: none;
   }
