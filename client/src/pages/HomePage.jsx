@@ -127,17 +127,14 @@ const HomePage = ({
         return;
       }
 
-      const duration = 1150;
+      const duration = 700;
       const startTime = performance.now();
-      const easeInOutCubic = (progress) =>
-        progress < 0.5
-          ? 4 * progress * progress * progress
-          : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+      const easeOutCubic = (progress) => 1 - Math.pow(1 - progress, 3);
 
       const step = (currentTime) => {
         const elapsed = currentTime - startTime;
         const progress = Math.min(elapsed / duration, 1);
-        const easedProgress = easeInOutCubic(progress);
+        const easedProgress = easeOutCubic(progress);
 
         window.scrollTo({
           top: startY + distance * easedProgress,
@@ -244,12 +241,9 @@ const HomePage = ({
     const startY = window.scrollY;
     const targetY = targetSection.offsetTop;
     const distance = targetY - startY;
-    const duration = 1150;
+    const duration = 700;
     let startTime = null;
-    const easeInOutCubic = (progress) =>
-      progress < 0.5
-        ? 4 * progress * progress * progress
-        : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+    const easeOutCubic = (progress) => 1 - Math.pow(1 - progress, 3);
 
     if (animationFrameRef.current) {
       window.cancelAnimationFrame(animationFrameRef.current);
@@ -263,7 +257,7 @@ const HomePage = ({
 
       const elapsed = currentTime - startTime;
       const progress = Math.min(elapsed / duration, 1);
-      const easedProgress = easeInOutCubic(progress);
+      const easedProgress = easeOutCubic(progress);
 
       window.scrollTo({
         top: startY + distance * easedProgress,
