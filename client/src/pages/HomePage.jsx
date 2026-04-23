@@ -1,4 +1,5 @@
 ﻿import { useEffect, useMemo, useRef, useState } from "react";
+import Lenis from "lenis";
 import Footer from "../components/Footer";
 
 const formatPrice = (value) =>
@@ -31,8 +32,8 @@ const HomePage = ({
 }) => {
   const sectionRefs = useRef({});
   const homeRef = useRef(null);
-  const activeSectionRef = useRef("inicio");
-  const wheelCooldownRef = useRef(false);
+  const contentRef = useRef(null);
+  const lenisRef = useRef(null);
   const [activeSection, setActiveSection] = useState("inicio");
 
   const categoryShowcase = useMemo(
@@ -45,10 +46,6 @@ const HomePage = ({
   );
 
   const featuredRow = products.slice(0, 3);
-
-  useEffect(() => {
-    activeSectionRef.current = activeSection;
-  }, [activeSection]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -80,65 +77,40 @@ const HomePage = ({
   }, []);
 
   useEffect(() => {
-    const homeElement = homeRef.current;
+    const wrapper = homeRef.current;
+    const content = contentRef.current;
 
-    if (!homeElement) {
+    if (!wrapper || !content) {
       return undefined;
     }
 
-    const isDesktop = () => window.matchMedia("(min-width: 961px)").matches;
+    const lenis = new Lenis({
+      wrapper,
+      content,
+      duration: 1,
+      smoothWheel: true,
+      syncTouch: true,
+      wheelMultiplier: 0.95,
+      touchMultiplier: 1,
+    });
 
-    const handleWheel = (event) => {
-      if (!isDesktop()) {
-        return;
-      }
+    lenisRef.current = lenis;
 
-      const isMouseWheel =
-        event.deltaMode === 1 || (Math.abs(event.deltaY) >= 40 && event.deltaMode === 0);
+    let animationFrameId = null;
 
-      if (!isMouseWheel) {
-        return;
-      }
-
-      if (wheelCooldownRef.current) {
-        event.preventDefault();
-        return;
-      }
-
-      const currentIndex = sectionIds.findIndex(
-        (sectionId) => sectionId === activeSectionRef.current,
-      );
-
-      if (currentIndex === -1) {
-        return;
-      }
-
-      const nextIndex = Math.min(
-        Math.max(currentIndex + (event.deltaY > 0 ? 1 : -1), 0),
-        sectionIds.length - 1,
-      );
-
-      if (nextIndex === currentIndex) {
-        return;
-      }
-
-      event.preventDefault();
-      wheelCooldownRef.current = true;
-
-      sectionRefs.current[sectionIds[nextIndex]]?.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-      });
-
-      window.setTimeout(() => {
-        wheelCooldownRef.current = false;
-      }, 520);
+    const onFrame = (time) => {
+      lenis.raf(time);
+      animationFrameId = window.requestAnimationFrame(onFrame);
     };
 
-    homeElement.addEventListener("wheel", handleWheel, { passive: false });
+    animationFrameId = window.requestAnimationFrame(onFrame);
 
     return () => {
-      homeElement.removeEventListener("wheel", handleWheel);
+      if (animationFrameId) {
+        window.cancelAnimationFrame(animationFrameId);
+      }
+      lenis.destroy();
+      lenisRef.current = null;
     };
   }, []);
 
@@ -149,10 +121,12 @@ const HomePage = ({
       return;
     }
 
-    targetSection.scrollIntoView({
-      behavior: "smooth",
-      block: "start",
-    });
+    if (lenisRef.current) {
+      lenisRef.current.scrollTo(targetSection, { duration: 1 });
+      return;
+    }
+
+    targetSection.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
   return (
@@ -169,6 +143,7 @@ const HomePage = ({
         ))}
       </nav>
 
+      <div className="home-page__scroll-content" ref={contentRef}>
       <section
         ref={(element) => {
           sectionRefs.current.inicio = element;
@@ -342,6 +317,7 @@ const HomePage = ({
           <Footer variant="immersive" />
         </div>
       </section>
+      </div>
     </main>
   );
 };

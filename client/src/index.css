@@ -1171,9 +1171,11 @@ body {
   padding: 0;
   height: 100svh;
   overflow-y: auto;
-  scroll-behavior: smooth;
-  scroll-snap-type: y proximity;
   overscroll-behavior-y: contain;
+}
+
+.home-page__scroll-content {
+  min-height: 100%;
 }
 
 .home-side-nav {
@@ -1214,7 +1216,6 @@ body {
   background-size: cover;
   background-position: center;
   padding: 108px 24px 32px;
-  scroll-snap-align: start;
 }
 
 .home-screen__overlay {
@@ -1457,7 +1458,6 @@ body {
   .home-page--immersive {
     height: auto;
     overflow-y: visible;
-    scroll-snap-type: none;
     overscroll-behavior-y: auto;
   }
 
