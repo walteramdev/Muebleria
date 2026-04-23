@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import "../css/header.css";
 
 const Header = ({
@@ -14,8 +14,8 @@ const Header = ({
   onLogout = () => {},
 }) => {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
-  // Controla el desplegable de categorias dentro del boton "Productos".
   const [isProductsMenuOpen, setIsProductsMenuOpen] = useState(false);
+  const [activeProductsCategory, setActiveProductsCategory] = useState("");
   const [isHeaderVisible, setIsHeaderVisible] = useState(true);
 
   useEffect(() => {
@@ -69,15 +69,52 @@ const Header = ({
     toggleCartPopup(false);
   };
 
+  const closeProductsMenu = () => {
+    setIsProductsMenuOpen(false);
+    setActiveProductsCategory("");
+  };
+
   const handleNavClick = (sectionId) => (event) => {
     event.preventDefault();
-    // Cada vez que navegamos, cerramos el menu para no dejarlo abierto.
-    setIsProductsMenuOpen(false);
+    closeProductsMenu();
     onNavigate(sectionId);
   };
 
   const toggleProductsMenu = () => {
-    setIsProductsMenuOpen((prev) => !prev);
+    setIsProductsMenuOpen((prev) => {
+      const nextState = !prev;
+
+      if (!nextState) {
+        setActiveProductsCategory("");
+      }
+
+      return nextState;
+    });
+  };
+
+  const openProductsMenu = () => {
+    setIsProductsMenuOpen(true);
+  };
+
+  const resolvedProductsCategory = useMemo(() => {
+    if (
+      activeProductsCategory &&
+      categoryDefinitions.some((category) => category.name === activeProductsCategory)
+    ) {
+      return activeProductsCategory;
+    }
+
+    return "";
+  }, [activeProductsCategory, categoryDefinitions]);
+
+  const activeCategoryData = categoryDefinitions.find(
+    (category) => category.name === resolvedProductsCategory,
+  );
+
+  const handleCategoryPanelToggle = (categoryName) => {
+    setActiveProductsCategory((currentCategory) =>
+      currentCategory === categoryName ? "" : categoryName,
+    );
   };
 
   const handleLogoutClick = () => {
@@ -107,52 +144,88 @@ const Header = ({
           >
             Inicio
           </button>
+          <button type="button" onClick={handleNavClick("destacados")}>
+            Destacados
+          </button>
+          <div
+            className="nav-dropdown"
+            onMouseEnter={openProductsMenu}
+            onMouseLeave={closeProductsMenu}
+          >
+            <button
+              type="button"
+              className={isActive("catalog") ? "active" : ""}
+              onClick={toggleProductsMenu}
+              aria-expanded={isProductsMenuOpen}
+            >
+              Productos
+            </button>
+
+            <div
+              className={`nav-dropdown__menu ${isProductsMenuOpen ? "open" : ""} ${activeCategoryData ? "has-detail" : ""}`}
+            >
+              <div className="nav-dropdown__panel nav-dropdown__panel--primary">
+                {categoryDefinitions.map((category) => (
+                  <button
+                    key={category.name}
+                    type="button"
+                    className={`nav-dropdown__item ${resolvedProductsCategory === category.name ? "is-active" : ""}`}
+                    onMouseEnter={() => setActiveProductsCategory(category.name)}
+                    onFocus={() => setActiveProductsCategory(category.name)}
+                    onClick={() => handleCategoryPanelToggle(category.name)}
+                  >
+                    <span>{category.name}</span>
+                    <span className="nav-dropdown__arrow" aria-hidden="true">
+                      {">"}
+                    </span>
+                  </button>
+                ))}
+              </div>
+
+              {activeCategoryData && (
+                <div className="nav-dropdown__panel nav-dropdown__panel--secondary">
+                  <button
+                    type="button"
+                    className="nav-dropdown__heading"
+                    onClick={handleNavClick(
+                      `/productos?categoria=${encodeURIComponent(activeCategoryData.name)}`,
+                    )}
+                  >
+                    {activeCategoryData.name}
+                  </button>
+                  <div className="nav-dropdown__subitems">
+                    {activeCategoryData.subcategories.map((subcategory) => (
+                      <button
+                        key={subcategory}
+                        type="button"
+                        className="nav-dropdown__subitem"
+                        onClick={handleNavClick(
+                          `/productos?categoria=${encodeURIComponent(activeCategoryData.name)}`,
+                        )}
+                      >
+                        {subcategory}
+                      </button>
+                    ))}
+                    <button
+                      type="button"
+                      className="nav-dropdown__subitem nav-dropdown__subitem--view-all"
+                      onClick={handleNavClick(
+                        `/productos?categoria=${encodeURIComponent(activeCategoryData.name)}`,
+                      )}
+                    >
+                      Ver todo {activeCategoryData.name}
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
           <button
             type="button"
             className={isActive("about") ? "active" : ""}
             onClick={handleNavClick("/nosotros")}
           >
             Nosotros
-          </button>
-          <div className="nav-dropdown">
-            {/* Este bloque abre un submenu con tipos de producto. */}
-            <button
-              type="button"
-              className={isActive("catalog") ? "active" : ""}
-              onClick={toggleProductsMenu}
-            >
-              Productos
-            </button>
-
-            <div
-              className={`nav-dropdown__menu ${isProductsMenuOpen ? "open" : ""}`}
-            >
-              {/* "Todos" limpia la categoria y muestra el catalogo completo. */}
-              <button type="button" onClick={handleNavClick("/productos")}>
-                Todos
-              </button>
-              {categoryDefinitions.map((category) => (
-                <div className="nav-dropdown__group" key={category.name}>
-                  <button
-                    type="button"
-                    className="nav-dropdown__title"
-                    onClick={handleNavClick(
-                      `/productos?categoria=${encodeURIComponent(category.name)}`,
-                    )}
-                  >
-                    {category.name}
-                  </button>
-                  <div className="nav-dropdown__tags">
-                    {category.subcategories.map((subcategory) => (
-                      <span key={subcategory}>{subcategory}</span>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-          <button type="button" onClick={handleNavClick("destacados")}>
-            Destacados
           </button>
           <button
             type="button"
@@ -200,7 +273,6 @@ const Header = ({
           <span id="cart-count">{cartCount}</span>
 
           <div className="cart-popup" onClick={(event) => event.stopPropagation()}>
-            {/* Este popup es un acceso rapido; el carrito completo vive en /carrito */}
             <button
               id="clear-cart"
               type="button"
