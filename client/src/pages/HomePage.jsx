@@ -34,6 +34,10 @@ const HomePage = ({
   const homeRef = useRef(null);
   const contentRef = useRef(null);
   const lenisRef = useRef(null);
+  const activeSectionRef = useRef("inicio");
+  const wheelLockRef = useRef(false);
+  const wheelDeltaRef = useRef(0);
+  const wheelResetTimeoutRef = useRef(null);
   const [activeSection, setActiveSection] = useState("inicio");
 
   const categoryShowcase = useMemo(
@@ -46,6 +50,10 @@ const HomePage = ({
   );
 
   const featuredRow = products.slice(0, 3);
+
+  useEffect(() => {
+    activeSectionRef.current = activeSection;
+  }, [activeSection]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -87,10 +95,10 @@ const HomePage = ({
     const lenis = new Lenis({
       wrapper,
       content,
-      duration: 1,
+      duration: 1.1,
       smoothWheel: true,
       syncTouch: true,
-      wheelMultiplier: 0.95,
+      wheelMultiplier: 0.9,
       touchMultiplier: 1,
     });
 
@@ -114,6 +122,93 @@ const HomePage = ({
     };
   }, []);
 
+  useEffect(() => {
+    const wrapper = homeRef.current;
+
+    if (!wrapper) {
+      return undefined;
+    }
+
+    const goToSection = (sectionId) => {
+      const targetSection = sectionRefs.current[sectionId];
+
+      if (!targetSection || !lenisRef.current) {
+        return;
+      }
+
+      lenisRef.current.scrollTo(targetSection, {
+        duration: 1.1,
+        easing: (value) => 1 - Math.pow(1 - value, 3),
+      });
+    };
+
+    const stepSection = (direction) => {
+      const currentIndex = sectionIds.findIndex(
+        (sectionId) => sectionId === activeSectionRef.current,
+      );
+
+      if (currentIndex === -1) {
+        return;
+      }
+
+      const nextIndex = Math.min(
+        Math.max(currentIndex + direction, 0),
+        sectionIds.length - 1,
+      );
+
+      if (nextIndex === currentIndex) {
+        return;
+      }
+
+      wheelLockRef.current = true;
+      wheelDeltaRef.current = 0;
+      goToSection(sectionIds[nextIndex]);
+
+      window.setTimeout(() => {
+        wheelLockRef.current = false;
+      }, 880);
+    };
+
+    const handleWheel = (event) => {
+      const isDesktop = window.matchMedia("(min-width: 961px)").matches;
+
+      if (!isDesktop) {
+        return;
+      }
+
+      event.preventDefault();
+
+      if (wheelLockRef.current) {
+        return;
+      }
+
+      wheelDeltaRef.current += event.deltaY;
+
+      if (wheelResetTimeoutRef.current) {
+        window.clearTimeout(wheelResetTimeoutRef.current);
+      }
+
+      wheelResetTimeoutRef.current = window.setTimeout(() => {
+        wheelDeltaRef.current = 0;
+      }, 140);
+
+      if (Math.abs(wheelDeltaRef.current) < 90) {
+        return;
+      }
+
+      stepSection(wheelDeltaRef.current > 0 ? 1 : -1);
+    };
+
+    wrapper.addEventListener("wheel", handleWheel, { passive: false });
+
+    return () => {
+      wrapper.removeEventListener("wheel", handleWheel);
+      if (wheelResetTimeoutRef.current) {
+        window.clearTimeout(wheelResetTimeoutRef.current);
+      }
+    };
+  }, []);
+
   const handleSectionJump = (sectionId) => {
     const targetSection = sectionRefs.current[sectionId];
 
@@ -122,7 +217,10 @@ const HomePage = ({
     }
 
     if (lenisRef.current) {
-      lenisRef.current.scrollTo(targetSection, { duration: 1 });
+      lenisRef.current.scrollTo(targetSection, {
+        duration: 1.1,
+        easing: (value) => 1 - Math.pow(1 - value, 3),
+      });
       return;
     }
 
