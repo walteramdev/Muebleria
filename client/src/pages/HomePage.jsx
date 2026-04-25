@@ -16,9 +16,9 @@ const backgroundImages = {
   hero:
     "https://wrfefas.my.canva.site/_assets/media/787090af7cd9a097a130f1f82951a959.jpg",
   collections:
-    "https://images.pexels.com/photos/29252626/pexels-photo-29252626.jpeg?auto=compress&cs=tinysrgb&w=1600",
+    "https://images.pexels.com/photos/29109688/pexels-photo-29109688.jpeg?auto=compress&cs=tinysrgb&w=1600",
   featured:
-    "https://images.pexels.com/photos/1537750/pexels-photo-1537750.jpeg?auto=compress&cs=tinysrgb&w=1600",
+    "https://images.pexels.com/photos/7539830/pexels-photo-7539830.jpeg?auto=compress&cs=tinysrgb&w=1600",
   manifesto:
     "https://images.pexels.com/photos/2983198/pexels-photo-2983198.jpeg?auto=compress&cs=tinysrgb&w=1600",
 };
@@ -56,6 +56,7 @@ const HomePage = ({
   }, [activeSection]);
 
   useEffect(() => {
+    const isDesktop = window.matchMedia("(min-width: 961px)").matches;
     const observer = new IntersectionObserver(
       (entries) => {
         const visibleEntry = entries
@@ -67,7 +68,7 @@ const HomePage = ({
         }
       },
       {
-        root: homeRef.current,
+        root: isDesktop ? homeRef.current : null,
         threshold: [0.45, 0.6, 0.78],
       },
     );
@@ -85,10 +86,11 @@ const HomePage = ({
   }, []);
 
   useEffect(() => {
+    const isDesktop = window.matchMedia("(min-width: 961px)").matches;
     const wrapper = homeRef.current;
     const content = contentRef.current;
 
-    if (!wrapper || !content) {
+    if (!wrapper || !content || !isDesktop) {
       return undefined;
     }
 
@@ -182,6 +184,11 @@ const HomePage = ({
         return;
       }
 
+      const isTouchpadLike =
+        event.deltaMode === 0 && Math.abs(event.deltaY) < 40;
+      const wheelThreshold = isTouchpadLike ? 34 : 90;
+      const resetDelay = isTouchpadLike ? 220 : 140;
+
       wheelDeltaRef.current += event.deltaY;
 
       if (wheelResetTimeoutRef.current) {
@@ -190,9 +197,9 @@ const HomePage = ({
 
       wheelResetTimeoutRef.current = window.setTimeout(() => {
         wheelDeltaRef.current = 0;
-      }, 140);
+      }, resetDelay);
 
-      if (Math.abs(wheelDeltaRef.current) < 90) {
+      if (Math.abs(wheelDeltaRef.current) < wheelThreshold) {
         return;
       }
 

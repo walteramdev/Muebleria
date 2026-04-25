@@ -246,23 +246,51 @@ function App() {
   const CatalogRoute = () => {
     const [searchParams] = useSearchParams();
     const selectedCategory = searchParams.get("categoria") || "Todos";
+    const selectedSubcategory = searchParams.get("subcategoria") || "";
 
     // Filtra en memoria los productos segun la categoria elegida en la URL.
     const visibleProducts = useMemo(() => {
-      if (selectedCategory === "Todos") {
-        return featuredProducts;
+      return featuredProducts.filter((item) => {
+        const categoryMatches =
+          selectedCategory === "Todos" ||
+          item.category.toLowerCase() === selectedCategory.toLowerCase();
+
+        const subcategoryMatches =
+          !selectedSubcategory ||
+          item.subcategory.toLowerCase() === selectedSubcategory.toLowerCase();
+
+        return categoryMatches && subcategoryMatches;
+      });
+    }, [selectedCategory, selectedSubcategory]);
+
+    const selectedCategoryDefinition = categoryDefinitions.find(
+      (category) => category.name.toLowerCase() === selectedCategory.toLowerCase(),
+    );
+
+    const availableSubcategories = selectedCategoryDefinition?.subcategories ?? [];
+
+    const handleSubcategorySelect = (subcategory) => {
+      if (!selectedCategoryDefinition) {
+        return;
       }
 
-      return featuredProducts.filter(
-        (item) => item.category.toLowerCase() === selectedCategory.toLowerCase(),
+      if (!subcategory) {
+        navigate(`/productos?categoria=${encodeURIComponent(selectedCategoryDefinition.name)}`);
+        return;
+      }
+
+      navigate(
+        `/productos?categoria=${encodeURIComponent(selectedCategoryDefinition.name)}&subcategoria=${encodeURIComponent(subcategory)}`,
       );
-    }, [selectedCategory]);
+    };
 
     return (
       <CatalogPage
         categoryDefinitions={categoryDefinitions}
         products={visibleProducts}
         selectedCategory={selectedCategory}
+        selectedSubcategory={selectedSubcategory}
+        availableSubcategories={availableSubcategories}
         categories={["Todos", ...productTypes]}
         onSelectProduct={handleSelectProduct}
         onAddToCart={handleAddToCart}
@@ -274,6 +302,7 @@ function App() {
 
           navigate(`/productos?categoria=${encodeURIComponent(category)}`);
         }}
+        onSubcategorySelect={handleSubcategorySelect}
       />
     );
   };
@@ -360,7 +389,11 @@ function App() {
           }
         />
       </Routes>
-      {location.pathname !== "/" && <Footer />}
+        {location.pathname !== "/" && location.pathname !== "/contacto" && (
+          <div className="shared-footer-shell">
+            <Footer variant="immersive" />
+          </div>
+        )}
     </>
   );
 }
