@@ -1,0 +1,11 @@
+{
+  "css.validate": false,
+  "css.lint.unknownProperties": "ignore",
+  "css.customData": [
+    ".vscode/css-custom-data.json"
+  ],
+  "css.lint.validProperties": [
+    "backdrop-filter",
+    "-webkit-backdrop-filter"
+  ]
+}

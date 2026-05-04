@@ -1,14 +1,14 @@
-import "../styles/Footer.css";
+import "../css/footer.css";
 const Footer = () => {
   return (
-    <footer className="env-footer">
+    <footer className={`env-footer env-footer--${variant}`}>
       <div className="showroom-taller">
-        <h3 className="destacado">Showroom y Taller 🛠️</h3>
-        <p className="sub">Hermanos Jota — Casa Taller</p>
+        <h3 className="destacado">Showroom y Taller</h3>
+        <p className="sub">Chenille - Casa Taller</p>
         <p className="datos">
           Av. San Juan 2847 <br />
-          C1232AAB — Barrio de San Cristóbal <br />
-          Ciudad Autónoma de Buenos Aires, Argentina
+          C1232AAB - Barrio de San Cristobal <br />
+          Ciudad Autonoma de Buenos Aires, Argentina
         </p>
 
         <br />
@@ -16,28 +16,20 @@ const Footer = () => {
         <p className="sub">Horarios:</p>
         <p className="datos">
           Lunes a Viernes: 10:00 - 19:00 <br />
-          Sábados: 10:00 - 14:00
+          Sabados: 10:00 - 14:00
         </p>
       </div>
 
       <div className="contacto-digital">
-        <h3 className="destacado">Contacto Digital 📱</h3>
+        <h3 className="destacado">Contacto Digital</h3>
 
-        <a
-          className="link-web"
-          href="index.html"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Sitio Web: www.hermanosjota.com.ar
+        <a className="link-web" href="#inicio">
+          Sitio Web: www.chenille.com.ar
         </a>
 
-        <p className="datos">Email General: info@hermanosjota.com.ar</p>
-
-        <p className="datos">Ventas: ventas@hermanosjota.com.ar</p>
-
-        <p className="datos">Instagram: @hermanosjota_ba</p>
-
+        <p className="datos">Email General: hola@chenille.com.ar</p>
+        <p className="datos">Ventas: ventas@chenille.com.ar</p>
+        <p className="datos">Instagram: @chenille.muebles</p>
         <p className="datos">WhatsApp: +54 11 4567-8900</p>
       </div>
     </footer>
