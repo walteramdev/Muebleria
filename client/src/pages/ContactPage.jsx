@@ -1,5 +1,5 @@
 import { useState } from "react";
-import Footer from "../components/Footer";
+import Footer from "../layouts/Footer";
 
 const ContactPage = () => {
   const contactHeroImage =
@@ -105,7 +105,10 @@ const ContactPage = () => {
               />
             </label>
 
-            <button type="submit" className="btn-primary contact-hero-form__submit">
+            <button
+              type="submit"
+              className="btn-primary contact-hero-form__submit"
+            >
               Enviar consulta
             </button>
           </form>

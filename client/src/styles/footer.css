@@ -7,7 +7,11 @@
   padding: 32px;
   border-radius: 28px;
   border: 1px solid rgba(20, 17, 15, 0.1);
-  background: linear-gradient(180deg, rgba(255, 253, 249, 0.95), rgba(241, 231, 222, 0.92));
+  background: linear-gradient(
+    180deg,
+    rgba(255, 253, 249, 0.95),
+    rgba(241, 231, 222, 0.92)
+  );
   box-shadow: 0 24px 48px rgba(24, 21, 19, 0.08);
   box-sizing: border-box;
 }

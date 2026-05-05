@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import "../css/header.css";
+import "../styles/header.css";
 
 const Header = ({
   onNavigate = () => {},
@@ -319,7 +319,10 @@ const Header = ({
 
             <span id="cart-count">{cartCount}</span>
 
-            <div className="cart-popup" onClick={(event) => event.stopPropagation()}>
+            <div
+              className="cart-popup"
+              onClick={(event) => event.stopPropagation()}
+            >
               <button
                 id="clear-cart"
                 type="button"
@@ -356,10 +359,14 @@ const Header = ({
             onClick={toggleMobileProducts}
           >
             <span>Productos</span>
-            <span className="mobile-products__icon">{isMobileProductsOpen ? "−" : "+"}</span>
+            <span className="mobile-products__icon">
+              {isMobileProductsOpen ? "−" : "+"}
+            </span>
           </button>
 
-          <div className={`mobile-products__list ${isMobileProductsOpen ? "open" : ""}`}>
+          <div
+            className={`mobile-products__list ${isMobileProductsOpen ? "open" : ""}`}
+          >
             <button type="button" onClick={handleNavClick("/productos")}>
               Ver todo
             </button>

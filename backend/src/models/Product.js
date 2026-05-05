@@ -44,7 +44,7 @@ const productSchema = new mongoose.Schema(
         "frontSuspension",
         "rearSuspension",
         "brakes",
-      ],
+      ], //sub categoriia
     },
     //revisar
     features: {

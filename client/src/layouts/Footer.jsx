@@ -1,5 +1,7 @@
-import "../css/footer.css";
-const Footer = () => {
+import React from "react";
+import "../styles/footer.css";
+
+const Footer = ({ variant }) => {
   return (
     <footer className={`env-footer env-footer--${variant}`}>
       <div className="showroom-taller">
