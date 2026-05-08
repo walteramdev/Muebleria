@@ -44,7 +44,7 @@ const CatalogPageContent = ({
   availableSubcategories = [],
   categories = [],
   onSelectProduct = () => {},
-  onAddToCart = () => {},
+  // onAddToCart = () => {},
   onCategorySelect = () => {},
   onSubcategorySelect = () => {},
 }) => {
@@ -192,6 +192,7 @@ const CatalogPageContent = ({
                     >
                       Ver detalle
                     </button>
+                    {/*
                     <button
                       type="button"
                       className="btn-primary"
@@ -199,6 +200,7 @@ const CatalogPageContent = ({
                     >
                       Agregar
                     </button>
+                    */}
                   </div>
                 </div>
               </article>

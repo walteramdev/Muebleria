@@ -1,7 +1,7 @@
 const ProductDetailPage = ({
   product,
   onBack = () => {},
-  onAddToCart = () => {},
+  // onAddToCart = () => {},
 }) => {
   const formatPrice = (value) =>
     new Intl.NumberFormat("es-AR", {
@@ -60,6 +60,7 @@ const ProductDetailPage = ({
           </div>
 
           <div className="detail-actions">
+            {/*
             <button
               type="button"
               className="btn-primary"
@@ -67,6 +68,7 @@ const ProductDetailPage = ({
             >
               Agregar al carrito
             </button>
+            */}
             <button type="button" className="btn-secondary" onClick={onBack}>
               Seguir mirando
             </button>

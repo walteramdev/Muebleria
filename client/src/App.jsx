@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo } from "react"; // el useState lo borré pero se puede volver a colocar si se quiere usar el carrito en frontend sin backend real
 import {
   Routes,
   Route,
@@ -12,7 +12,7 @@ import Footer from "./components/Footer";
 import HomePage from "./pages/HomePage.jsx";
 import CatalogPage from "./pages/CatalogPage.jsx";
 import ProductDetailPage from "./pages/ProductDetailPage.jsx";
-import CartPage from "./pages/CartPage.jsx";
+// import CartPage from "./pages/CartPage.jsx";
 import AboutPage from "./pages/AboutPage.jsx";
 import ContactPage from "./pages/ContactPage.jsx";
 
@@ -151,9 +151,12 @@ const featuredProducts = [
 function App() {
   const navigate = useNavigate();
   const location = useLocation();
+  /*
   // Aca guardamos el carrito completo mientras no exista persistencia real.
   const [cartItems, setCartItems] = useState([]);
+  */
 
+  /*
   // Convierte un numero en formato de precio argentino para mostrarlo en pantalla.
   const formatPrice = (value) =>
     new Intl.NumberFormat("es-AR", {
@@ -161,6 +164,7 @@ function App() {
       currency: "ARS",
       maximumFractionDigits: 0,
     }).format(value);
+  */
 
   const handleNavigate = (destination) => {
     // Si recibe una ruta, navega a otra pagina.
@@ -190,6 +194,7 @@ function App() {
     navigate(`/productos/${product._id}`);
   };
 
+  /*
   const handleAddToCart = (product) => {
     setCartItems((prev) => {
       const existingItem = prev.find((item) => item._id === product._id);
@@ -228,6 +233,7 @@ function App() {
   const handleRemoveItem = (productId) => {
     setCartItems((prev) => prev.filter((item) => item._id !== productId));
   };
+  */
 
   const ProductDetailRoute = () => {
     const { id } = useParams();
@@ -238,7 +244,6 @@ function App() {
       <ProductDetailPage
         product={product}
         onBack={() => navigate("/productos")}
-        onAddToCart={handleAddToCart}
       />
     );
   };
@@ -293,7 +298,6 @@ function App() {
         availableSubcategories={availableSubcategories}
         categories={["Todos", ...productTypes]}
         onSelectProduct={handleSelectProduct}
-        onAddToCart={handleAddToCart}
         onCategorySelect={(category) => {
           if (category === "Todos") {
             navigate("/productos");
@@ -307,11 +311,13 @@ function App() {
     );
   };
 
+  /*
   const cartCount = cartItems.reduce((total, item) => total + item.quantity, 0);
   const cartTotal = cartItems.reduce(
     (total, item) => total + item.price * item.quantity,
     0,
   );
+  */
 
   return (
     <>
@@ -328,15 +334,10 @@ function App() {
                 ? "about"
                 : location.pathname === "/contacto"
                   ? "contact"
-              : location.pathname === "/carrito"
-                ? "cart"
-              : ""
+                  : ""
         }
-        cartCount={cartCount}
-        cartEnabled={false}
+        cartEnabled={true}
         isOverlay
-        onClearCart={handleClearCart}
-        onViewCart={() => navigate("/carrito")}
       />
       <Routes>
         {/* Home principal */}
@@ -361,7 +362,7 @@ function App() {
         <Route path="/contacto" element={<ContactPage />} />
         {/* Detalle individual de cada producto */}
         <Route path="/productos/:id" element={<ProductDetailRoute />} />
-        {/* Resumen del carrito */}
+        {/*
         <Route
           path="/carrito"
           element={
@@ -375,6 +376,7 @@ function App() {
             />
           }
         />
+        */}
         {/* Cualquier ruta desconocida vuelve a la home por ahora */}
         <Route
           path="*"
