@@ -1,4 +1,4 @@
-import "../css/footer.css";
+import "../styles/footer.css";
 
 const Footer = ({ variant = "default" }) => {
   return (

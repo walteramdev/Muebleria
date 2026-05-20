@@ -7,21 +7,28 @@ const userSchema = new mongoose.Schema(
       trim: true,
       required: true,
       unique: true,
+      index: true,
     },
     email: {
       type: String,
       trim: true,
       required: true,
       unique: true,
+      index: true,
     },
     password: {
       type: String,
       required: true,
+      password: { select: false },
     },
-    rol: {
-      type: [String],
-      enum: ["client", "admin"],
-      default: ["client"],
+    role: {
+      type: String,
+      enum: ["client", , "employee", "admin"],
+      default: "client",
+    },
+    isActive: {
+      type: Boolean,
+      default: true,
     },
     isDeleted: { type: Boolean, default: false },
     deletedAt: { type: Date, default: null },
