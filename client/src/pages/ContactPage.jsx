@@ -1,5 +1,5 @@
 import { useState } from "react";
-import Footer from "../components/Footer";
+import Footer from "../layouts/Footer";
 
 const ContactPage = () => {
   const contactHeroImage =
