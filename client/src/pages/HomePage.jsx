@@ -6,12 +6,7 @@ import CollectionsSection from "../components/home/CollectionsSection";
 import FeaturedSection from "../components/home/FeaturedSection";
 import ManifestoSection from "../components/home/ManifestoSection";
 
-const formatPrice = (value) =>
-  new Intl.NumberFormat("es-AR", {
-    style: "currency",
-    currency: "ARS",
-    maximumFractionDigits: 0,
-  }).format(value);
+import { formatPrice } from "../utils/formatters.js";
 
 const sectionIds = ["inicio", "colecciones", "destacados", "manifiesto", "cierre"];
 const indicatorIds = sectionIds.slice(0, 4);
@@ -40,6 +35,36 @@ const backgroundImages = {
     "https://images.pexels.com/photos/7539830/pexels-photo-7539830.jpeg?auto=compress&cs=tinysrgb&w=1600",
   manifesto:
     "https://images.pexels.com/photos/2983198/pexels-photo-2983198.jpeg?auto=compress&cs=tinysrgb&w=1600",
+};
+
+const slideConfig = {
+  Comedor: {
+    label: "Coleccion Comedor",
+    title: "El lugar donde\nse comparte todo",
+    description:
+      "Mesas, sillas y apoyos pensados para encuentros largos, sobremesas tranquilas y rituales cotidianos con calidez.",
+    background: collectionSharedBackground,
+    imagePanel: collectionSharedBackground,
+    accent: "#c8814a",
+  },
+  Living: {
+    label: "Coleccion Living",
+    title: "Diseñado para\nvivir de verdad",
+    description:
+      "Sillones, consolas y piezas nobles para recibir, descansar y construir una escena serena todos los dias.",
+    background: collectionSharedBackground,
+    imagePanel: collectionSharedBackground,
+    accent: "#c8814a",
+  },
+  Dormitorio: {
+    label: "Coleccion Dormitorio",
+    title: "Descanso con\ncarácter propio",
+    description:
+      "Respaldos, mesas de luz y comodas que abrigan el descanso con una presencia suave, intima y funcional.",
+    background: collectionSharedBackground,
+    imagePanel: collectionSharedBackground,
+    accent: "#c8814a",
+  },
 };
 
 const HomePage = ({
@@ -74,35 +99,6 @@ const HomePage = ({
   );
 
   const collectionHeroSlides = useMemo(() => {
-    const slideConfig = {
-      Comedor: {
-        label: "Coleccion Comedor",
-        title: "El lugar donde\nse comparte todo",
-        description:
-          "Mesas, sillas y apoyos pensados para encuentros largos, sobremesas tranquilas y rituales cotidianos con calidez.",
-        background: collectionSharedBackground,
-        imagePanel: collectionSharedBackground,
-        accent: "#c8814a",
-      },
-      Living: {
-        label: "Coleccion Living",
-        title: "Diseñado para\nvivir de verdad",
-        description:
-          "Sillones, consolas y piezas nobles para recibir, descansar y construir una escena serena todos los dias.",
-        background: collectionSharedBackground,
-        imagePanel: collectionSharedBackground,
-        accent: "#c8814a",
-      },
-      Dormitorio: {
-        label: "Coleccion Dormitorio",
-        title: "Descanso con\ncarácter propio",
-        description:
-          "Respaldos, mesas de luz y comodas que abrigan el descanso con una presencia suave, intima y funcional.",
-        background: collectionSharedBackground,
-        imagePanel: collectionSharedBackground,
-        accent: "#c8814a",
-      },
-    };
 
     return ["Comedor", "Living", "Dormitorio"]
       .map((categoryName) => {

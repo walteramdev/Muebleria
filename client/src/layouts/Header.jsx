@@ -9,7 +9,6 @@ const Header = ({
   currentUser = null,
   onLogout = () => {},
 }) => {
-  // const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [isProductsMenuOpen, setIsProductsMenuOpen] = useState(false);
   const [isHeaderVisible, setIsHeaderVisible] = useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -87,30 +86,6 @@ const Header = ({
     [],
   );
 
-  /*
-  const toggleCartPopup = (open) => {
-    if (typeof open === "boolean") {
-      setIsPopupOpen(open);
-      return;
-    }
-    setIsPopupOpen((prev) => !prev);
-  };
-
-  const handleClearCart = (event) => {
-    event.stopPropagation();
-    onClearCart();
-    toggleCartPopup(false);
-  };
-
-  const handleCheckout = (event) => {
-    event.stopPropagation();
-    if (!cartEnabled) {
-      return;
-    }
-    onViewCart();
-    toggleCartPopup(false);
-  };
-  */
 
   const clearProductsMenuCloseTimeout = () => {
     if (closeProductsMenuTimeoutRef.current) {
@@ -299,58 +274,6 @@ const Header = ({
             </a>
           </div>
 
-          {/*
-          <div
-            className={`cart ${isPopupOpen ? "open" : ""} ${cartEnabled ? "" : "is-disabled"}`}
-            onClick={() => {
-              if (!cartEnabled) {
-                return;
-              }
-              toggleCartPopup();
-            }}
-          >
-            <span className="icono-carro" aria-hidden="true">
-              <svg
-                viewBox="0 0 24 24"
-                role="img"
-                aria-hidden="true"
-                focusable="false"
-              >
-                <path
-                  d="M3 5h2l1.2 6.2A2 2 0 0 0 8.2 13H17a2 2 0 0 0 1.9-1.4L20.7 6H7.1"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.8"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-                <circle cx="9" cy="18.5" r="1.5" fill="currentColor" />
-                <circle cx="17" cy="18.5" r="1.5" fill="currentColor" />
-              </svg>
-            </span>
-
-            <span id="cart-count">{cartCount}</span>
-
-            <div className="cart-popup" onClick={(event) => event.stopPropagation()}>
-              <button
-                id="clear-cart"
-                type="button"
-                className="popup-btn"
-                onClick={handleClearCart}
-              >
-                Vaciar carrito
-              </button>
-              <button
-                id="checkout"
-                type="button"
-                className="popup-btn"
-                onClick={handleCheckout}
-              >
-                Ver carrito
-              </button>
-            </div>
-          </div>
-          */}
         </div>
       </header>
 
