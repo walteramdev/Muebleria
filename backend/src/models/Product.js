@@ -9,6 +9,11 @@ const productSchema = new mongoose.Schema(
       unique: true,
     },
     name: { type: String, trim: true, required: true },
+    shortDescription: {
+      type: String,
+      trim: true,
+      required: [true, "La descripción resumida es obligatoria."],
+    },
     description: {
       type: String,
       trim: true,
@@ -27,24 +32,18 @@ const productSchema = new mongoose.Schema(
     brand: {
       type: String,
       trim: true,
-      required: true,
+      // required: true,
     },
     //Hacer un schema
     supplier: {
       type: String,
       trim: true,
-      required: true,
+      // required: true,
     },
     //modificar
     category: {
       type: String,
-      enum: [
-        "engine",
-        "lighting",
-        "frontSuspension",
-        "rearSuspension",
-        "brakes",
-      ], //sub categoriia
+      enum: ["Living", "Comedor", "Dormitorio"], //sub categoriia
     },
     //revisar
     features: {
@@ -69,10 +68,25 @@ const productSchema = new mongoose.Schema(
       regulación: { type: String, trim: true },
       caracteristica: { type: String, trim: true },
     },
-    imagenUrl: {
-      type: String,
-      trim: true,
-      required: [true, "La imagen es obligatoria."],
+    images: {
+      type: [
+        {
+          url: {
+            type: String,
+            required: true,
+          },
+          public_id: {
+            type: String,
+            required: true,
+          },
+        },
+      ],
+      validate: {
+        validator: function (value) {
+          return value.length > 0;
+        },
+        message: "Debe haber al menos una imagen.",
+      },
     },
     isDeleted: { type: Boolean, default: false },
     deletedAt: { type: Date, default: null },
