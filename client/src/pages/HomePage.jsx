@@ -1,13 +1,12 @@
-﻿import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Lenis from "lenis";
 import Footer from "../layouts/Footer";
+import HeroSection from "../components/home/HeroSection";
+import CollectionsSection from "../components/home/CollectionsSection";
+import FeaturedSection from "../components/home/FeaturedSection";
+import ManifestoSection from "../components/home/ManifestoSection";
 
-const formatPrice = (value) =>
-  new Intl.NumberFormat("es-AR", {
-    style: "currency",
-    currency: "ARS",
-    maximumFractionDigits: 0,
-  }).format(value);
+import { formatPrice } from "../utils/formatters.js";
 
 const sectionIds = [
   "inicio",
@@ -17,6 +16,22 @@ const sectionIds = [
   "cierre",
 ];
 const indicatorIds = sectionIds.slice(0, 4);
+const featuredMarqueeItems = [
+  "Envios a todo el pais",
+  "Financiacion en cuotas",
+  "Madera maciza certificada",
+  "Fabricacion artesanal",
+  "Atencion personalizada",
+];
+const collectionSharedBackground =
+  "linear-gradient(180deg, #14110f 0%, #211b18 100%)";
+const chunkItems = (items, size) =>
+  items.reduce((groups, item, index) => {
+    if (index % size === 0) {
+      groups.push(items.slice(index, index + size));
+    }
+    return groups;
+  }, []);
 
 const backgroundImages = {
   hero: "https://wrfefas.my.canva.site/_assets/media/787090af7cd9a097a130f1f82951a959.jpg",
@@ -26,6 +41,36 @@ const backgroundImages = {
     "https://images.pexels.com/photos/7539830/pexels-photo-7539830.jpeg?auto=compress&cs=tinysrgb&w=1600",
   manifesto:
     "https://images.pexels.com/photos/2983198/pexels-photo-2983198.jpeg?auto=compress&cs=tinysrgb&w=1600",
+};
+
+const slideConfig = {
+  Comedor: {
+    label: "Coleccion Comedor",
+    title: "El lugar donde\nse comparte todo",
+    description:
+      "Mesas, sillas y apoyos pensados para encuentros largos, sobremesas tranquilas y rituales cotidianos con calidez.",
+    background: collectionSharedBackground,
+    imagePanel: collectionSharedBackground,
+    accent: "#c8814a",
+  },
+  Living: {
+    label: "Coleccion Living",
+    title: "Diseñado para\nvivir de verdad",
+    description:
+      "Sillones, consolas y piezas nobles para recibir, descansar y construir una escena serena todos los dias.",
+    background: collectionSharedBackground,
+    imagePanel: collectionSharedBackground,
+    accent: "#c8814a",
+  },
+  Dormitorio: {
+    label: "Coleccion Dormitorio",
+    title: "Descanso con\ncarácter propio",
+    description:
+      "Respaldos, mesas de luz y comodas que abrigan el descanso con una presencia suave, intima y funcional.",
+    background: collectionSharedBackground,
+    imagePanel: collectionSharedBackground,
+    accent: "#c8814a",
+  },
 };
 
 const HomePage = ({
@@ -39,11 +84,16 @@ const HomePage = ({
   const homeRef = useRef(null);
   const contentRef = useRef(null);
   const lenisRef = useRef(null);
+  const collectionTouchStartRef = useRef(null);
   const activeSectionRef = useRef("inicio");
   const wheelLockRef = useRef(false);
   const wheelDeltaRef = useRef(0);
   const wheelResetTimeoutRef = useRef(null);
   const [activeSection, setActiveSection] = useState("inicio");
+  const [carouselItemsPerSlide, setCarouselItemsPerSlide] = useState(() =>
+    typeof window !== "undefined" && window.innerWidth <= 960 ? 2 : 4,
+  );
+  const [activeCollectionSlide, setActiveCollectionSlide] = useState(0);
 
   const categoryShowcase = useMemo(
     () =>
@@ -56,7 +106,64 @@ const HomePage = ({
     [categoryDefinitions, products],
   );
 
-  const featuredRow = products.slice(0, 3);
+  const collectionHeroSlides = useMemo(() => {
+    return ["Comedor", "Living", "Dormitorio"]
+      .map((categoryName) => {
+        const category = categoryShowcase.find(
+          (item) => item.name === categoryName,
+        );
+        const config = slideConfig[categoryName];
+
+        if (!category || !config) {
+          return null;
+        }
+
+        return {
+          ...config,
+          key: categoryName,
+          categoryName,
+          image:
+            category.featuredProduct?.imagenUrl || backgroundImages.collections,
+          subcategories: category.subcategories,
+        };
+      })
+      .filter(Boolean);
+  }, [categoryShowcase]);
+
+  const featuredSlides = useMemo(
+    () => chunkItems(products.slice(0, 8), carouselItemsPerSlide),
+    [products, carouselItemsPerSlide],
+  );
+  const activeCollection = collectionHeroSlides[activeCollectionSlide] || null;
+
+  useEffect(() => {
+    const updateItemsPerSlide = () => {
+      setCarouselItemsPerSlide(window.innerWidth <= 960 ? 2 : 4);
+    };
+
+    updateItemsPerSlide();
+    window.addEventListener("resize", updateItemsPerSlide);
+
+    return () => {
+      window.removeEventListener("resize", updateItemsPerSlide);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (collectionHeroSlides.length <= 1) {
+      return undefined;
+    }
+
+    const intervalId = window.setInterval(() => {
+      setActiveCollectionSlide(
+        (current) => (current + 1) % collectionHeroSlides.length,
+      );
+    }, 5000);
+
+    return () => {
+      window.clearInterval(intervalId);
+    };
+  }, [collectionHeroSlides.length]);
 
   useEffect(() => {
     activeSectionRef.current = activeSection;
@@ -244,6 +351,55 @@ const HomePage = ({
     targetSection.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
+  const handleCollectionPrev = () => {
+    if (!collectionHeroSlides.length) {
+      return;
+    }
+
+    setActiveCollectionSlide((current) =>
+      current === 0 ? collectionHeroSlides.length - 1 : current - 1,
+    );
+  };
+
+  const handleCollectionNext = () => {
+    if (!collectionHeroSlides.length) {
+      return;
+    }
+
+    setActiveCollectionSlide(
+      (current) => (current + 1) % collectionHeroSlides.length,
+    );
+  };
+
+  const handleCollectionTouchStart = (event) => {
+    collectionTouchStartRef.current = event.changedTouches[0]?.clientX ?? null;
+  };
+
+  const handleCollectionTouchEnd = (event) => {
+    const startX = collectionTouchStartRef.current;
+    const endX = event.changedTouches[0]?.clientX ?? null;
+
+    if (startX === null || endX === null) {
+      collectionTouchStartRef.current = null;
+      return;
+    }
+
+    const deltaX = endX - startX;
+
+    if (Math.abs(deltaX) < 50) {
+      collectionTouchStartRef.current = null;
+      return;
+    }
+
+    if (deltaX < 0) {
+      handleCollectionNext();
+    } else {
+      handleCollectionPrev();
+    }
+
+    collectionTouchStartRef.current = null;
+  };
+
   return (
     <main className="home-page home-page--immersive" ref={homeRef}>
       <nav className="home-side-nav" aria-label="Secciones del inicio">
@@ -259,83 +415,46 @@ const HomePage = ({
       </nav>
 
       <div className="home-page__scroll-content" ref={contentRef}>
-        <section
-          ref={(element) => {
+        <HeroSection
+          sectionRef={(element) => {
             sectionRefs.current.inicio = element;
           }}
-          className="home-screen home-screen--hero"
-          id="inicio"
-          style={{ "--screen-background": `url(${backgroundImages.hero})` }}
-        >
-          <div className="home-screen__overlay home-screen__overlay--hero" />
-          <div className="home-screen__content home-screen__content--hero">
-            <div className="home-immersive-hero__copy">
-              <p className="eyebrow eyebrow--light">
-                Chenille Casa y Mobiliario
-              </p>
-              <span className="hero-kicker">
-                Coleccion curada para el hogar
-              </span>
-              <h1>Muebles pensados para habitar con calma</h1>
-              <p className="home-immersive-hero__text">
-                Piezas contemporaneas para living, comedor y dormitorio, con una
-                seleccion pensada para espacios serenos, funcionales y propios.
-              </p>
-              <div className="home-immersive-hero__actions">
-                <a className="hero-shop-button" href="/productos">
-                  Ver coleccion
-                </a>
-              </div>
-            </div>
-          </div>
-        </section>
+          backgroundImage={backgroundImages.hero}
+        />
 
-        <section
-          ref={(element) => {
+        <CollectionsSection
+          sectionRef={(element) => {
             sectionRefs.current.colecciones = element;
           }}
-          className="home-screen home-screen--collections"
-          id="colecciones"
-          style={{
-            "--screen-background": `url(${backgroundImages.collections})`,
-          }}
-        >
-          <div className="home-screen__overlay" />
-          <div className="home-screen__content home-screen__content--wide is-active-panel">
-            <div className="screen-heading screen-heading--light screen-heading--compact">
-              <p className="eyebrow eyebrow--light">Colecciones</p>
-              <h2>Tres atmósferas para habitar la casa.</h2>
-            </div>
+          onTouchStart={handleCollectionTouchStart}
+          onTouchEnd={handleCollectionTouchEnd}
+          activeCollection={activeCollection}
+          activeCollectionSlide={activeCollectionSlide}
+          collectionHeroSlides={collectionHeroSlides}
+          setActiveCollectionSlide={setActiveCollectionSlide}
+          handleCollectionPrev={handleCollectionPrev}
+          handleCollectionNext={handleCollectionNext}
+        />
 
-            <div className="category-spotlight-row">
-              {categoryShowcase.map((category) => (
-                <article
-                  className="category-spotlight-card"
-                  key={category.name}
-                >
-                  <div className="category-spotlight-card__media">
-                    <img
-                      src={
-                        category.featuredProduct?.imagenUrl ||
-                        backgroundImages.collections
-                      }
-                      alt={category.name}
-                    />
-                  </div>
-                  <div className="category-spotlight-card__body">
-                    <h3>{category.name}</h3>
-                    <p>{category.shortDescription}</p>
-                    <ul className="category-spotlight-card__tags">
-                      {category.subcategories.map((subcategory) => (
-                        <li key={subcategory}>{subcategory}</li>
-                      ))}
-                    </ul>
-                  </div>
-                </article>
-              ))}
-            </div>
-          </div>
-        </section>
+        <FeaturedSection
+          sectionRef={(element) => {
+            sectionRefs.current.destacados = element;
+          }}
+          backgroundImage={backgroundImages.featured}
+          featuredMarqueeItems={featuredMarqueeItems}
+          isLoading={isLoading}
+          error={error}
+          featuredSlides={featuredSlides}
+          formatPrice={formatPrice}
+          onSelectProduct={onSelectProduct}
+        />
+
+        <ManifestoSection
+          sectionRef={(element) => {
+            sectionRefs.current.manifiesto = element;
+          }}
+          backgroundImage={backgroundImages.manifesto}
+        />
 
         <section
           ref={(element) => {

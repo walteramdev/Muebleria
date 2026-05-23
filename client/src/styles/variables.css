@@ -1,0 +1,52 @@
+:root {
+  --color-background: #f7efe5;
+  --color-surface: #fffaf4;
+  --color-surface-muted: #f1e3d1;
+  --color-primary: #6f4e37;
+  --color-primary-muted: #d9b382;
+  --color-secondary: #9f5f2b;
+  --color-accent: #d4a537;
+  --color-ink: #2d2a26;
+  --color-ink-soft: #5f584f;
+  --color-success: #607744;
+  --color-rose: #b66a55;
+  --radius-lg: 28px;
+  --radius-md: 18px;
+  --radius-sm: 12px;
+  --font-display: Georgia, "Times New Roman", serif;
+  --font-sans: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  color: var(--color-ink);
+  background:
+    radial-gradient(circle at top, rgba(212, 165, 55, 0.18), transparent 30%),
+    linear-gradient(180deg, #fbf5ee 0%, #f6ecdf 100%);
+}
+
+:root {
+  --color-background: #f6f1ed;
+  --color-surface: #fffdf9;
+  --color-surface-muted: #ece3db;
+  --color-primary: #14110f;
+  --color-primary-muted: #dbd0c7;
+  --color-secondary: #6c5b4f;
+  --color-accent: #c49a72;
+  --color-ink: #181513;
+  --color-ink-soft: #65584d;
+  --color-rose: #a45a47;
+}
+
+body {
+  background: linear-gradient(180deg, #f6f1ed 0%, #f3ece5 100%);
+}

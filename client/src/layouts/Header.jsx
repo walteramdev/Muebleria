@@ -1,29 +1,37 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import "../styles/header.css";
 
 const Header = ({
   onNavigate = () => {},
   categoryDefinitions = [],
   activeView = "home",
-  cartCount = 0,
-  cartEnabled = true,
   isOverlay = false,
-  onClearCart = () => {},
-  onViewCart = () => {},
   currentUser = null,
   onLogout = () => {},
 }) => {
-  const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [isProductsMenuOpen, setIsProductsMenuOpen] = useState(false);
   const [isHeaderVisible, setIsHeaderVisible] = useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMobileProductsOpen, setIsMobileProductsOpen] = useState(false);
+  const [headerHeight, setHeaderHeight] = useState(0);
+  const headerRef = useRef(null);
+  const closeProductsMenuTimeoutRef = useRef(null);
 
   useEffect(() => {
-    let lastScrollY = window.scrollY;
+    const scrollContainer =
+      activeView === "home"
+        ? document.querySelector(".home-page--immersive")
+        : window;
+
+    const getScrollTop = () =>
+      scrollContainer === window
+        ? window.scrollY
+        : (scrollContainer?.scrollTop ?? 0);
+
+    let lastScrollY = getScrollTop();
 
     const handleScroll = () => {
-      const currentScrollY = window.scrollY;
+      const currentScrollY = getScrollTop();
 
       if (currentScrollY <= 24) {
         setIsHeaderVisible(true);
@@ -40,38 +48,66 @@ const Header = ({
       lastScrollY = currentScrollY;
     };
 
-    window.addEventListener("scroll", handleScroll, { passive: true });
+    scrollContainer?.addEventListener("scroll", handleScroll, {
+      passive: true,
+    });
 
     return () => {
-      window.removeEventListener("scroll", handleScroll);
+      scrollContainer?.removeEventListener("scroll", handleScroll);
+    };
+  }, [activeView]);
+
+  useEffect(() => {
+    const updateHeaderHeight = () => {
+      setHeaderHeight(headerRef.current?.offsetHeight ?? 0);
+    };
+
+    updateHeaderHeight();
+
+    const resizeObserver =
+      typeof ResizeObserver !== "undefined"
+        ? new ResizeObserver(updateHeaderHeight)
+        : null;
+
+    if (headerRef.current && resizeObserver) {
+      resizeObserver.observe(headerRef.current);
+    }
+
+    window.addEventListener("resize", updateHeaderHeight);
+
+    return () => {
+      resizeObserver?.disconnect();
+      window.removeEventListener("resize", updateHeaderHeight);
     };
   }, []);
 
-  const toggleCartPopup = (open) => {
-    if (typeof open === "boolean") {
-      setIsPopupOpen(open);
-      return;
-    }
-    setIsPopupOpen((prev) => !prev);
-  };
+  useEffect(
+    () => () => {
+      if (closeProductsMenuTimeoutRef.current) {
+        window.clearTimeout(closeProductsMenuTimeoutRef.current);
+      }
+    },
+    [],
+  );
 
-  const handleClearCart = (event) => {
-    event.stopPropagation();
-    onClearCart();
-    toggleCartPopup(false);
-  };
-
-  const handleCheckout = (event) => {
-    event.stopPropagation();
-    if (!cartEnabled) {
-      return;
+  const clearProductsMenuCloseTimeout = () => {
+    if (closeProductsMenuTimeoutRef.current) {
+      window.clearTimeout(closeProductsMenuTimeoutRef.current);
+      closeProductsMenuTimeoutRef.current = null;
     }
-    onViewCart();
-    toggleCartPopup(false);
   };
 
   const closeProductsMenu = () => {
+    clearProductsMenuCloseTimeout();
     setIsProductsMenuOpen(false);
+  };
+
+  const scheduleProductsMenuClose = () => {
+    clearProductsMenuCloseTimeout();
+    closeProductsMenuTimeoutRef.current = window.setTimeout(() => {
+      setIsProductsMenuOpen(false);
+      closeProductsMenuTimeoutRef.current = null;
+    }, 60);
   };
 
   const closeMobileMenu = () => {
@@ -87,10 +123,17 @@ const Header = ({
   };
 
   const toggleProductsMenu = () => {
-    setIsProductsMenuOpen((prev) => !prev);
+    if (isProductsMenuOpen) {
+      closeProductsMenu();
+      return;
+    }
+
+    clearProductsMenuCloseTimeout();
+    setIsProductsMenuOpen(true);
   };
 
   const openProductsMenu = () => {
+    clearProductsMenuCloseTimeout();
     setIsProductsMenuOpen(true);
   };
 
@@ -112,7 +155,7 @@ const Header = ({
     <div
       className={`main-header-wrapper ${isOverlay ? "is-overlay" : ""} ${isHeaderVisible ? "" : "is-hidden"}`}
     >
-      <header className="main-header">
+      <header ref={headerRef} className="main-header">
         <button
           type="button"
           className="recuadro-logo"
@@ -135,7 +178,7 @@ const Header = ({
           <div
             className="nav-dropdown"
             onMouseEnter={openProductsMenu}
-            onMouseLeave={closeProductsMenu}
+            onMouseLeave={scheduleProductsMenuClose}
           >
             <button
               type="button"
@@ -145,60 +188,6 @@ const Header = ({
             >
               Productos
             </button>
-
-            <div
-              className={`nav-dropdown__menu ${isProductsMenuOpen ? "open" : ""}`}
-            >
-              <div className="nav-dropdown__topbar">
-                <div className="nav-dropdown__copy">
-                  <p className="nav-dropdown__eyebrow">Colecciones</p>
-                  <h3>Living, comedor y dormitorio.</h3>
-                </div>
-                <button
-                  type="button"
-                  className="nav-dropdown__browse-all"
-                  onClick={handleNavClick("/productos")}
-                >
-                  Ver toda la coleccion
-                </button>
-              </div>
-
-              <div className="nav-dropdown__grid">
-                {categoryDefinitions.map((category) => (
-                  <article
-                    key={category.name}
-                    className="nav-dropdown__category-card"
-                  >
-                    <button
-                      type="button"
-                      className="nav-dropdown__heading"
-                      onClick={handleNavClick(
-                        `/productos?categoria=${encodeURIComponent(category.name)}`,
-                      )}
-                    >
-                      {category.name}
-                    </button>
-                    <p className="nav-dropdown__category-text">
-                      {category.shortDescription}
-                    </p>
-                    <div className="nav-dropdown__subitems">
-                      {category.subcategories.map((subcategory) => (
-                        <button
-                          key={subcategory}
-                          type="button"
-                          className="nav-dropdown__subitem"
-                          onClick={handleNavClick(
-                            `/productos?categoria=${encodeURIComponent(category.name)}&subcategoria=${encodeURIComponent(subcategory)}`,
-                          )}
-                        >
-                          {subcategory}
-                        </button>
-                      ))}
-                    </div>
-                  </article>
-                ))}
-              </div>
-            </div>
           </div>
           <button
             type="button"
@@ -287,62 +276,52 @@ const Header = ({
               </svg>
             </a>
           </div>
-
-          <div
-            className={`cart ${isPopupOpen ? "open" : ""} ${cartEnabled ? "" : "is-disabled"}`}
-            onClick={() => {
-              if (!cartEnabled) {
-                return;
-              }
-              toggleCartPopup();
-            }}
-          >
-            <span className="icono-carro" aria-hidden="true">
-              <svg
-                viewBox="0 0 24 24"
-                role="img"
-                aria-hidden="true"
-                focusable="false"
-              >
-                <path
-                  d="M3 5h2l1.2 6.2A2 2 0 0 0 8.2 13H17a2 2 0 0 0 1.9-1.4L20.7 6H7.1"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.8"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-                <circle cx="9" cy="18.5" r="1.5" fill="currentColor" />
-                <circle cx="17" cy="18.5" r="1.5" fill="currentColor" />
-              </svg>
-            </span>
-
-            <span id="cart-count">{cartCount}</span>
-
-            <div
-              className="cart-popup"
-              onClick={(event) => event.stopPropagation()}
-            >
-              <button
-                id="clear-cart"
-                type="button"
-                className="popup-btn"
-                onClick={handleClearCart}
-              >
-                Vaciar carrito
-              </button>
-              <button
-                id="checkout"
-                type="button"
-                className="popup-btn"
-                onClick={handleCheckout}
-              >
-                Ver carrito
-              </button>
-            </div>
-          </div>
         </div>
       </header>
+
+      <div
+        className={`nav-dropdown__menu ${isProductsMenuOpen ? "open" : ""}`}
+        style={headerHeight ? { top: `${headerHeight}px` } : undefined}
+        onMouseEnter={openProductsMenu}
+        onMouseLeave={scheduleProductsMenuClose}
+      >
+        <div className="nav-dropdown__bar">
+          {categoryDefinitions.map((category, index) => (
+            <button
+              key={category.name}
+              type="button"
+              className={`nav-dropdown__item ${
+                index === 0
+                  ? "nav-dropdown__item--start"
+                  : index === categoryDefinitions.length - 1
+                    ? "nav-dropdown__item--end"
+                    : "nav-dropdown__item--middle"
+              }`}
+              onClick={handleNavClick(
+                `/productos?categoria=${encodeURIComponent(category.name)}`,
+              )}
+            >
+              <span className="nav-dropdown__item-index">
+                {String(index + 1).padStart(2, "0")}
+              </span>
+              <span className="nav-dropdown__item-name">{category.name}</span>
+              <span className="nav-dropdown__item-link">
+                Ver coleccion{" "}
+                <span className="nav-dropdown__item-arrow" aria-hidden="true">
+                  -&gt;
+                </span>
+              </span>
+            </button>
+          ))}
+          <button
+            type="button"
+            className="nav-dropdown__all"
+            onClick={handleNavClick("/productos")}
+          >
+            Ver todo
+          </button>
+        </div>
+      </div>
 
       <div className={`mobile-menu ${isMobileMenuOpen ? "open" : ""}`}>
         <button type="button" onClick={handleNavClick("inicio")}>
@@ -360,7 +339,7 @@ const Header = ({
           >
             <span>Productos</span>
             <span className="mobile-products__icon">
-              {isMobileProductsOpen ? "−" : "+"}
+              {isMobileProductsOpen ? "-" : "+"}
             </span>
           </button>
 

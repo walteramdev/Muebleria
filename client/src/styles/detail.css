@@ -1,0 +1,55 @@
+.page-hero h1,
+.empty-state h1,
+.detail-content h1 {
+  margin: 0 0 14px;
+  font-family: var(--font-display);
+  font-size: clamp(2.2rem, 5vw, 4rem);
+  color: var(--color-ink);
+}
+
+.detail-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 28px;
+  align-items: start;
+  padding: 28px;
+  border-radius: var(--radius-lg);
+  background: rgba(255, 250, 244, 0.92);
+  border: 1px solid rgba(217, 179, 130, 0.28);
+}
+
+.detail-media {
+  overflow: hidden;
+  border-radius: 24px;
+  box-shadow: 0 18px 30px rgba(45, 42, 38, 0.1);
+}
+
+.detail-price {
+  margin: 0 0 18px;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+.detail-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin: 26px 0;
+}
+
+.detail-summary > div {
+  padding: 16px;
+  border-radius: 18px;
+  background: var(--color-surface);
+  border: 1px solid rgba(217, 179, 130, 0.35);
+}
+
+.detail-summary__label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--color-secondary);
+}

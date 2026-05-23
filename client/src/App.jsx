@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 import { React, useState } from "react";
+=======
+import { useMemo } from "react";
+>>>>>>> features/front
 import {
   BrowserRouter,
   Route,
@@ -8,6 +12,7 @@ import {
   useParams,
   useSearchParams,
 } from "react-router-dom";
+<<<<<<< HEAD
 
 import Header from "./layouts/Header.jsx";
 import Footer from "./layouts/Footer.jsx";
@@ -151,31 +156,110 @@ const categoryDefinitions = [
     subcategories: ["Respaldos", "Mesas de luz", "Comodas"],
   },
 ];
+=======
+import Header from "./layouts/Header";
+import Footer from "./layouts/Footer";
+import HomePage from "./pages/HomePage.jsx";
+import CatalogPage from "./pages/CatalogPage.jsx";
+import ProductDetailPage from "./pages/ProductDetailPage.jsx";
+import AboutPage from "./pages/AboutPage.jsx";
+import ContactPage from "./pages/ContactPage.jsx";
+import { categoryDefinitions, productTypes, featuredProducts } from "./utils/mockData.js";
 
-const productTypes = categoryDefinitions.map((category) => category.name);
+const ProductDetailRoute = () => {
+  const navigate = useNavigate();
+  const { id } = useParams();
+  const product = featuredProducts.find((item) => item._id === id);
+>>>>>>> features/front
 
+  return (
+    <ProductDetailPage
+      product={product}
+      onBack={() => navigate("/productos")}
+    />
+  );
+};
+
+<<<<<<< HEAD
+=======
+const CatalogRoute = () => {
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const selectedCategory = searchParams.get("categoria") || "Todos";
+  const selectedSubcategory = searchParams.get("subcategoria") || "";
+
+  const visibleProducts = useMemo(() => {
+    return featuredProducts.filter((item) => {
+      const categoryMatches =
+        selectedCategory === "Todos" ||
+        item.category.toLowerCase() === selectedCategory.toLowerCase();
+
+      const subcategoryMatches =
+        !selectedSubcategory ||
+        item.subcategory.toLowerCase() === selectedSubcategory.toLowerCase();
+
+      return categoryMatches && subcategoryMatches;
+    });
+  }, [selectedCategory, selectedSubcategory]);
+
+  const selectedCategoryDefinition = categoryDefinitions.find(
+    (category) => category.name.toLowerCase() === selectedCategory.toLowerCase(),
+  );
+
+  const availableSubcategories = selectedCategoryDefinition?.subcategories ?? [];
+
+  const handleSelectProduct = (product) => {
+    navigate(`/productos/${product._id}`);
+  };
+
+  const handleSubcategorySelect = (subcategory) => {
+    if (!selectedCategoryDefinition) {
+      return;
+    }
+
+    if (!subcategory) {
+      navigate(`/productos?categoria=${encodeURIComponent(selectedCategoryDefinition.name)}`);
+      return;
+    }
+
+    navigate(
+      `/productos?categoria=${encodeURIComponent(selectedCategoryDefinition.name)}&subcategoria=${encodeURIComponent(subcategory)}`,
+    );
+  };
+
+  return (
+    <CatalogPage
+      categoryDefinitions={categoryDefinitions}
+      products={visibleProducts}
+      selectedCategory={selectedCategory}
+      selectedSubcategory={selectedSubcategory}
+      availableSubcategories={availableSubcategories}
+      categories={["Todos", ...productTypes]}
+      onSelectProduct={handleSelectProduct}
+      onCategorySelect={(category) => {
+        if (category === "Todos") {
+          navigate("/productos");
+          return;
+        }
+
+        navigate(`/productos?categoria=${encodeURIComponent(category)}`);
+      }}
+      onSubcategorySelect={handleSubcategorySelect}
+    />
+  );
+};
+
+>>>>>>> features/front
 function App() {
   const navigate = useNavigate();
   const location = useLocation();
-  // Aca guardamos el carrito completo mientras no exista persistencia real.
-  const [cartItems, setCartItems] = useState([]);
-
-  // Convierte un numero en formato de precio argentino para mostrarlo en pantalla.
-  const formatPrice = (value) =>
-    new Intl.NumberFormat("es-AR", {
-      style: "currency",
-      currency: "ARS",
-      maximumFractionDigits: 0,
-    }).format(value);
 
   const handleNavigate = (destination) => {
-    // Si recibe una ruta, navega a otra pagina.
     if (destination.startsWith("/")) {
       navigate(destination);
       return;
     }
 
-    // Si estamos fuera de la home, primero vuelve y despues hace scroll a la seccion.
     if (location.pathname !== "/") {
       navigate("/");
       window.setTimeout(() => {
@@ -192,10 +276,10 @@ function App() {
   };
 
   const handleSelectProduct = (product) => {
-    // Cada producto abre su detalle usando el id en la URL.
     navigate(`/productos/${product._id}`);
   };
 
+<<<<<<< HEAD
   const handleAddToCart = (product) => {
     setCartItems((prev) => {
       const existingItem = prev.find((item) => item._id === product._id);
@@ -306,9 +390,10 @@ function App() {
     0,
   );
 
+=======
+>>>>>>> features/front
   return (
     <>
-      {/* Header siempre visible: recibe la seccion activa y el estado del carrito. */}
       <Header
         onNavigate={handleNavigate}
         categoryDefinitions={categoryDefinitions}
@@ -321,18 +406,18 @@ function App() {
                 ? "about"
                 : location.pathname === "/contacto"
                   ? "contact"
+<<<<<<< HEAD
                   : location.pathname === "/carrito"
                     ? "cart"
                     : ""
+=======
+                  : ""
+>>>>>>> features/front
         }
-        cartCount={cartCount}
-        cartEnabled={false}
+        cartEnabled={true}
         isOverlay
-        onClearCart={handleClearCart}
-        onViewCart={() => navigate("/carrito")}
       />
       <Routes>
-        {/* Home principal */}
         <Route
           path="/"
           element={
@@ -342,29 +427,20 @@ function App() {
             />
           }
         />
+<<<<<<< HEAD
         <Route path="/createProduct" element={<ProductForm />} />
         <Route path="/productos/editar/:id" element={<ProductForm />} />
         {/* Catalogo con categorias */}
         <Route path="/productos" element={<CatalogRoute />} />
+=======
+        <Route
+          path="/productos"
+          element={<CatalogRoute />}
+        />
+>>>>>>> features/front
         <Route path="/nosotros" element={<AboutPage />} />
         <Route path="/contacto" element={<ContactPage />} />
-        {/* Detalle individual de cada producto */}
         <Route path="/productos/:id" element={<ProductDetailRoute />} />
-        {/* Resumen del carrito */}
-        <Route
-          path="/carrito"
-          element={
-            <CartPage
-              cartItems={cartItems}
-              totalLabel={formatPrice(cartTotal)}
-              onContinueShopping={() => navigate("/productos")}
-              onClearCart={handleClearCart}
-              onUpdateQuantity={handleUpdateQuantity}
-              onRemoveItem={handleRemoveItem}
-            />
-          }
-        />
-        {/* Cualquier ruta desconocida vuelve a la home por ahora */}
         <Route
           path="*"
           element={
