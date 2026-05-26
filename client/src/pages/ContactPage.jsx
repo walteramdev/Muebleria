@@ -105,7 +105,10 @@ const ContactPage = () => {
               />
             </label>
 
-            <button type="submit" className="btn-primary contact-hero-form__submit">
+            <button
+              type="submit"
+              className="btn-primary contact-hero-form__submit"
+            >
               Enviar consulta
             </button>
           </form>

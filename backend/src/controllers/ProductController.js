@@ -2,16 +2,70 @@ const Product = require("../models/Product");
 
 const createProduct = async (req, res, next) => {
   try {
+    // Log de datos recibidos
+    console.log("📨 Datos recibidos:", JSON.stringify(req.body, null, 2));
+
+    // Validar que hay imágenes
+    if (!req.body.images || !Array.isArray(req.body.images)) {
+      console.warn("⚠️ No hay imágenes o no es array");
+      return res.status(400).json({
+        message: "Debe haber al menos una imagen.",
+        details: "Las imágenes deben ser un array",
+      });
+    }
+
+    if (req.body.images.length === 0) {
+      console.warn("⚠️ Array de imágenes vacío");
+      return res.status(400).json({
+        message: "Debe haber al menos una imagen.",
+        details: "El array de imágenes está vacío",
+      });
+    }
+
+    // Validar estructura de imágenes
+    const invalidImages = req.body.images.filter(
+      (img, idx) =>
+        !(
+          (typeof img === "object" && img.url && img.public_id) ||
+          typeof img === "string"
+        ) && `Imagen ${idx}: estructura inválida`,
+    );
+
+    if (invalidImages.length > 0) {
+      console.warn("⚠️ Imágenes con estructura inválida:", invalidImages);
+      return res.status(400).json({
+        message: "Las imágenes deben tener formato válido (url y public_id).",
+        details: "Cada imagen debe tener: url (string) y public_id (string)",
+        received: req.body.images,
+      });
+    }
+
+    console.log("✅ Validación de imágenes OK");
     const product = await Product.create(req.body);
 
+    console.log("✅ Producto creado:", product._id);
     res.status(201).json({
       mensaje: "Producto creado con éxito.",
       product,
     });
   } catch (error) {
+    console.error("❌ Error en createProduct:", error.message);
+
     if (error.code === 11000) {
       return res.status(400).json({
         message: "El código de barra ya está en uso.",
+        details: error.message,
+      });
+    }
+
+    // Error de validación de MongoDB
+    if (error.name === "ValidationError") {
+      const messages = Object.entries(error.errors).map(
+        ([field, err]) => `${field}: ${err.message}`,
+      );
+      return res.status(400).json({
+        message: "Error de validación",
+        details: messages,
       });
     }
 

@@ -1,7 +1,7 @@
 const express = require("express");
 const employeeRouter = express.Router();
 const employeeController = require("../controllers/EmployeeController");
-// const verifyToken = require("../middleware/authMiddleware");
+// const {protect} = require("../middleware/authMiddleware");
 
 employeeRouter.get("/", employeeController.getEmployees);
 employeeRouter.get("/:id", employeeController.getEmployeeById);

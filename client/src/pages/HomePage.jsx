@@ -8,7 +8,13 @@ import ManifestoSection from "../components/home/ManifestoSection";
 
 import { formatPrice } from "../utils/formatters.js";
 
-const sectionIds = ["inicio", "colecciones", "destacados", "manifiesto", "cierre"];
+const sectionIds = [
+  "inicio",
+  "colecciones",
+  "destacados",
+  "manifiesto",
+  "cierre",
+];
 const indicatorIds = sectionIds.slice(0, 4);
 const featuredMarqueeItems = [
   "Envios a todo el pais",
@@ -17,7 +23,8 @@ const featuredMarqueeItems = [
   "Fabricacion artesanal",
   "Atencion personalizada",
 ];
-const collectionSharedBackground = "linear-gradient(180deg, #14110f 0%, #211b18 100%)";
+const collectionSharedBackground =
+  "linear-gradient(180deg, #14110f 0%, #211b18 100%)";
 const chunkItems = (items, size) =>
   items.reduce((groups, item, index) => {
     if (index % size === 0) {
@@ -27,8 +34,7 @@ const chunkItems = (items, size) =>
   }, []);
 
 const backgroundImages = {
-  hero:
-    "https://wrfefas.my.canva.site/_assets/media/787090af7cd9a097a130f1f82951a959.jpg",
+  hero: "https://wrfefas.my.canva.site/_assets/media/787090af7cd9a097a130f1f82951a959.jpg",
   collections:
     "https://images.pexels.com/photos/29109688/pexels-photo-29109688.jpeg?auto=compress&cs=tinysrgb&w=1600",
   featured:
@@ -47,7 +53,7 @@ const collectionCategories = [
 
 const HomePage = ({
   categoryDefinitions = [],
-  onSelectProduct = () => {},
+  onSelectProduct = () => { },
   products = [],
   isLoading = false,
   error = null,
@@ -70,7 +76,9 @@ const HomePage = ({
     () =>
       categoryDefinitions.map((category) => ({
         ...category,
-        featuredProduct: products.find((product) => product.category === category.name),
+        featuredProduct: products.find(
+          (product) => product.category === category.name,
+        ),
       })),
     [categoryDefinitions, products],
   );
@@ -115,7 +123,10 @@ const HomePage = ({
       (entries) => {
         const visibleEntry = entries
           .filter((entry) => entry.isIntersecting)
-          .sort((first, second) => second.intersectionRatio - first.intersectionRatio)[0];
+          .sort(
+            (first, second) =>
+              second.intersectionRatio - first.intersectionRatio,
+          )[0];
 
         if (visibleEntry) {
           setActiveSection(visibleEntry.target.id);
@@ -305,51 +316,51 @@ const HomePage = ({
       </nav>
 
       <div className="home-page__scroll-content" ref={contentRef}>
-      <HeroSection
-        sectionRef={(element) => {
-          sectionRefs.current.inicio = element;
-        }}
-        backgroundImage={backgroundImages.hero}
-      />
+        <HeroSection
+          sectionRef={(element) => {
+            sectionRefs.current.inicio = element;
+          }}
+          backgroundImage={backgroundImages.hero}
+        />
 
-      <CollectionsSection
-        sectionRef={(element) => {
-          sectionRefs.current.colecciones = element;
-        }}
-        collections={collections}
-      />
+        <CollectionsSection
+          sectionRef={(element) => {
+            sectionRefs.current.colecciones = element;
+          }}
+          collections={collections}
+        />
 
-      <FeaturedSection
-        sectionRef={(element) => {
-          sectionRefs.current.destacados = element;
-        }}
-        backgroundImage={backgroundImages.featured}
-        featuredMarqueeItems={featuredMarqueeItems}
-        isLoading={isLoading}
-        error={error}
-        featuredSlides={featuredSlides}
-        formatPrice={formatPrice}
-        onSelectProduct={onSelectProduct}
-      />
+        <FeaturedSection
+          sectionRef={(element) => {
+            sectionRefs.current.destacados = element;
+          }}
+          backgroundImage={backgroundImages.featured}
+          featuredMarqueeItems={featuredMarqueeItems}
+          isLoading={isLoading}
+          error={error}
+          featuredSlides={featuredSlides}
+          formatPrice={formatPrice}
+          onSelectProduct={onSelectProduct}
+        />
 
-      <ManifestoSection
-        sectionRef={(element) => {
-          sectionRefs.current.manifiesto = element;
-        }}
-        backgroundImage={backgroundImages.manifesto}
-      />
+        <ManifestoSection
+          sectionRef={(element) => {
+            sectionRefs.current.manifiesto = element;
+          }}
+          backgroundImage={backgroundImages.manifesto}
+        />
 
-      <section
-        ref={(element) => {
-          sectionRefs.current.cierre = element;
-        }}
-        className="home-screen home-screen--footer"
-        id="cierre"
-      >
-        <div className="home-screen__content home-screen__content--footer">
-          <Footer variant="immersive" />
-        </div>
-      </section>
+        <section
+          ref={(element) => {
+            sectionRefs.current.cierre = element;
+          }}
+          className="home-screen home-screen--footer"
+          id="cierre"
+        >
+          <div className="home-screen__content home-screen__content--footer">
+            <Footer variant="immersive" />
+          </div>
+        </section>
       </div>
     </main>
   );

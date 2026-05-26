@@ -24,7 +24,9 @@ const Header = ({
         : window;
 
     const getScrollTop = () =>
-      scrollContainer === window ? window.scrollY : scrollContainer?.scrollTop ?? 0;
+      scrollContainer === window
+        ? window.scrollY
+        : (scrollContainer?.scrollTop ?? 0);
 
     let lastScrollY = getScrollTop();
 
@@ -46,7 +48,9 @@ const Header = ({
       lastScrollY = currentScrollY;
     };
 
-    scrollContainer?.addEventListener("scroll", handleScroll, { passive: true });
+    scrollContainer?.addEventListener("scroll", handleScroll, {
+      passive: true,
+    });
 
     return () => {
       scrollContainer?.removeEventListener("scroll", handleScroll);
@@ -85,7 +89,6 @@ const Header = ({
     },
     [],
   );
-
 
   const clearProductsMenuCloseTimeout = () => {
     if (closeProductsMenuTimeoutRef.current) {
@@ -200,10 +203,36 @@ const Header = ({
           >
             Contacto
           </button>
-          {currentUser && (
-            <button type="button" onClick={handleLogoutClick}>
-              Salir
-            </button>
+          {currentUser ? (
+            <>
+              {/* <button
+                type="button"
+                className={isActive("profile") ? "active" : ""}
+                onClick={handleNavClick("profile")}
+              >
+                PERFIL
+              </button> */}
+              <button type="button" onClick={handleLogoutClick}>
+                LOGOUT{" "}
+              </button>
+            </>
+          ) : (
+            <>
+              {/* <button
+                type="button"
+                className={isActive("register") ? "active" : ""}
+                onClick={handleNavClick("register")}
+              >
+                REGISTRO
+              </button> */}
+              <button
+                type="button"
+                className={isActive("login") ? "active" : ""}
+                onClick={handleNavClick("/iniciar-sesion")}
+              >
+                ACCEDER
+              </button>
+            </>
           )}
         </nav>
 
@@ -273,7 +302,6 @@ const Header = ({
               </svg>
             </a>
           </div>
-
         </div>
       </header>
 
@@ -304,7 +332,10 @@ const Header = ({
               </span>
               <span className="nav-dropdown__item-name">{category.name}</span>
               <span className="nav-dropdown__item-link">
-                Ver coleccion <span className="nav-dropdown__item-arrow" aria-hidden="true">-&gt;</span>
+                Ver coleccion{" "}
+                <span className="nav-dropdown__item-arrow" aria-hidden="true">
+                  -&gt;
+                </span>
               </span>
             </button>
           ))}
@@ -333,10 +364,14 @@ const Header = ({
             onClick={toggleMobileProducts}
           >
             <span>Productos</span>
-            <span className="mobile-products__icon">{isMobileProductsOpen ? "-" : "+"}</span>
+            <span className="mobile-products__icon">
+              {isMobileProductsOpen ? "-" : "+"}
+            </span>
           </button>
 
-          <div className={`mobile-products__list ${isMobileProductsOpen ? "open" : ""}`}>
+          <div
+            className={`mobile-products__list ${isMobileProductsOpen ? "open" : ""}`}
+          >
             <button type="button" onClick={handleNavClick("/productos")}>
               Ver todo
             </button>

@@ -1,34 +1,23 @@
+const { Router } = require("express");
 const jwt = require("jsonwebtoken");
-const User = require("../models/User");
 
-const verifyToken = async (req, res, next) => {
+const protect = (req, res, next) => {
   try {
-    const authHeader = req.header("Authorization");
-
     const token =
       req.cookies?.authToken ||
-      (authHeader && authHeader.startsWith("Bearer ")
-        ? authHeader.split(" ")[1]
-        : null);
+      req.header("Authorization")?.replace("Bearer ", "");
 
     if (!token) {
-      return res.status(401).json({ message: "No estás autenticado." });
+      return res.status(401).json({ message: "No estás autenticado" });
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-    const user = await User.findById(decoded.id).select("-password");
-
-    if (!user || user.isDeleted) {
-      return res.status(401).json({ message: "Usuario no válido." });
-    }
-
-    req.user = user;
+    req.user = decoded;
 
     next();
   } catch (error) {
-    return res.status(401).json({ message: "Token inválido o expirado." });
+    res.status(401).json({ message: "Token inválido o expirado" });
   }
 };
-
-module.exports = verifyToken;
+// Exporto como objeto para la desestructuracion en el Router
+module.exports = { protect };
