@@ -37,35 +37,13 @@ const backgroundImages = {
     "https://images.pexels.com/photos/2983198/pexels-photo-2983198.jpeg?auto=compress&cs=tinysrgb&w=1600",
 };
 
-const slideConfig = {
-  Comedor: {
-    label: "Coleccion Comedor",
-    title: "El lugar donde\nse comparte todo",
-    description:
-      "Mesas, sillas y apoyos pensados para encuentros largos, sobremesas tranquilas y rituales cotidianos con calidez.",
-    background: collectionSharedBackground,
-    imagePanel: collectionSharedBackground,
-    accent: "#c8814a",
-  },
-  Living: {
-    label: "Coleccion Living",
-    title: "Diseñado para\nvivir de verdad",
-    description:
-      "Sillones, consolas y piezas nobles para recibir, descansar y construir una escena serena todos los dias.",
-    background: collectionSharedBackground,
-    imagePanel: collectionSharedBackground,
-    accent: "#c8814a",
-  },
-  Dormitorio: {
-    label: "Coleccion Dormitorio",
-    title: "Descanso con\ncarácter propio",
-    description:
-      "Respaldos, mesas de luz y comodas que abrigan el descanso con una presencia suave, intima y funcional.",
-    background: collectionSharedBackground,
-    imagePanel: collectionSharedBackground,
-    accent: "#c8814a",
-  },
-};
+const collectionCategories = [
+  { name: "Outdoor", fallbackImage: "https://images.pexels.com/photos/1779487/pexels-photo-1779487.jpeg?auto=compress&cs=tinysrgb&w=800" },
+  { name: "Living", fallbackImage: "https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg?auto=compress&cs=tinysrgb&w=800" },
+  { name: "Sofás", fallbackImage: "https://images.pexels.com/photos/276583/pexels-photo-276583.jpeg?auto=compress&cs=tinysrgb&w=800" },
+  { name: "Comedor", fallbackImage: "https://images.pexels.com/photos/272474/pexels-photo-272474.jpeg?auto=compress&cs=tinysrgb&w=800" },
+  { name: "Dormitorio", fallbackImage: "https://images.pexels.com/photos/262048/pexels-photo-262048.jpeg?auto=compress&cs=tinysrgb&w=800" }
+];
 
 const HomePage = ({
   categoryDefinitions = [],
@@ -87,7 +65,6 @@ const HomePage = ({
   const [carouselItemsPerSlide, setCarouselItemsPerSlide] = useState(() =>
     typeof window !== "undefined" && window.innerWidth <= 960 ? 2 : 4,
   );
-  const [activeCollectionSlide, setActiveCollectionSlide] = useState(0);
 
   const categoryShowcase = useMemo(
     () =>
@@ -98,33 +75,21 @@ const HomePage = ({
     [categoryDefinitions, products],
   );
 
-  const collectionHeroSlides = useMemo(() => {
-
-    return ["Comedor", "Living", "Dormitorio"]
-      .map((categoryName) => {
-        const category = categoryShowcase.find((item) => item.name === categoryName);
-        const config = slideConfig[categoryName];
-
-        if (!category || !config) {
-          return null;
-        }
-
-        return {
-          ...config,
-          key: categoryName,
-          categoryName,
-          image: category.featuredProduct?.imagenUrl || backgroundImages.collections,
-          subcategories: category.subcategories,
-        };
-      })
-      .filter(Boolean);
+  const collections = useMemo(() => {
+    return collectionCategories.map((cat) => {
+      const categoryData = categoryShowcase.find((item) => item.name === cat.name);
+      return {
+        id: cat.name,
+        name: cat.name,
+        image: categoryData?.featuredProduct?.imagenUrl || cat.fallbackImage,
+      };
+    });
   }, [categoryShowcase]);
 
   const featuredSlides = useMemo(
     () => chunkItems(products.slice(0, 8), carouselItemsPerSlide),
     [products, carouselItemsPerSlide],
   );
-  const activeCollection = collectionHeroSlides[activeCollectionSlide] || null;
 
   useEffect(() => {
     const updateItemsPerSlide = () => {
@@ -138,20 +103,6 @@ const HomePage = ({
       window.removeEventListener("resize", updateItemsPerSlide);
     };
   }, []);
-
-  useEffect(() => {
-    if (collectionHeroSlides.length <= 1) {
-      return undefined;
-    }
-
-    const intervalId = window.setInterval(() => {
-      setActiveCollectionSlide((current) => (current + 1) % collectionHeroSlides.length);
-    }, 5000);
-
-    return () => {
-      window.clearInterval(intervalId);
-    };
-  }, [collectionHeroSlides.length]);
 
 
   useEffect(() => {
@@ -337,52 +288,7 @@ const HomePage = ({
     targetSection.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
-  const handleCollectionPrev = () => {
-    if (!collectionHeroSlides.length) {
-      return;
-    }
 
-    setActiveCollectionSlide((current) =>
-      current === 0 ? collectionHeroSlides.length - 1 : current - 1,
-    );
-  };
-
-  const handleCollectionNext = () => {
-    if (!collectionHeroSlides.length) {
-      return;
-    }
-
-    setActiveCollectionSlide((current) => (current + 1) % collectionHeroSlides.length);
-  };
-
-  const handleCollectionTouchStart = (event) => {
-    collectionTouchStartRef.current = event.changedTouches[0]?.clientX ?? null;
-  };
-
-  const handleCollectionTouchEnd = (event) => {
-    const startX = collectionTouchStartRef.current;
-    const endX = event.changedTouches[0]?.clientX ?? null;
-
-    if (startX === null || endX === null) {
-      collectionTouchStartRef.current = null;
-      return;
-    }
-
-    const deltaX = endX - startX;
-
-    if (Math.abs(deltaX) < 50) {
-      collectionTouchStartRef.current = null;
-      return;
-    }
-
-    if (deltaX < 0) {
-      handleCollectionNext();
-    } else {
-      handleCollectionPrev();
-    }
-
-    collectionTouchStartRef.current = null;
-  };
 
   return (
     <main className="home-page home-page--immersive" ref={homeRef}>
@@ -410,14 +316,7 @@ const HomePage = ({
         sectionRef={(element) => {
           sectionRefs.current.colecciones = element;
         }}
-        onTouchStart={handleCollectionTouchStart}
-        onTouchEnd={handleCollectionTouchEnd}
-        activeCollection={activeCollection}
-        activeCollectionSlide={activeCollectionSlide}
-        collectionHeroSlides={collectionHeroSlides}
-        setActiveCollectionSlide={setActiveCollectionSlide}
-        handleCollectionPrev={handleCollectionPrev}
-        handleCollectionNext={handleCollectionNext}
+        collections={collections}
       />
 
       <FeaturedSection
