@@ -148,6 +148,10 @@ function ProductForm() {
     });
   };
   useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
+
+  useEffect(() => {
     if (!isEditMode) return;
 
     const fetchProduct = async () => {

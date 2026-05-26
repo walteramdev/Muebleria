@@ -1,11 +1,27 @@
 import { useEffect } from "react";
 
-const CatalogPagination = ({ currentPage, totalPages, onPageChange }) => {
+const CatalogPagination = ({
+  currentPage,
+  totalPages,
+  onPageChange,
+  productsSectionRef,
+}) => {
   const pages = Array.from({ length: totalPages }, (_, index) => index + 1);
 
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }, [currentPage]);
+    if (productsSectionRef?.current) {
+      const elementTop =
+        productsSectionRef.current.getBoundingClientRect().top +
+        window.pageYOffset;
+
+      const headerOffset = 100;
+
+      window.scrollTo({
+        top: elementTop - headerOffset,
+        behavior: "smooth",
+      });
+    }
+  }, [currentPage, productsSectionRef]);
 
   return (
     <nav className="catalog-pagination" aria-label="Paginacion de productos">

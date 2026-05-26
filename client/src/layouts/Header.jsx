@@ -203,10 +203,36 @@ const Header = ({
           >
             Contacto
           </button>
-          {currentUser && (
-            <button type="button" onClick={handleLogoutClick}>
-              Salir
-            </button>
+          {currentUser ? (
+            <>
+              {/* <button
+                type="button"
+                className={isActive("profile") ? "active" : ""}
+                onClick={handleNavClick("profile")}
+              >
+                PERFIL
+              </button> */}
+              <button type="button" onClick={handleLogoutClick}>
+                LOGOUT{" "}
+              </button>
+            </>
+          ) : (
+            <>
+              {/* <button
+                type="button"
+                className={isActive("register") ? "active" : ""}
+                onClick={handleNavClick("register")}
+              >
+                REGISTRO
+              </button> */}
+              <button
+                type="button"
+                className={isActive("login") ? "active" : ""}
+                onClick={handleNavClick("/iniciar-sesion")}
+              >
+                ACCEDER
+              </button>
+            </>
           )}
         </nav>
 

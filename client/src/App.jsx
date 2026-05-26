@@ -1,4 +1,4 @@
-import { React, useMemo } from "react";
+import { React, useMemo, useContext } from "react";
 import {
   BrowserRouter,
   Route,
@@ -7,6 +7,7 @@ import {
   useNavigate,
   useParams,
   useSearchParams,
+  Navigate,
 } from "react-router-dom";
 
 import Header from "./layouts/Header";
@@ -17,12 +18,15 @@ import ProductForm from "./features/products/components/ProductForm.jsx";
 import HomePage from "./pages/HomePage.jsx";
 import AboutPage from "./pages/AboutPage.jsx";
 import ContactPage from "./pages/ContactPage.jsx";
-
+import ProtectedRoute from "./features/users/admin/ProtectedRoute.jsx";
 import {
   categoryDefinitions,
   productTypes,
   featuredProducts,
 } from "./utils/mockData.js";
+import LoginPage from "./pages/LoginPage.jsx";
+import { AuthProvider } from "../auth/AuthProvider.jsx";
+import { AuthContext } from "../auth/AuthContext.js";
 
 const ProductDetailRoute = () => {
   const navigate = useNavigate();
@@ -108,7 +112,10 @@ const CatalogRoute = () => {
   );
 };
 
-function App() {
+// function AppContent() {}
+
+function AppContent() {
+  const { user, logout, login } = useContext(AuthContext);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -136,6 +143,17 @@ function App() {
   const handleSelectProduct = (product) => {
     navigate(`/productos/${product._id}`);
   };
+
+  const onLoginSuccess = (tokenData) => {
+    login(tokenData);
+    navigate("/");
+  };
+
+  const handleLogoutClick = () => {
+    logout();
+    navigate("/iniciar-sesion");
+  };
+
   return (
     <>
       <Header
@@ -150,13 +168,18 @@ function App() {
                 ? "about"
                 : location.pathname === "/contacto"
                   ? "contact"
-                  : ""
+                  : location.pathname === "/iniciar-sesion"
+                    ? "login"
+                    : ""
         }
         cartEnabled={true}
         isOverlay
+        currentUser={user}
+        onLogout={handleLogoutClick}
       />
 
       <Routes>
+        {/* Route varios */}
         <Route
           path="/"
           element={
@@ -169,12 +192,43 @@ function App() {
             />
           }
         />
-        <Route path="/createProduct" element={<ProductForm />} />
-        <Route path="/productos/editar/:id" element={<ProductForm />} />
-        <Route path="/productos" element={<CatalogRoute />} />
-        <Route path="/productos/:id" element={<ProductDetailRoute />} />
         <Route path="/nosotros" element={<AboutPage />} />
         <Route path="/contacto" element={<ContactPage />} />
+        {/* Routes product */}
+        <Route
+          path="/createProduct"
+          element={
+            <ProtectedRoute>
+              <ProductForm />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/productos/editar/:id"
+          element={
+            <ProtectedRoute>
+              <ProductForm />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/productos"
+          element={<CatalogRoute currentUser={user} />}
+        />
+        <Route path="/productos/:id" element={<ProductDetailRoute />} />
+        {/* Route user */}
+        <Route
+          path="/iniciar-sesion"
+          element={
+            user ? (
+              <Navigate to="/" replace />
+            ) : (
+              <LoginPage onLoginSuccess={onLoginSuccess} />
+            )
+          }
+        />
+
+        {/* Route no encontrada */}
         <Route
           path="*"
           element={
@@ -191,6 +245,14 @@ function App() {
         </div>
       )}
     </>
+  );
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   );
 }
 export default App;

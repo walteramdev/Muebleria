@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState, useEffect, useRef } from "react";
 import CatalogHero from "./CatalogHero";
 import CatalogCollectionHeader from "./CatalogCollectionHeader";
 import CatalogSubcategoryFilters from "./CatalogSubcategoryFilters";
@@ -15,16 +15,17 @@ const CatalogPage = ({
   availableSubcategories = [],
   categories = [],
   onSelectProduct = () => {},
-  onAddToCart = () => {},
+  // onAddToCart = () => {},
   onCategorySelect = () => {},
   onSubcategorySelect = () => {},
+  currentUser = null,
 }) => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   const [currentPage, setCurrentPage] = useState(1);
-
+  const productSectionRef = useRef(null);
   useEffect(() => {
     const fetchProducts = async () => {
       try {
@@ -49,17 +50,30 @@ const CatalogPage = ({
     (category) => category.name === selectedCategory,
   );
 
-  const totalPages = Math.max(
-    1,
-    Math.ceil(products.length / PRODUCTS_PER_PAGE),
-  );
+  // const firstPageCapacity = PRODUCTS_PER_PAGE - 1;
+  const showCreateCard = currentPage === 1 && currentUser?.role === "admin";
+  const firstPageCapacity = showCreateCard
+    ? PRODUCTS_PER_PAGE - 1
+    : PRODUCTS_PER_PAGE;
+
+  const remainingProducts = Math.max(0, products.length - firstPageCapacity);
+
+  const totalPages = 1 + Math.ceil(remainingProducts / PRODUCTS_PER_PAGE);
 
   const safeCurrentPage = Math.min(currentPage, totalPages);
 
   const paginatedProducts = useMemo(() => {
-    const startIndex = (safeCurrentPage - 1) * PRODUCTS_PER_PAGE;
+    // Página 1
+    if (safeCurrentPage === 1) {
+      return products.slice(0, firstPageCapacity);
+    }
+
+    // Productos ya usados en página 1
+    const startIndex =
+      firstPageCapacity + (safeCurrentPage - 2) * PRODUCTS_PER_PAGE;
+
     return products.slice(startIndex, startIndex + PRODUCTS_PER_PAGE);
-  }, [products, safeCurrentPage]);
+  }, [products, safeCurrentPage, firstPageCapacity]);
 
   if (loading) return <p>Cargando catálogo...</p>;
   if (error) return <p>Error: {error}</p>;
@@ -72,7 +86,10 @@ const CatalogPage = ({
         onCategorySelect={onCategorySelect}
       />
 
-      <section className="catalog-screen catalog-screen--products">
+      <section
+        className="catalog-screen catalog-screen--products"
+        ref={productSectionRef}
+      >
         <div className="catalog-collection-shell">
           <CatalogCollectionHeader
             selectedCategory={selectedCategory}
@@ -93,13 +110,15 @@ const CatalogPage = ({
             products={paginatedProducts}
             selectedCategory={selectedCategory}
             onSelectProduct={onSelectProduct}
-            onAddToCart={onAddToCart}
+            // onAddToCart={onAddToCart}
+            showCreateCard={showCreateCard}
           />
 
           <CatalogPagination
             currentPage={safeCurrentPage}
             totalPages={totalPages}
             onPageChange={setCurrentPage}
+            productsSectionRef={productSectionRef}
           />
         </div>
       </section>

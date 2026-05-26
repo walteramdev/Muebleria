@@ -1,0 +1,21 @@
+.catalog-card--add-product {
+  border: 2px dashed #bbb;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.catalog-card--add-product:hover {
+  border-color: #000;
+  transform: translateY(-4px);
+}
+
+.add-product-btn {
+  margin-top: 15px;
+  padding: 10px 16px;
+  border: none;
+  background: #000;
+  color: white;
+  cursor: pointer;
+  border-radius: 6px;
+  font-weight: 600;
+}
