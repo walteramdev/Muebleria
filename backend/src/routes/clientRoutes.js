@@ -1,36 +1,31 @@
 const express = require("express");
 const clientRouter = express.Router();
 const clientController = require("../controllers/ClientController");
-const verifyToken = require("../middleware/authMiddleware");
+const { protect } = require("../middleware/authMiddleware");
 const adminGuard = require("../middleware/adminGuard");
 
-clientRouter.get("/", verifyToken, adminGuard, clientController.getClients);
-clientRouter.get("/:id", verifyToken, clientController.getClientById);
+clientRouter.get("/", protect, adminGuard, clientController.getClients);
+clientRouter.get("/:id", protect, clientController.getClientById);
 
-clientRouter.post("/", verifyToken, clientController.createClient);
-clientRouter.put("/:id", verifyToken, clientController.updateClient);
-clientRouter.delete(
-  "/:id",
-  verifyToken,
-  adminGuard,
-  clientController.deleteClient,
-);
+clientRouter.post("/", protect, clientController.createClient);
+clientRouter.put("/:id", protect, clientController.updateClient);
+clientRouter.delete("/:id", protect, adminGuard, clientController.deleteClient);
 
 clientRouter.put(
   "/:id/activate",
-  verifyToken,
+  protect,
   adminGuard,
   clientController.activateClient,
 );
 clientRouter.put(
   "/:id/deactivate",
-  verifyToken,
+  protect,
   adminGuard,
   clientController.deactivateClient,
 );
 clientRouter.put(
   "/:id/suspend",
-  verifyToken,
+  protect,
   adminGuard,
   clientController.suspendClient,
 );
