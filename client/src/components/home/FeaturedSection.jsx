@@ -3,7 +3,6 @@ import React from "react";
 const FeaturedSection = ({
   sectionRef,
   backgroundImage,
-  featuredMarqueeItems,
   isLoading,
   error,
   featuredSlides,
@@ -18,19 +17,10 @@ const FeaturedSection = ({
       style={{ "--screen-background": `url(${backgroundImage})` }}
     >
       <div className="home-screen__overlay" />
-      <div className="featured-marquee" aria-hidden="true">
-        <div className="featured-marquee__track">
-          {[...featuredMarqueeItems, ...featuredMarqueeItems].map((item, index) => (
-            <span className="featured-marquee__item" key={`${item}-${index}`}>
-              {item}
-            </span>
-          ))}
-        </div>
-      </div>
       <div className="home-screen__content home-screen__content--wide is-active-panel">
         <div className="screen-heading screen-heading--light screen-heading--compact">
           <p className="eyebrow eyebrow--light">Destacados</p>
-          <h2>Selección que define a Chenille.</h2>
+          <h2>Selección que define a Chenille</h2>
         </div>
 
         {isLoading && <p className="state-message state-message--light">Cargando productos...</p>}

@@ -75,8 +75,28 @@ const CatalogPage = ({
     return products.slice(startIndex, startIndex + PRODUCTS_PER_PAGE);
   }, [products, safeCurrentPage, firstPageCapacity]);
 
-  if (loading) return <p>Cargando catálogo...</p>;
-  if (error) return <p>Error: {error}</p>;
+  const renderStateScreen = (title, message, isError = false) => {
+    const bgImage = "https://images.pexels.com/photos/1080721/pexels-photo-1080721.jpeg?auto=compress&cs=tinysrgb&w=1600";
+    return (
+      <main className="info-page info-page--brand" style={{ paddingBottom: 0 }}>
+        <section className="editorial-page-hero">
+          <div className="editorial-page-hero__media" style={{ filter: 'grayscale(100%) brightness(0.4)' }}>
+            <img src={bgImage} alt="Fondo de estado" />
+          </div>
+          <div className="editorial-page-hero__overlay editorial-page-hero__overlay--soft" />
+          
+          <div className="editorial-page-hero__content" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', paddingBottom: 0, margin: '0 auto', maxWidth: 'none' }}>
+            <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(2.5rem, 5vw, 4rem)', color: '#FFF8F2', marginBottom: '16px' }}>{title}</h2>
+            <p style={{ color: 'rgba(255, 248, 242, 0.8)', fontSize: '1.1rem', marginBottom: '8px', maxWidth: '500px' }}>{message}</p>
+            {isError && <p style={{ color: 'rgba(255, 248, 242, 0.5)', fontSize: '0.95rem' }}>Por favor, recarga la página o intenta nuevamente más tarde.</p>}
+          </div>
+        </section>
+      </main>
+    );
+  };
+
+  if (loading) return renderStateScreen("Preparando colección", "Cargando catálogo de piezas...");
+  if (error) return renderStateScreen("No pudimos conectar", `Error de conexión: ${error}`, true);
 
   return (
     <main className="catalog-page catalog-page--immersive">

@@ -16,13 +16,6 @@ const sectionIds = [
   "cierre",
 ];
 const indicatorIds = sectionIds.slice(0, 4);
-const featuredMarqueeItems = [
-  "Envios a todo el pais",
-  "Financiacion en cuotas",
-  "Madera maciza certificada",
-  "Fabricacion artesanal",
-  "Atencion personalizada",
-];
 const collectionSharedBackground =
   "linear-gradient(180deg, #14110f 0%, #211b18 100%)";
 const chunkItems = (items, size) =>
@@ -36,19 +29,19 @@ const chunkItems = (items, size) =>
 const backgroundImages = {
   hero: "https://wrfefas.my.canva.site/_assets/media/787090af7cd9a097a130f1f82951a959.jpg",
   collections:
-    "https://images.pexels.com/photos/29109688/pexels-photo-29109688.jpeg?auto=compress&cs=tinysrgb&w=1600",
+    "https://images.unsplash.com/photo-1510074377623-8cf13fb86c08?auto=format&fit=crop&w=1600&q=80",
   featured:
-    "https://images.pexels.com/photos/7539830/pexels-photo-7539830.jpeg?auto=compress&cs=tinysrgb&w=1600",
+    "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1600&q=80",
   manifesto:
     "https://images.pexels.com/photos/2983198/pexels-photo-2983198.jpeg?auto=compress&cs=tinysrgb&w=1600",
 };
 
 const collectionCategories = [
-  { name: "Outdoor", fallbackImage: "https://images.pexels.com/photos/1779487/pexels-photo-1779487.jpeg?auto=compress&cs=tinysrgb&w=800" },
-  { name: "Living", fallbackImage: "https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg?auto=compress&cs=tinysrgb&w=800" },
-  { name: "Sofás", fallbackImage: "https://images.pexels.com/photos/276583/pexels-photo-276583.jpeg?auto=compress&cs=tinysrgb&w=800" },
-  { name: "Comedor", fallbackImage: "https://images.pexels.com/photos/272474/pexels-photo-272474.jpeg?auto=compress&cs=tinysrgb&w=800" },
-  { name: "Dormitorio", fallbackImage: "https://images.pexels.com/photos/262048/pexels-photo-262048.jpeg?auto=compress&cs=tinysrgb&w=800" }
+  { name: "Outdoor", fallbackImage: "https://images.unsplash.com/photo-1540932239986-30128078f3c5?auto=format&fit=crop&w=800&q=80" },
+  { name: "Living", fallbackImage: "https://images.unsplash.com/photo-1583847268964-b28dc8f51f92?auto=format&fit=crop&w=800&q=80" },
+  { name: "Sofás", fallbackImage: "https://images.unsplash.com/photo-1493663284031-b7e3aefcae8e?auto=format&fit=crop&w=800&q=80" },
+  { name: "Comedor", fallbackImage: "https://images.unsplash.com/photo-1617806118233-18e1c0945594?auto=format&fit=crop&w=800&q=80" },
+  { name: "Dormitorio", fallbackImage: "https://images.unsplash.com/photo-1616594039964-ae9021a400a0?auto=format&fit=crop&w=800&q=80" }
 ];
 
 const HomePage = ({
@@ -328,6 +321,7 @@ const HomePage = ({
             sectionRefs.current.colecciones = element;
           }}
           collections={collections}
+          backgroundImage={backgroundImages.collections}
         />
 
         <FeaturedSection
@@ -335,7 +329,6 @@ const HomePage = ({
             sectionRefs.current.destacados = element;
           }}
           backgroundImage={backgroundImages.featured}
-          featuredMarqueeItems={featuredMarqueeItems}
           isLoading={isLoading}
           error={error}
           featuredSlides={featuredSlides}

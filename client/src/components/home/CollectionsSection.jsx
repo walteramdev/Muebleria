@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-const CollectionsSection = ({ sectionRef, collections = [] }) => {
+const CollectionsSection = ({ sectionRef, collections = [], backgroundImage }) => {
   const navigate = useNavigate();
   const carouselRef = useRef(null);
   
@@ -33,30 +33,7 @@ const CollectionsSection = ({ sectionRef, collections = [] }) => {
     return () => clearInterval(intervalId);
   }, [collections.length, isDragging]);
 
-  // Wheel event for horizontal scroll
-  useEffect(() => {
-    const handleWheel = (e) => {
-      if (carouselRef.current) {
-        // Prevent default vertical scroll and stop propagation to parent sections
-        e.preventDefault();
-        e.stopPropagation();
-        
-        // Translate vertical wheel scroll into horizontal scroll
-        carouselRef.current.scrollBy({ left: e.deltaY });
-      }
-    };
 
-    const carouselEl = carouselRef.current;
-    if (carouselEl) {
-      carouselEl.addEventListener("wheel", handleWheel, { passive: false });
-    }
-
-    return () => {
-      if (carouselEl) {
-        carouselEl.removeEventListener("wheel", handleWheel);
-      }
-    };
-  }, []);
 
   const handleMouseDown = (e) => {
     setIsDragging(true);
@@ -76,17 +53,31 @@ const CollectionsSection = ({ sectionRef, collections = [] }) => {
   const handleMouseMove = (e) => {
     if (!isDragging) return;
     e.preventDefault();
-    setDidDrag(true);
+    
     const x = e.pageX - carouselRef.current.offsetLeft;
-    const walk = (x - startX) * 2; // scroll speed multiplier
-    carouselRef.current.scrollLeft = scrollLeft - walk;
+    const walk = (x - startX); // calculate actual distance moved
+    
+    // Solo consideramos que es un 'drag' si se movió más de 5 píxeles
+    if (Math.abs(walk) > 5) {
+      setDidDrag(true);
+    }
+    
+    const scrollWalk = walk * 2; // scroll speed multiplier
+    carouselRef.current.scrollLeft = scrollLeft - scrollWalk;
   };
 
   return (
-    <section ref={sectionRef} className="home-collections-section" id="colecciones">
-      <div className="home-collections-section__header">
-        <h2 className="home-collections-section__title">Nuestras Colecciones</h2>
-      </div>
+    <section 
+      ref={sectionRef} 
+      className="home-collections-section" 
+      id="colecciones"
+      style={backgroundImage ? { 
+        backgroundImage: `url(${backgroundImage})`,
+        backgroundSize: "cover",
+        backgroundPosition: "right center"
+      } : {}}
+    >
+      <div className="home-collections-section__overlay" />
       <div 
         className="home-collections-carousel" 
         ref={carouselRef}

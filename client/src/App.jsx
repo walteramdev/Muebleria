@@ -1,4 +1,4 @@
-import { React, useMemo, useContext } from "react";
+import { React, useMemo, useContext, useEffect } from "react";
 import {
   BrowserRouter,
   Route,
@@ -27,6 +27,16 @@ import {
 import LoginPage from "./pages/LoginPage.jsx";
 import { AuthProvider } from "../auth/AuthProvider.jsx";
 import { AuthContext } from "../auth/AuthContext.js";
+
+const ScrollToTop = () => {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+
+  return null;
+};
 
 const ProductDetailRoute = () => {
   const navigate = useNavigate();
@@ -156,6 +166,7 @@ function AppContent() {
 
   return (
     <>
+      <ScrollToTop />
       <Header
         onNavigate={handleNavigate}
         categoryDefinitions={categoryDefinitions}
@@ -239,7 +250,7 @@ function AppContent() {
           }
         />
       </Routes>
-      {location.pathname !== "/" && location.pathname !== "/contacto" && (
+      {location.pathname !== "/" && (
         <div className="shared-footer-shell">
           <Footer variant="immersive" />
         </div>

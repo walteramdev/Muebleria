@@ -1,10 +1,12 @@
 import { useState } from "react";
-// import { API_CONFIG } from "../config/api.js";
-// import "../css/nuevo-producto.css";
-function LoginPage({ onLoginSuccess }) {
-  const [formData, setFormData] = useState({ email: "", password: "" });
 
+function LoginPage({ onLoginSuccess }) {
+  const loginHeroImage =
+    "https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg?auto=compress&cs=tinysrgb&w=1600";
+  const [formData, setFormData] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevState) => ({ ...prevState, [name]: value }));
@@ -13,6 +15,7 @@ function LoginPage({ onLoginSuccess }) {
   const handleSubmit = async (event) => {
     event.preventDefault();
     setLoading(true);
+    setError(null);
     try {
       const response = await fetch("http://localhost:5000/api/users/login", {
         method: "POST",
@@ -23,70 +26,104 @@ function LoginPage({ onLoginSuccess }) {
 
       if (response.ok) {
         const data = await response.json();
-        console.log("Respuesta servidor:", data);
-
         onLoginSuccess(data.token);
-
-        alert("Login exitoso");
       } else {
         const errorData = await response.json();
-        alert(`${errorData.message}||Error al iniciar sesion`);
+        setError(errorData.message || "Credenciales incorrectas o error al iniciar sesión.");
       }
-    } catch (error) {
-      console.error("login error:", error);
-      alert(`Error en el login: ${error.message}`);
+    } catch (err) {
+      console.error("login error:", err);
+      setError(`Error de conexión: ${err.message}`);
     } finally {
       setLoading(false);
     }
   };
+
+  if (error) {
+    const bgImage = "https://images.pexels.com/photos/1080721/pexels-photo-1080721.jpeg?auto=compress&cs=tinysrgb&w=1600";
+    return (
+      <main className="info-page info-page--brand" style={{ paddingBottom: 0 }}>
+        <section className="editorial-page-hero">
+          <div className="editorial-page-hero__media" style={{ filter: 'grayscale(100%) brightness(0.4)' }}>
+            <img src={bgImage} alt="Fondo de estado" />
+          </div>
+          <div className="editorial-page-hero__overlay editorial-page-hero__overlay--soft" />
+          
+          <div className="editorial-page-hero__content" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', paddingBottom: 0, margin: '0 auto', maxWidth: 'none' }}>
+            <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(2.5rem, 5vw, 4rem)', color: '#FFF8F2', margin: '0 0 16px' }}>No pudimos conectar</h2>
+            <p style={{ color: 'rgba(255, 248, 242, 0.8)', fontSize: '1.1rem', marginBottom: '32px', maxWidth: '500px' }}>{error}</p>
+            <button type="button" className="btn-primary" onClick={() => setError(null)}>
+              Intentar nuevamente
+            </button>
+          </div>
+        </section>
+      </main>
+    );
+  }
+
   return (
-    <>
-      <div className="container-global">
-        <div className="container">
-          <h1>Iniciar Sesión</h1>
-          <form onSubmit={handleSubmit}>
-            <div className="form-group">
-              <p>
-                Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                Blanditiis tenetur veniam possimus delectus deleniti reiciendis,
-                nobis modi corporis beatae autem enim maiores officia laborum,
-                nemo quis assumenda harum quae asperiores.
-              </p>
-              <label htmlFor="email">Email:</label>
+    <main className="info-page info-page--contact" style={{ paddingBottom: 0 }}>
+      <section className="editorial-page-hero editorial-page-hero--contact">
+        <div className="editorial-page-hero__media">
+          <img src={loginHeroImage} alt="Interior elegante" />
+        </div>
+        <div className="editorial-page-hero__overlay editorial-page-hero__overlay--soft" />
+        <div 
+          className="editorial-page-hero__content"
+          style={{
+            justifyContent: "center",
+            alignItems: "center",
+            maxWidth: "none",
+            width: "100%",
+            margin: "0 auto"
+          }}
+        >
+          <form 
+            className="contact-hero-form" 
+            onSubmit={handleSubmit}
+            style={{ width: "min(100%, 420px)", margin: 0 }}
+          >
+            <p className="contact-hero-form__eyebrow" style={{ textAlign: "center", marginBottom: "16px" }}>
+              Iniciar sesión
+            </p>
+
+            <label className="contact-hero-form__field">
+              <span>Correo</span>
               <input
-                type="text"
+                type="email"
                 name="email"
-                id="email"
-                placeholder="Ingrese su email"
-                required
                 value={formData.email}
                 onChange={handleChange}
+                placeholder="tuemail@ejemplo.com"
+                required
               />
-            </div>
-            <div className="form-group">
-              <label htmlFor="password">Contraseña:</label>
+            </label>
+
+            <label className="contact-hero-form__field">
+              <span>Contraseña</span>
               <input
                 type="password"
                 name="password"
-                id="password"
-                placeholder="Ingrese su constraseña"
                 value={formData.password}
                 onChange={handleChange}
+                placeholder="Tu contraseña"
+                required
               />
-            </div>
+            </label>
+
             <button
               type="submit"
-              className={`btn ${loading ? "loading" : ""}`}
-              id="submitBtn"
+              className="btn-primary contact-hero-form__submit"
               disabled={loading}
+              style={{ marginTop: "10px" }}
             >
-              <span>Acceder</span>
-              <div className="loading"></div>
+              {loading ? "Cargando..." : "Acceder"}
             </button>
           </form>
         </div>
-      </div>
-    </>
+      </section>
+    </main>
   );
 }
+
 export default LoginPage;

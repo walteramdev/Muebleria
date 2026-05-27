@@ -1,13 +1,21 @@
 import React, { useEffect, useRef, useState } from "react";
 import "../styles/header.css";
 
+const featuredMarqueeItems = [
+  "Envios a todo el pais",
+  "Financiacion en cuotas",
+  "Madera maciza certificada",
+  "Fabricacion artesanal",
+  "Atencion personalizada",
+];
+
 const Header = ({
-  onNavigate = () => {},
+  onNavigate = () => { },
   categoryDefinitions = [],
   activeView = "home",
   isOverlay = false,
   currentUser = null,
-  onLogout = () => {},
+  onLogout = () => { },
 }) => {
   const [isProductsMenuOpen, setIsProductsMenuOpen] = useState(false);
   const [isHeaderVisible, setIsHeaderVisible] = useState(true);
@@ -16,6 +24,7 @@ const Header = ({
   const [headerHeight, setHeaderHeight] = useState(0);
   const headerRef = useRef(null);
   const closeProductsMenuTimeoutRef = useRef(null);
+  const productsMenuRef = useRef(null);
 
   useEffect(() => {
     const scrollContainer =
@@ -41,6 +50,7 @@ const Header = ({
 
       if (currentScrollY > lastScrollY + 8) {
         setIsHeaderVisible(false);
+        setIsProductsMenuOpen(false);
       } else if (currentScrollY < lastScrollY - 8) {
         setIsHeaderVisible(true);
       }
@@ -89,6 +99,21 @@ const Header = ({
     },
     [],
   );
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        isProductsMenuOpen &&
+        productsMenuRef.current &&
+        !productsMenuRef.current.contains(event.target) &&
+        !event.target.closest(".nav-dropdown")
+      ) {
+        setIsProductsMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isProductsMenuOpen]);
 
   const clearProductsMenuCloseTimeout = () => {
     if (closeProductsMenuTimeoutRef.current) {
@@ -155,6 +180,15 @@ const Header = ({
     <div
       className={`main-header-wrapper ${isOverlay ? "is-overlay" : ""} ${isHeaderVisible ? "" : "is-hidden"}`}
     >
+      <div className="featured-marquee" aria-hidden="true">
+        <div className="featured-marquee__track">
+          {[...featuredMarqueeItems, ...featuredMarqueeItems].map((item, index) => (
+            <span className="featured-marquee__item" key={`${item}-${index}`}>
+              {item}
+            </span>
+          ))}
+        </div>
+      </div>
       <header ref={headerRef} className="main-header">
         <button
           type="button"
@@ -175,11 +209,7 @@ const Header = ({
           <button type="button" onClick={handleNavClick("destacados")}>
             Destacados
           </button>
-          <div
-            className="nav-dropdown"
-            onMouseEnter={openProductsMenu}
-            onMouseLeave={scheduleProductsMenuClose}
-          >
+          <div className="nav-dropdown">
             <button
               type="button"
               className={isActive("catalog") ? "active" : ""}
@@ -252,7 +282,7 @@ const Header = ({
           <div className="header-socials" aria-label="Redes sociales">
             <a
               className="header-social-link"
-              href="https://instagram.com/chenille.muebles"
+              href="https://www.instagram.com/chenillemuebles?igsh=dDZ2aTN3MTd5OWZ0"
               target="_blank"
               rel="noreferrer"
               aria-label="Instagram de Chenille"
@@ -281,7 +311,7 @@ const Header = ({
             </a>
             <a
               className="header-social-link"
-              href="https://wa.me/5491100000000"
+              href="https://wa.me/5493804660709"
               target="_blank"
               rel="noreferrer"
               aria-label="WhatsApp de Chenille"
@@ -307,35 +337,26 @@ const Header = ({
 
       <div
         className={`nav-dropdown__menu ${isProductsMenuOpen ? "open" : ""}`}
-        style={headerHeight ? { top: `${headerHeight}px` } : undefined}
-        onMouseEnter={openProductsMenu}
-        onMouseLeave={scheduleProductsMenuClose}
+        ref={productsMenuRef}
       >
         <div className="nav-dropdown__bar">
           {categoryDefinitions.map((category, index) => (
             <button
               key={category.name}
               type="button"
-              className={`nav-dropdown__item ${
-                index === 0
+              className={`nav-dropdown__item ${index === 0
                   ? "nav-dropdown__item--start"
                   : index === categoryDefinitions.length - 1
                     ? "nav-dropdown__item--end"
                     : "nav-dropdown__item--middle"
-              }`}
+                }`}
               onClick={handleNavClick(
                 `/productos?categoria=${encodeURIComponent(category.name)}`,
               )}
             >
-              <span className="nav-dropdown__item-index">
-                {String(index + 1).padStart(2, "0")}
-              </span>
               <span className="nav-dropdown__item-name">{category.name}</span>
               <span className="nav-dropdown__item-link">
-                Ver coleccion{" "}
-                <span className="nav-dropdown__item-arrow" aria-hidden="true">
-                  -&gt;
-                </span>
+                Ver coleccion
               </span>
             </button>
           ))}

@@ -178,7 +178,6 @@
 .btn-primary {
   background: #000;
   color: #fff;
-  flex: 1;
 }
 
 .btn-primary:hover {
@@ -188,11 +187,16 @@
 .btn-secondary {
   background: #f0f0f0;
   color: #000;
-  flex: 1;
 }
 
 .btn-secondary:hover {
   background: #e0e0e0;
+}
+
+/* Ensure they stretch only inside the detail actions row */
+.detail-actions .btn-primary,
+.detail-actions .btn-secondary {
+  flex: 1;
 }
 /* .edit-product-btn {
   background-color: #222;

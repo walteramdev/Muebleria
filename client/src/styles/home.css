@@ -169,6 +169,7 @@
 }
 
 @media (max-width: 960px) {
+
   .showcase-hero,
   .home-strip,
   .collection-grid,
@@ -501,7 +502,8 @@
   align-items: stretch;
   justify-content: flex-start;
   overflow: hidden;
-  padding-top: 84px;
+  padding-top: 140px;
+  /* Increased to ensure title clears the sticky header */
   padding-bottom: 32px;
 }
 
@@ -512,7 +514,8 @@
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  gap: 16px;
+  gap: 32px;
+  /* Increased gap to give title room to breathe */
   width: min(1180px, 100%);
   margin: 0 auto;
   padding-top: 0;
@@ -522,9 +525,9 @@
   position: relative;
   z-index: 1;
   flex: 0 0 36px;
-  width: calc(100% + 48px);
+  width: 100%;
   max-width: none;
-  margin: 0 -24px;
+  margin: 0;
   height: 36px;
   overflow-x: hidden;
   overflow-y: visible;
@@ -532,7 +535,6 @@
   background: rgba(255, 255, 255, 0.9);
   -webkit-backdrop-filter: blur(18px) saturate(110%);
   backdrop-filter: blur(18px) saturate(110%);
-  border-top: 0.5px solid rgba(182, 106, 85, 0.2);
   border-bottom: 0.5px solid rgba(182, 106, 85, 0.2);
 }
 
@@ -593,6 +595,12 @@
 .home-bootstrap-carousel {
   flex: 1 1 auto;
   height: 100%;
+  max-height: 440px;
+  /* Much more compact cards */
+  margin-top: 16px;
+  /* Space from title, no auto vertical centering */
+  margin-bottom: auto;
+  /* Push any remaining space below the carousel */
   min-height: 0;
   display: flex;
   flex-direction: column;
@@ -797,6 +805,18 @@
   text-align: center;
 }
 
+.home-screen--manifesto::before {
+  content: "";
+  position: absolute;
+  top: -150px;
+  left: 0;
+  width: 100%;
+  height: 300px;
+  background: linear-gradient(to bottom, rgba(14, 13, 12, 0) 0%, rgba(14, 13, 12, 0.95) 50%, rgba(14, 13, 12, 0) 100%);
+  pointer-events: none;
+  z-index: 10;
+}
+
 .home-screen__content--manifesto {
   max-width: 760px;
   color: #fff;
@@ -866,8 +886,8 @@
   }
 
   .featured-marquee {
-    width: calc(100% + 32px);
-    margin: 0 -16px;
+    width: 100%;
+    margin: 0;
   }
 
   .collections-hero-slide__content {
@@ -985,39 +1005,79 @@
     min-height: 146px;
   }
 }
+
 /* --- New Collections Carousel Styles --- */
 .home-collections-section {
-  padding: 80px 24px;
-  background-color: #ffffff;
+  position: relative;
   width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  /* Crossfade Fusion Logic */
+  margin-top: -150px;
+  margin-bottom: -150px;
+  padding-top: 230px;
+  /* 150 overlap + 80 normal padding */
+  padding-bottom: 230px;
+  /* 150 overlap + 80 normal padding */
+  z-index: 2;
+  /* Sit on top of Hero and Featured to mask over them */
+  mask-image: linear-gradient(to bottom,
+      transparent 0%,
+      black 150px,
+      black calc(100% - 150px),
+      transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom,
+      transparent 0%,
+      black 150px,
+      black calc(100% - 150px),
+      transparent 100%);
 }
 
-.home-collections-section__header {
-  text-align: center;
-  margin-bottom: 50px;
-}
-
-.home-collections-section__title {
-  font-family: var(--font-display);
-  font-size: clamp(2rem, 4vw, 3rem);
-  color: var(--color-ink);
-  font-weight: 400;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin: 0;
+.home-collections-section__overlay {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(43, 34, 28, 0.15);
+  /* Very light warm overlay */
+  pointer-events: none;
+  z-index: 0;
 }
 
 .home-collections-carousel {
+  position: relative;
+  z-index: 1;
   display: flex;
   gap: 24px;
   overflow-x: auto;
+  overflow-y: hidden;
   scroll-snap-type: x mandatory;
   padding-bottom: 24px;
-  scrollbar-width: none; /* Firefox */
+  scrollbar-width: none;
+  /* Firefox */
+  mask-image: linear-gradient(
+    to right, 
+    transparent 0px, 
+    transparent 40px, 
+    black 140px, 
+    black calc(100% - 140px), 
+    transparent calc(100% - 40px), 
+    transparent 100%
+  );
+  -webkit-mask-image: linear-gradient(
+    to right, 
+    transparent 0px, 
+    transparent 40px, 
+    black 140px, 
+    black calc(100% - 140px), 
+    transparent calc(100% - 40px), 
+    transparent 100%
+  );
 }
 
 .home-collections-carousel::-webkit-scrollbar {
-  display: none; /* Safari and Chrome */
+  display: none;
+  /* Safari and Chrome */
 }
 
 .collection-carousel-card {
@@ -1029,7 +1089,8 @@
   scroll-snap-align: start;
   cursor: pointer;
   overflow: hidden;
-  border-radius: 8px; /* Slight rounding for a premium feel */
+  border-radius: 8px;
+  /* Slight rounding for a premium feel */
 }
 
 @media (min-width: 768px) {
@@ -1070,12 +1131,16 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.15);
-  transition: background 0.4s ease;
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  transition: all 0.4s ease;
 }
 
 .collection-carousel-card:hover .collection-carousel-card__media::after {
-  background: rgba(0, 0, 0, 0.35);
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
 }
 
 .collection-carousel-card__content {
@@ -1089,20 +1154,30 @@
 }
 
 .collection-carousel-card__title {
-  color: #ffffff;
-  font-family: var(--font-display);
-  font-size: 1.4rem;
-  letter-spacing: 0.12em;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem 1.5rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.14);
+  color: #706459;
+  text-decoration: none;
   text-transform: uppercase;
-  margin: 0;
-  padding: 16px 24px;
-  border: 1px solid #ffffff;
-  display: inline-block;
-  background: transparent;
-  transition: background 0.4s ease, color 0.4s ease;
+  letter-spacing: 0.12em;
+  font-size: 0.84rem;
+  font-weight: 700;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 18px 28px rgba(0, 0, 0, 0.12);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease;
 }
 
 .collection-carousel-card:hover .collection-carousel-card__title {
-  background: #ffffff;
-  color: #111111;
+  transform: translateY(-2px);
+  box-shadow: 0 22px 36px rgba(0, 0, 0, 0.18);
+  background: rgba(255, 255, 255, 0.22);
 }

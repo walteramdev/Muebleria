@@ -12,7 +12,7 @@ const Footer = ({ variant = "default" }) => {
           <div className="env-footer__socials" aria-label="Redes sociales">
             <a
               className="env-footer__social-link"
-              href="https://instagram.com/chenille.muebles"
+              href="https://www.instagram.com/chenillemuebles?igsh=dDZ2aTN3MTd5OWZ0"
               target="_blank"
               rel="noreferrer"
               aria-label="Instagram de Chenille"
@@ -41,7 +41,7 @@ const Footer = ({ variant = "default" }) => {
             </a>
             <a
               className="env-footer__social-link"
-              href="https://wa.me/541145678900"
+              href="https://wa.me/5493804660709"
               target="_blank"
               rel="noreferrer"
               aria-label="WhatsApp de Chenille"

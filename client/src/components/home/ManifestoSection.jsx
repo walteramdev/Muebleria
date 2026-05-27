@@ -35,13 +35,8 @@ const ManifestoSection = ({ sectionRef, backgroundImage }) => {
             />
           </svg>
         </div>
-        <p className="eyebrow eyebrow--light">Manifiesto</p>
-        <h2>Diseño calido para espacios que se viven de verdad.</h2>
-        <p className="story-copy story-copy--light">
-          Menos ruido visual, mas hogar. Chenille busca proponer interiores
-          serenos, táctiles y nobles, donde cada pieza acompaña lo cotidiano con
-          equilibrio y calma.
-        </p>
+
+        <h2 className="manifiesto-title">Diseño calido para espacios que se viven de verdad</h2>
       </div>
     </section>
   );
