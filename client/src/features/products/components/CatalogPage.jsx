@@ -112,6 +112,7 @@ const CatalogPage = ({
             onSelectProduct={onSelectProduct}
             // onAddToCart={onAddToCart}
             showCreateCard={showCreateCard}
+            currentUser={currentUser}
           />
 
           <CatalogPagination
