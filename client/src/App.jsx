@@ -51,7 +51,7 @@ const ProductDetailRoute = () => {
   );
 };
 
-const CatalogRoute = () => {
+const CatalogRoute = ({ currentUser }) => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const selectedCategory = searchParams.get("categoria") || "Todos";
@@ -102,6 +102,7 @@ const CatalogRoute = () => {
 
   return (
     <CatalogPage
+      currentUser={currentUser}
       categoryDefinitions={categoryDefinitions}
       products={visibleProducts}
       selectedCategory={selectedCategory}
