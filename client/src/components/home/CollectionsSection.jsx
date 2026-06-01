@@ -116,6 +116,19 @@ const CollectionsSection = ({ sectionRef, collections = [], backgroundImage }) =
               >
                 {col.name}
               </button>
+              <div 
+                className="collection-carousel-card__action"
+                style={{ cursor: "pointer" }}
+                onClick={(e) => {
+                  if (didDrag) {
+                    e.preventDefault();
+                    return;
+                  }
+                  navigate(`/productos?categoria=${encodeURIComponent(col.name)}`);
+                }}
+              >
+                Explorar <span>→</span>
+              </div>
             </div>
           </article>
         ))}

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 
 const FeaturedSection = ({
   sectionRef,
@@ -8,7 +8,40 @@ const FeaturedSection = ({
   featuredSlides,
   formatPrice,
   onSelectProduct,
+  currentUser = null,
 }) => {
+  const [isDragging, setIsDragging] = useState(false);
+  const [startX, setStartX] = useState(0);
+
+  const handleMouseDown = (e) => {
+    setIsDragging(true);
+    setStartX(e.pageX);
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  const handleMouseLeave = () => {
+    setIsDragging(false);
+  };
+
+  const handleMouseMove = (e) => {
+    if (!isDragging) return;
+    e.preventDefault();
+    const x = e.pageX;
+    const walk = x - startX;
+    
+    if (Math.abs(walk) > 120) {
+      setIsDragging(false);
+      if (walk > 0) {
+        document.querySelector('#featuredCarousel .carousel-control-prev')?.click();
+      } else {
+        document.querySelector('#featuredCarousel .carousel-control-next')?.click();
+      }
+    }
+  };
+
   return (
     <section
       ref={sectionRef}
@@ -49,39 +82,98 @@ const FeaturedSection = ({
               ))}
             </div>
 
-            <div className="carousel-inner">
+            <div 
+              className="carousel-inner"
+              onMouseDown={handleMouseDown}
+              onMouseMove={handleMouseMove}
+              onMouseUp={handleMouseUp}
+              onMouseLeave={handleMouseLeave}
+              style={{ cursor: isDragging ? 'grabbing' : 'grab', userSelect: isDragging ? 'none' : 'auto' }}
+            >
               {featuredSlides.map((slide, index) => (
                 <div
                   className={`carousel-item ${index === 0 ? "active" : ""}`}
                   key={slide.map((product) => product._id).join("-")}
                 >
                   <div className="home-bootstrap-carousel__track">
-                    {slide.map((product) => (
-                      <article className="featured-spotlight-card" key={product._id}>
-                        <div className="featured-spotlight-card__media">
-                          <img src={product.imagenUrl} alt={product.name} />
-                        </div>
-                        <div className="featured-spotlight-card__body">
-                          <p className="product-card__category product-card__category--light">
-                            {product.category}
-                          </p>
-                          <h3>{product.name}</h3>
-                          <p className="featured-spotlight-card__description">
-                            {product.description}
-                          </p>
-                          <div className="featured-spotlight-card__footer">
-                            <strong>{formatPrice(product.price)}</strong>
-                            <button
-                              type="button"
-                              className="featured-spotlight-card__link"
-                              onClick={() => onSelectProduct(product)}
-                            >
-                              Ver detalle
-                            </button>
+                    {slide.map((product) => {
+                      const mainImage =
+                        product.images && product.images.length > 0
+                          ? product.images[0].url
+                          : product.imagenUrl || "/placeholder.jpg";
+
+                      const getCatalogSummary = (p) => {
+                        const baseText = p.shortDescription?.split(".")[0] || p.description?.split(".")[0] || "";
+                        const trimmedText = baseText.trim();
+                        if (!trimmedText) {
+                          return "Pieza pensada para sumar calidez y presencia al ambiente.";
+                        }
+                        return trimmedText.endsWith(".") ? trimmedText : `${trimmedText}.`;
+                      };
+
+                      return (
+                        <article className="catalog-card catalog-card--immersive featured-spotlight-card" key={product._id}>
+                          <div className="catalog-card__media">
+                            <img src={mainImage} alt={product.name} />
                           </div>
-                        </div>
-                      </article>
-                    ))}
+
+                          <div className="catalog-card__body">
+                            <p className="product-card__category">{product.category}</p>
+                            <h2>{product.name}</h2>
+                            <p className="catalog-card__description">
+                              {getCatalogSummary(product)}
+                            </p>
+                          </div>
+
+                          <div className="catalog-card__footer">
+                            <strong>{formatPrice(product.price)}</strong>
+
+                            <div className="catalog-card__actions">
+                              <button
+                                type="button"
+                                className="btn-secondary"
+                                onClick={() => onSelectProduct(product)}
+                              >
+                                Ver detalle
+                              </button>
+
+                              {currentUser?.role !== "admin" && (
+                                <a
+                                  href={`https://wa.me/5493804660709?text=${encodeURIComponent(
+                                    `¡Hola Chenille! Me interesa consultar por la pieza: ${product.name}`
+                                  )}`}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="btn-whatsapp"
+                                  style={{
+                                    textDecoration: "none",
+                                    display: "inline-flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    gap: "8px",
+                                  }}
+                                >
+                                  <svg
+                                    viewBox="0 0 24 24"
+                                    width="16"
+                                    height="16"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="2.5"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    style={{ display: "block" }}
+                                  >
+                                    <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+                                  </svg>
+                                  Consultar
+                                </a>
+                              )}
+                            </div>
+                          </div>
+                        </article>
+                      );
+                    })}
                   </div>
                 </div>
               ))}

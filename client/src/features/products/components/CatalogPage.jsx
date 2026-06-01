@@ -1,7 +1,5 @@
 import { useMemo, useState, useEffect, useRef } from "react";
-import CatalogHero from "./CatalogHero";
 import CatalogCollectionHeader from "./CatalogCollectionHeader";
-import CatalogSubcategoryFilters from "./CatalogSubcategoryFilters";
 import ProductGrid from "./ProductGrid";
 import CatalogPagination from "./CatalogPagination";
 import { getAllProducts } from "../../../services/productService";
@@ -14,18 +12,42 @@ const CatalogPage = ({
   selectedSubcategory = "",
   availableSubcategories = [],
   categories = [],
-  onSelectProduct = () => {},
+  onSelectProduct = () => { },
   // onAddToCart = () => {},
-  onCategorySelect = () => {},
-  onSubcategorySelect = () => {},
+  onCategorySelect = () => { },
+  onSubcategorySelect = () => { },
   currentUser = null,
 }) => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(() => {
+    const savedPage = sessionStorage.getItem("catalogCurrentPage");
+    console.log("CatalogPage [INIT]: savedPage from sessionStorage is:", savedPage);
+    return savedPage ? parseInt(savedPage, 10) : 1;
+  });
+
+  const handlePageChange = (page) => {
+    console.log("CatalogPage [handlePageChange]: called with:", page);
+    if (typeof page === "function") {
+      setCurrentPage((prev) => {
+        const nextPage = page(prev);
+        console.log("CatalogPage [handlePageChange]: functional nextPage:", nextPage);
+        sessionStorage.setItem("catalogCurrentPage", nextPage.toString());
+        return nextPage;
+      });
+    } else {
+      setCurrentPage(page);
+      console.log("CatalogPage [handlePageChange]: static page:", page);
+      sessionStorage.setItem("catalogCurrentPage", page.toString());
+    }
+  };
+
   const productSectionRef = useRef(null);
+  const prevCategory = useRef();
+  const prevSubcategory = useRef();
+
   useEffect(() => {
     const fetchProducts = async () => {
       try {
@@ -43,8 +65,47 @@ const CatalogPage = ({
   }, []);
 
   useEffect(() => {
-    setCurrentPage(1);
+    console.log("CatalogPage [Category Effect]: prevCategory =", prevCategory.current, "selectedCategory =", selectedCategory, "prevSubcategory =", prevSubcategory.current, "selectedSubcategory =", selectedSubcategory);
+    if (prevCategory.current !== undefined) {
+      if (
+        prevCategory.current !== selectedCategory ||
+        prevSubcategory.current !== selectedSubcategory
+      ) {
+        console.log("CatalogPage [Category Effect]: Genuinely changed! Resetting page to 1");
+        setCurrentPage(1);
+        sessionStorage.setItem("catalogCurrentPage", "1");
+        window.scrollTo({
+          top: 0,
+          behavior: "smooth",
+        });
+      }
+    }
+    prevCategory.current = selectedCategory;
+    prevSubcategory.current = selectedSubcategory;
   }, [selectedCategory, selectedSubcategory]);
+
+  useEffect(() => {
+    console.log("CatalogPage [Restoration Effect]: loading =", loading, "products.length =", products.length);
+    if (!loading && products.length > 0) {
+      const savedScroll = sessionStorage.getItem("catalogScrollPosition");
+      const savedPage = sessionStorage.getItem("catalogCurrentPage");
+      console.log("CatalogPage [Restoration Effect]: checking savedScroll =", savedScroll, "savedPage =", savedPage);
+      if (savedScroll) {
+        const scrollY = parseInt(savedScroll, 10);
+        setTimeout(() => {
+          console.log("CatalogPage [Restoration Effect]: scrolling to", scrollY);
+          const htmlEl = document.documentElement;
+          const originalScrollBehavior = htmlEl.style.scrollBehavior;
+          htmlEl.style.scrollBehavior = "auto";
+          window.scrollTo(0, scrollY);
+          requestAnimationFrame(() => {
+            htmlEl.style.scrollBehavior = originalScrollBehavior;
+          });
+        }, 50);
+        sessionStorage.removeItem("catalogScrollPosition");
+      }
+    }
+  }, [loading, products]);
 
   const selectedCategoryDefinition = categoryDefinitions.find(
     (category) => category.name === selectedCategory,
@@ -84,7 +145,7 @@ const CatalogPage = ({
             <img src={bgImage} alt="Fondo de estado" />
           </div>
           <div className="editorial-page-hero__overlay editorial-page-hero__overlay--soft" />
-          
+
           <div className="editorial-page-hero__content" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', paddingBottom: 0, margin: '0 auto', maxWidth: 'none' }}>
             <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(2.5rem, 5vw, 4rem)', color: '#FFF8F2', marginBottom: '16px' }}>{title}</h2>
             <p style={{ color: 'rgba(255, 248, 242, 0.8)', fontSize: '1.1rem', marginBottom: '8px', maxWidth: '500px' }}>{message}</p>
@@ -99,32 +160,28 @@ const CatalogPage = ({
   if (error) return renderStateScreen("No pudimos conectar", `Error de conexión: ${error}`, true);
 
   return (
-    <main className="catalog-page catalog-page--immersive">
-      <CatalogHero
-        selectedCategory={selectedCategory}
-        categories={categories}
-        onCategorySelect={onCategorySelect}
-      />
+    <main className="catalog-page catalog-page--ecommerce">
+      <nav className="catalog-category-nav">
+        <div className="catalog-category-nav__inner">
+          {categories.map((category) => (
+            <button
+              key={category}
+              type="button"
+              className={`catalog-category-nav__item ${category === selectedCategory ? "is-active" : ""}`}
+              onClick={() => onCategorySelect(category)}
+            >
+              {category}
+            </button>
+          ))}
+        </div>
+      </nav>
 
       <section
-        className="catalog-screen catalog-screen--products"
+        className="catalog-screen catalog-screen--ecommerce-products"
         ref={productSectionRef}
       >
         <div className="catalog-collection-shell">
-          <CatalogCollectionHeader
-            selectedCategory={selectedCategory}
-            selectedSubcategory={selectedSubcategory}
-            selectedCategoryDefinition={selectedCategoryDefinition}
-          />
-
-          {selectedCategoryDefinition && (
-            <CatalogSubcategoryFilters
-              selectedCategoryDefinition={selectedCategoryDefinition}
-              selectedSubcategory={selectedSubcategory}
-              availableSubcategories={availableSubcategories}
-              onSubcategorySelect={onSubcategorySelect}
-            />
-          )}
+          <CatalogCollectionHeader selectedCategory={selectedCategory} />
 
           <ProductGrid
             products={paginatedProducts}
@@ -138,7 +195,7 @@ const CatalogPage = ({
           <CatalogPagination
             currentPage={safeCurrentPage}
             totalPages={totalPages}
-            onPageChange={setCurrentPage}
+            onPageChange={handlePageChange}
             productsSectionRef={productSectionRef}
           />
         </div>

@@ -5,7 +5,6 @@ const ProductGrid = ({
   products,
   selectedCategory,
   onSelectProduct,
-  onAddToCart,
   showCreateCard = false,
   currentUser = null,
 }) => {
@@ -48,7 +47,7 @@ const ProductGrid = ({
           key={product._id}
           product={product}
           onSelectProduct={onSelectProduct}
-          onAddToCart={onAddToCart}
+          currentUser={currentUser}
         />
       ))}
     </section>

@@ -11,11 +11,17 @@
 
 .add-product-btn {
   margin-top: 15px;
-  padding: 10px 16px;
+  padding: 10px 18px;
   border: none;
-  background: #000;
+  background: #736C66;
   color: white;
   cursor: pointer;
-  border-radius: 6px;
+  border-radius: 999px;
   font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.add-product-btn:hover {
+  background: #524E4A;
+  transform: translateY(-1px);
 }

@@ -1,25 +1,11 @@
-const CatalogCollectionHeader = ({
-  selectedCategory,
-  selectedSubcategory,
-  selectedCategoryDefinition,
-}) => {
+const CatalogCollectionHeader = ({ selectedCategory }) => {
   return (
-    <div className="catalog-collection-shell__header">
-      <div>
-        <p className="eyebrow">Coleccion</p>
-        <h2>
-          {selectedCategory === "Todos"
-            ? "Toda la colección"
-            : selectedSubcategory
-              ? `${selectedCategory} / ${selectedSubcategory}`
-              : selectedCategory}
-        </h2>
-      </div>
-
-      <p className="catalog-collection-shell__text">
-        {selectedCategoryDefinition?.shortDescription ||
-          "Un recorrido editorial por las piezas principales de Chenille."}
-      </p>
+    <div className="catalog-collection-header--ecommerce">
+      <h1 className="catalog-collection-header__title">
+        {selectedCategory === "Todos"
+          ? "Todas las Piezas"
+          : selectedCategory}
+      </h1>
     </div>
   );
 };

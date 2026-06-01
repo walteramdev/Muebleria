@@ -16,6 +16,7 @@ const Header = ({
   isOverlay = false,
   currentUser = null,
   onLogout = () => { },
+  locationPathname = "",
 }) => {
   const [isProductsMenuOpen, setIsProductsMenuOpen] = useState(false);
   const [isHeaderVisible, setIsHeaderVisible] = useState(true);
@@ -42,7 +43,7 @@ const Header = ({
     const handleScroll = () => {
       const currentScrollY = getScrollTop();
 
-      if (currentScrollY <= 24) {
+      if (currentScrollY <= 120) {
         setIsHeaderVisible(true);
         lastScrollY = currentScrollY;
         return;
@@ -65,11 +66,13 @@ const Header = ({
     return () => {
       scrollContainer?.removeEventListener("scroll", handleScroll);
     };
-  }, [activeView]);
+  }, [activeView, locationPathname]);
 
   useEffect(() => {
     const updateHeaderHeight = () => {
-      setHeaderHeight(headerRef.current?.offsetHeight ?? 0);
+      const height = headerRef.current?.offsetHeight ?? 0;
+      setHeaderHeight(height);
+      document.documentElement.style.setProperty("--header-height", `${height}px`);
     };
 
     updateHeaderHeight();
@@ -90,6 +93,10 @@ const Header = ({
       window.removeEventListener("resize", updateHeaderHeight);
     };
   }, []);
+
+  useEffect(() => {
+    setIsHeaderVisible(true);
+  }, [locationPathname]);
 
   useEffect(
     () => () => {
@@ -178,6 +185,7 @@ const Header = ({
 
   return (
     <div
+      ref={headerRef}
       className={`main-header-wrapper ${isOverlay ? "is-overlay" : ""} ${isHeaderVisible ? "" : "is-hidden"}`}
     >
       <div className="featured-marquee" aria-hidden="true">
@@ -189,7 +197,7 @@ const Header = ({
           ))}
         </div>
       </div>
-      <header ref={headerRef} className="main-header">
+      <header className="main-header">
         <button
           type="button"
           className="recuadro-logo"
@@ -416,9 +424,13 @@ const Header = ({
         <button type="button" onClick={handleNavClick("/contacto")}>
           Contacto
         </button>
-        {currentUser && (
+        {currentUser ? (
           <button type="button" onClick={handleLogoutClick}>
             Salir
+          </button>
+        ) : (
+          <button type="button" onClick={handleNavClick("/iniciar-sesion")}>
+            Acceder
           </button>
         )}
       </div>

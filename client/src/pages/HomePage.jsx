@@ -50,6 +50,7 @@ const HomePage = ({
   products = [],
   isLoading = false,
   error = null,
+  currentUser = null,
 }) => {
   const sectionRefs = useRef({});
   const homeRef = useRef(null);
@@ -334,6 +335,7 @@ const HomePage = ({
           featuredSlides={featuredSlides}
           formatPrice={formatPrice}
           onSelectProduct={onSelectProduct}
+          currentUser={currentUser}
         />
 
         <ManifestoSection

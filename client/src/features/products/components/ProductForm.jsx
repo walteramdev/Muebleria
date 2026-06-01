@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import "../../../styles/admin.css";
 const AVAILABLE_FEATURES = [
   { value: "medidas", label: "Medidas" },
   { value: "materiales", label: "Materiales" },

@@ -32,6 +32,16 @@ const ScrollToTop = () => {
   const { pathname } = useLocation();
 
   useEffect(() => {
+    if (pathname === "/productos") {
+      const savedScroll = sessionStorage.getItem("catalogScrollPosition");
+      if (savedScroll) {
+        // Let CatalogPage restore scroll once products are fully loaded
+        return;
+      } else {
+        // Clear active page state on a fresh catalog visit
+        sessionStorage.removeItem("catalogCurrentPage");
+      }
+    }
     window.scrollTo(0, 0);
   }, [pathname]);
 
@@ -41,12 +51,14 @@ const ScrollToTop = () => {
 const ProductDetailRoute = () => {
   const navigate = useNavigate();
   const { id } = useParams();
+  const { user } = useContext(AuthContext);
   const product = featuredProducts.find((item) => item._id === id);
 
   return (
     <ProductDetailPage
       product={product}
       onBack={() => navigate("/productos")}
+      currentUser={user}
     />
   );
 };
@@ -80,6 +92,7 @@ const CatalogRoute = ({ currentUser }) => {
     selectedCategoryDefinition?.subcategories ?? [];
 
   const handleSelectProduct = (product) => {
+    sessionStorage.setItem("catalogScrollPosition", window.scrollY.toString());
     navigate(`/productos/${product._id}`);
   };
 
@@ -131,6 +144,11 @@ function AppContent() {
   const location = useLocation();
 
   const handleNavigate = (destination) => {
+    if (destination.startsWith("/productos")) {
+      sessionStorage.removeItem("catalogCurrentPage");
+      sessionStorage.removeItem("catalogScrollPosition");
+    }
+
     if (destination.startsWith("/")) {
       navigate(destination);
       return;
@@ -152,6 +170,7 @@ function AppContent() {
   };
 
   const handleSelectProduct = (product) => {
+    sessionStorage.setItem("catalogScrollPosition", window.scrollY.toString());
     navigate(`/productos/${product._id}`);
   };
 
@@ -188,6 +207,7 @@ function AppContent() {
         isOverlay
         currentUser={user}
         onLogout={handleLogoutClick}
+        locationPathname={location.pathname}
       />
 
       <Routes>
@@ -201,6 +221,7 @@ function AppContent() {
               isLoading={false}
               error={null}
               onSelectProduct={handleSelectProduct}
+              currentUser={user}
             />
           }
         />
@@ -247,6 +268,7 @@ function AppContent() {
             <HomePage
               categoryDefinitions={categoryDefinitions}
               onSelectProduct={handleSelectProduct}
+              currentUser={user}
             />
           }
         />
