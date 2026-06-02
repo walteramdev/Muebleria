@@ -112,38 +112,29 @@ const CatalogPage = ({
   );
 
   // const firstPageCapacity = PRODUCTS_PER_PAGE - 1;
-  const isAdmin = currentUser?.role === "admin";
-  const firstPageCapacity = isAdmin
+  const showCreateCard = currentPage === 1 && currentUser?.role === "admin";
+  const firstPageCapacity = showCreateCard
     ? PRODUCTS_PER_PAGE - 1
     : PRODUCTS_PER_PAGE;
 
-  const filteredProducts = useMemo(() => {
-    return products.filter((product) => {
-      if (selectedCategory === "Todos") return true;
-      return product.category?.toLowerCase() === selectedCategory.toLowerCase();
-    });
-  }, [products, selectedCategory]);
-
-  const remainingProducts = Math.max(0, filteredProducts.length - firstPageCapacity);
+  const remainingProducts = Math.max(0, products.length - firstPageCapacity);
 
   const totalPages = 1 + Math.ceil(remainingProducts / PRODUCTS_PER_PAGE);
 
   const safeCurrentPage = Math.min(currentPage, totalPages);
 
-  const showCreateCard = safeCurrentPage === 1 && isAdmin;
-
   const paginatedProducts = useMemo(() => {
     // Página 1
     if (safeCurrentPage === 1) {
-      return filteredProducts.slice(0, firstPageCapacity);
+      return products.slice(0, firstPageCapacity);
     }
 
     // Productos ya usados en página 1
     const startIndex =
       firstPageCapacity + (safeCurrentPage - 2) * PRODUCTS_PER_PAGE;
 
-    return filteredProducts.slice(startIndex, startIndex + PRODUCTS_PER_PAGE);
-  }, [filteredProducts, safeCurrentPage, firstPageCapacity]);
+    return products.slice(startIndex, startIndex + PRODUCTS_PER_PAGE);
+  }, [products, safeCurrentPage, firstPageCapacity]);
 
   const renderStateScreen = (title, message, isError = false) => {
     const bgImage = "https://images.pexels.com/photos/1080721/pexels-photo-1080721.jpeg?auto=compress&cs=tinysrgb&w=1600";

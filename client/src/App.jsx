@@ -203,6 +203,7 @@ function AppContent() {
                     ? "login"
                     : ""
         }
+        cartEnabled={true}
         isOverlay
         currentUser={user}
         onLogout={handleLogoutClick}
