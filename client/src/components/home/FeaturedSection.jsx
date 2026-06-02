@@ -31,13 +31,17 @@ const FeaturedSection = ({
     e.preventDefault();
     const x = e.pageX;
     const walk = x - startX;
-    
+
     if (Math.abs(walk) > 120) {
       setIsDragging(false);
       if (walk > 0) {
-        document.querySelector('#featuredCarousel .carousel-control-prev')?.click();
+        document
+          .querySelector("#featuredCarousel .carousel-control-prev")
+          ?.click();
       } else {
-        document.querySelector('#featuredCarousel .carousel-control-next')?.click();
+        document
+          .querySelector("#featuredCarousel .carousel-control-next")
+          ?.click();
       }
     }
   };
@@ -52,13 +56,20 @@ const FeaturedSection = ({
       <div className="home-screen__overlay" />
       <div className="home-screen__content home-screen__content--wide is-active-panel">
         <div className="screen-heading screen-heading--light screen-heading--compact">
-          <p className="eyebrow eyebrow--light">Destacados</p>
-          <h2>Selección que define a Chenille</h2>
+          {/* <p className="eyebrow eyebrow--light">Destacados</p> */}
+          {/* <h2>Selección que define a Chenille</h2> */}
+          <h2>Novedades</h2>
         </div>
 
-        {isLoading && <p className="state-message state-message--light">Cargando productos...</p>}
+        {isLoading && (
+          <p className="state-message state-message--light">
+            Cargando productos...
+          </p>
+        )}
         {!isLoading && error && (
-          <p className="state-message state-message--light state-error">{error}</p>
+          <p className="state-message state-message--light state-error">
+            {error}
+          </p>
         )}
 
         {!isLoading && !error && (
@@ -82,13 +93,16 @@ const FeaturedSection = ({
               ))}
             </div>
 
-            <div 
+            <div
               className="carousel-inner"
               onMouseDown={handleMouseDown}
               onMouseMove={handleMouseMove}
               onMouseUp={handleMouseUp}
               onMouseLeave={handleMouseLeave}
-              style={{ cursor: isDragging ? 'grabbing' : 'grab', userSelect: isDragging ? 'none' : 'auto' }}
+              style={{
+                cursor: isDragging ? "grabbing" : "grab",
+                userSelect: isDragging ? "none" : "auto",
+              }}
             >
               {featuredSlides.map((slide, index) => (
                 <div
@@ -103,22 +117,32 @@ const FeaturedSection = ({
                           : product.imagenUrl || "/placeholder.jpg";
 
                       const getCatalogSummary = (p) => {
-                        const baseText = p.shortDescription?.split(".")[0] || p.description?.split(".")[0] || "";
+                        const baseText =
+                          p.shortDescription?.split(".")[0] ||
+                          p.description?.split(".")[0] ||
+                          "";
                         const trimmedText = baseText.trim();
                         if (!trimmedText) {
                           return "Pieza pensada para sumar calidez y presencia al ambiente.";
                         }
-                        return trimmedText.endsWith(".") ? trimmedText : `${trimmedText}.`;
+                        return trimmedText.endsWith(".")
+                          ? trimmedText
+                          : `${trimmedText}.`;
                       };
 
                       return (
-                        <article className="catalog-card catalog-card--immersive featured-spotlight-card" key={product._id}>
+                        <article
+                          className="catalog-card catalog-card--immersive featured-spotlight-card"
+                          key={product._id}
+                        >
                           <div className="catalog-card__media">
                             <img src={mainImage} alt={product.name} />
                           </div>
 
                           <div className="catalog-card__body">
-                            <p className="product-card__category">{product.category}</p>
+                            <p className="product-card__category">
+                              {product.category}
+                            </p>
                             <h2>{product.name}</h2>
                             <p className="catalog-card__description">
                               {getCatalogSummary(product)}
@@ -140,7 +164,7 @@ const FeaturedSection = ({
                               {currentUser?.role !== "admin" && (
                                 <a
                                   href={`https://wa.me/5493804660709?text=${encodeURIComponent(
-                                    `¡Hola Chenille! Me interesa consultar por la pieza: ${product.name}`
+                                    `¡Hola Chenille! Me interesa consultar por la pieza: ${product.name}`,
                                   )}`}
                                   target="_blank"
                                   rel="noreferrer"
