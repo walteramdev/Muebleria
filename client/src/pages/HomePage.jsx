@@ -16,8 +16,6 @@ const sectionIds = [
   "cierre",
 ];
 const indicatorIds = sectionIds.slice(0, 4);
-const collectionSharedBackground =
-  "linear-gradient(180deg, #14110f 0%, #211b18 100%)";
 const chunkItems = (items, size) =>
   items.reduce((groups, item, index) => {
     if (index % size === 0) {
@@ -37,16 +35,36 @@ const backgroundImages = {
 };
 
 const collectionCategories = [
-  { name: "Outdoor", fallbackImage: "https://images.unsplash.com/photo-1540932239986-30128078f3c5?auto=format&fit=crop&w=800&q=80" },
-  { name: "Living", fallbackImage: "https://images.unsplash.com/photo-1583847268964-b28dc8f51f92?auto=format&fit=crop&w=800&q=80" },
-  { name: "Sofás", fallbackImage: "https://images.unsplash.com/photo-1493663284031-b7e3aefcae8e?auto=format&fit=crop&w=800&q=80" },
-  { name: "Comedor", fallbackImage: "https://images.unsplash.com/photo-1617806118233-18e1c0945594?auto=format&fit=crop&w=800&q=80" },
-  { name: "Dormitorio", fallbackImage: "https://images.unsplash.com/photo-1616594039964-ae9021a400a0?auto=format&fit=crop&w=800&q=80" }
+  {
+    name: "Outdoor",
+    fallbackImage:
+      "https://images.unsplash.com/photo-1540932239986-30128078f3c5?auto=format&fit=crop&w=800&q=80",
+  },
+  {
+    name: "Living",
+    fallbackImage:
+      "https://images.unsplash.com/photo-1583847268964-b28dc8f51f92?auto=format&fit=crop&w=800&q=80",
+  },
+  {
+    name: "Sofás",
+    fallbackImage:
+      "https://images.unsplash.com/photo-1493663284031-b7e3aefcae8e?auto=format&fit=crop&w=800&q=80",
+  },
+  {
+    name: "Comedor",
+    fallbackImage:
+      "https://images.unsplash.com/photo-1617806118233-18e1c0945594?auto=format&fit=crop&w=800&q=80",
+  },
+  {
+    name: "Dormitorio",
+    fallbackImage:
+      "https://images.unsplash.com/photo-1616594039964-ae9021a400a0?auto=format&fit=crop&w=800&q=80",
+  },
 ];
 
 const HomePage = ({
   categoryDefinitions = [],
-  onSelectProduct = () => { },
+  onSelectProduct = () => {},
   products = [],
   isLoading = false,
   error = null,
@@ -56,7 +74,6 @@ const HomePage = ({
   const homeRef = useRef(null);
   const contentRef = useRef(null);
   const lenisRef = useRef(null);
-  const collectionTouchStartRef = useRef(null);
   const activeSectionRef = useRef("inicio");
   const wheelLockRef = useRef(false);
   const wheelDeltaRef = useRef(0);
@@ -79,7 +96,9 @@ const HomePage = ({
 
   const collections = useMemo(() => {
     return collectionCategories.map((cat) => {
-      const categoryData = categoryShowcase.find((item) => item.name === cat.name);
+      const categoryData = categoryShowcase.find(
+        (item) => item.name === cat.name,
+      );
       return {
         id: cat.name,
         name: cat.name,
@@ -105,7 +124,6 @@ const HomePage = ({
       window.removeEventListener("resize", updateItemsPerSlide);
     };
   }, []);
-
 
   useEffect(() => {
     activeSectionRef.current = activeSection;
@@ -292,8 +310,6 @@ const HomePage = ({
 
     targetSection.scrollIntoView({ behavior: "smooth", block: "start" });
   };
-
-
 
   return (
     <main className="home-page home-page--immersive" ref={homeRef}>

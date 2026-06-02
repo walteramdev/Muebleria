@@ -88,18 +88,52 @@ const ProductDetailPage = ({ onBack = () => {}, currentUser = null }) => {
   }, []);
 
   const renderStateScreen = (title, message, isError = false) => {
-    const bgImage = "https://images.pexels.com/photos/1080721/pexels-photo-1080721.jpeg?auto=compress&cs=tinysrgb&w=1600";
+    const bgImage =
+      "https://images.pexels.com/photos/1080721/pexels-photo-1080721.jpeg?auto=compress&cs=tinysrgb&w=1600";
     return (
       <main className="info-page info-page--brand" style={{ paddingBottom: 0 }}>
         <section className="editorial-page-hero">
-          <div className="editorial-page-hero__media" style={{ filter: 'grayscale(100%) brightness(0.4)' }}>
+          <div
+            className="editorial-page-hero__media"
+            style={{ filter: "grayscale(100%) brightness(0.4)" }}
+          >
             <img src={bgImage} alt="Fondo de estado" />
           </div>
           <div className="editorial-page-hero__overlay editorial-page-hero__overlay--soft" />
-          
-          <div className="editorial-page-hero__content" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', paddingBottom: 0, margin: '0 auto', maxWidth: 'none' }}>
-            <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(2.5rem, 5vw, 4rem)', color: '#FFF8F2', margin: '0 0 16px' }}>{title}</h2>
-            <p style={{ color: 'rgba(255, 248, 242, 0.8)', fontSize: '1.1rem', marginBottom: '32px', maxWidth: '500px' }}>{message}</p>
+
+          <div
+            className="editorial-page-hero__content"
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              textAlign: "center",
+              paddingBottom: 0,
+              margin: "0 auto",
+              maxWidth: "none",
+            }}
+          >
+            <h2
+              style={{
+                fontFamily: "var(--font-display)",
+                fontSize: "clamp(2.5rem, 5vw, 4rem)",
+                color: "#FFF8F2",
+                margin: "0 0 16px",
+              }}
+            >
+              {title}
+            </h2>
+            <p
+              style={{
+                color: "rgba(255, 248, 242, 0.8)",
+                fontSize: "1.1rem",
+                marginBottom: "32px",
+                maxWidth: "500px",
+              }}
+            >
+              {message}
+            </p>
             {isError && (
               <button type="button" className="btn-primary" onClick={onBack}>
                 Volver al catálogo
@@ -111,9 +145,23 @@ const ProductDetailPage = ({ onBack = () => {}, currentUser = null }) => {
     );
   };
 
-  if (loading) return renderStateScreen("Cargando detalle", "Obteniendo información de la pieza...");
-  if (error) return renderStateScreen("No pudimos conectar", `Error de conexión: ${error}`, true);
-  if (!product) return renderStateScreen("Pieza no encontrada", "No logramos ubicar este producto en la colección.", true);
+  if (loading)
+    return renderStateScreen(
+      "Cargando detalle",
+      "Obteniendo información de la pieza...",
+    );
+  if (error)
+    return renderStateScreen(
+      "No pudimos conectar",
+      `Error de conexión: ${error}`,
+      true,
+    );
+  if (!product)
+    return renderStateScreen(
+      "Pieza no encontrada",
+      "No logramos ubicar este producto en la colección.",
+      true,
+    );
 
   return (
     <main className="detail-page">
@@ -176,20 +224,24 @@ const ProductDetailPage = ({ onBack = () => {}, currentUser = null }) => {
           </p>
 
           <div className="detail-summary">
-            <div>
-              <span className="detail-summary__label">Marca</span>
-              <strong>{product.brand || "A definir"}</strong>
-            </div>
+            {currentUser?.role === "admin" && (
+              <>
+                <div>
+                  <span className="detail-summary__label">Marca</span>
+                  <strong>{product.brand || "A definir"}</strong>
+                </div>
 
-            <div>
-              <span className="detail-summary__label">Proveedor</span>
-              <strong>{product.supplier || "A definir"}</strong>
-            </div>
+                <div>
+                  <span className="detail-summary__label">Proveedor</span>
+                  <strong>{product.supplier || "A definir"}</strong>
+                </div>
 
-            <div>
-              <span className="detail-summary__label">Stock</span>
-              <strong>{product.stock} unidad(es)</strong>
-            </div>
+                <div>
+                  <span className="detail-summary__label">Stock</span>
+                  <strong>{product.stock} unidad(es)</strong>
+                </div>
+              </>
+            )}
 
             {product.features &&
               Object.entries(product.features).map(([key, value]) => (
@@ -206,7 +258,7 @@ const ProductDetailPage = ({ onBack = () => {}, currentUser = null }) => {
             {currentUser?.role !== "admin" && (
               <a
                 href={`https://wa.me/5493804660709?text=${encodeURIComponent(
-                  `¡Hola Chenille! Me interesa consultar por la pieza: ${product.name}`
+                  `¡Hola Chenille! Me interesa consultar por la pieza: ${product.name}`,
                 )}`}
                 target="_blank"
                 rel="noreferrer"
