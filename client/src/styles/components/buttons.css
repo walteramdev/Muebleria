@@ -1,0 +1,46 @@
+/* client/src/styles/components/buttons.css */
+
+.btn-primary,
+.btn-secondary,
+.btn-whatsapp,
+.product-card__button {
+  padding: 0.9rem 1.2rem;
+  border-radius: 999px;
+  cursor: pointer;
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease,
+    background-color 0.18s ease;
+}
+
+.btn-whatsapp {
+  background: #25D366;
+  color: #fff;
+  box-shadow: 0 14px 24px rgba(37, 211, 102, 0.18);
+}
+
+.btn-primary:hover,
+.btn-secondary:hover,
+.btn-whatsapp:hover,
+.product-card__button:hover {
+  transform: translateY(-2px);
+}
+
+.btn-secondary--light {
+  background: rgba(255, 248, 242, 0.1);
+  border-color: rgba(255, 248, 242, 0.24);
+  color: #fff7ee;
+  text-decoration: none;
+}
+
+.btn-primary,
+.product-card__button {
+  background: #111;
+  color: #fff;
+  box-shadow: 0 16px 26px rgba(17, 17, 17, 0.16);
+}
+
+.btn-secondary {
+  background: rgba(255, 253, 249, 0.7);
+  border-color: rgba(20, 17, 15, 0.14);
+}

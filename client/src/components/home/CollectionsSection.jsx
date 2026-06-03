@@ -1,5 +1,6 @@
 import React, { useRef, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import "../../styles/components/collections-hero.css";
 
 const CollectionsSection = ({ sectionRef, collections = [], backgroundImage }) => {
   const navigate = useNavigate();

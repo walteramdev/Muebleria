@@ -4,6 +4,7 @@ import { API_BASE_URL } from "../../../config";
 import { getProductById } from "../../../services/productService";
 
 import "../../../styles/Product.css";
+import "../../../styles/detail.css";
 
 const ProductDetailPage = ({ onBack = () => {}, currentUser = null }) => {
   const { id } = useParams();

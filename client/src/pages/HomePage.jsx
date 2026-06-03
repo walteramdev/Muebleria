@@ -7,6 +7,7 @@ import FeaturedSection from "../components/home/FeaturedSection";
 import ManifestoSection from "../components/home/ManifestoSection";
 
 import { formatPrice } from "../utils/formatters.js";
+import "../styles/home.css";
 
 const sectionIds = [
   "inicio",

@@ -1,3 +1,7 @@
+import React from 'react';
+import Footer from '../layouts/Footer';
+import '../styles/about.css';
+
 const AboutPage = () => {
   const bgImage = "https://images.pexels.com/photos/15558971/pexels-photo-15558971.jpeg?auto=compress&cs=tinysrgb&w=1600";
 

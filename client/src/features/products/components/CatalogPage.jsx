@@ -4,6 +4,7 @@ import ProductGrid from "./ProductGrid";
 import CatalogPagination from "./CatalogPagination";
 import { getAllProducts } from "../../../services/productService";
 import { getCategories, createCategory, updateCategory, deleteCategory } from "../../../services/categoryService";
+import "../../../styles/catalog.css";
 
 const PRODUCTS_PER_PAGE = 6;
 
