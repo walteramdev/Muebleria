@@ -1,4 +1,4 @@
-import { React, useMemo, useContext, useEffect } from "react";
+import { React, useMemo, useContext, useEffect, useState } from "react";
 import {
   BrowserRouter,
   Route,
@@ -20,13 +20,14 @@ import AboutPage from "./pages/AboutPage.jsx";
 import ContactPage from "./pages/ContactPage.jsx";
 import ProtectedRoute from "./features/users/admin/ProtectedRoute.jsx";
 import {
-  categoryDefinitions,
-  productTypes,
+  categoryDefinitions as staticCategoryDefinitions,
+  productTypes as staticProductTypes,
   featuredProducts,
 } from "./utils/mockData.js";
 import LoginPage from "./pages/LoginPage.jsx";
 import { AuthProvider } from "../auth/AuthProvider.jsx";
 import { AuthContext } from "../auth/AuthContext.js";
+import { getCategories } from "./services/categoryService";
 
 const ScrollToTop = () => {
   const { pathname } = useLocation();
@@ -54,16 +55,32 @@ const ProductDetailRoute = () => {
   const { user } = useContext(AuthContext);
   const product = featuredProducts.find((item) => item._id === id);
 
+  const handleBack = () => {
+    const backPath = sessionStorage.getItem("productDetailBackPath");
+    if (backPath === "destacados") {
+      navigate("/");
+      window.setTimeout(() => {
+        document
+          .getElementById("destacados")
+          ?.scrollIntoView({ behavior: "auto", block: "start" });
+      }, 80);
+    } else if (backPath) {
+      navigate(backPath);
+    } else {
+      navigate("/productos");
+    }
+  };
+
   return (
     <ProductDetailPage
       product={product}
-      onBack={() => navigate("/productos")}
+      onBack={handleBack}
       currentUser={user}
     />
   );
 };
 
-const CatalogRoute = ({ currentUser }) => {
+const CatalogRoute = ({ currentUser, categoryDefinitions, productTypes }) => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const selectedCategory = searchParams.get("categoria") || "Todos";
@@ -92,7 +109,13 @@ const CatalogRoute = ({ currentUser }) => {
     selectedCategoryDefinition?.subcategories ?? [];
 
   const handleSelectProduct = (product) => {
+    const backPath = `/productos${selectedCategory !== "Todos" ? `?categoria=${encodeURIComponent(selectedCategory)}${selectedSubcategory ? `&subcategoria=${encodeURIComponent(selectedSubcategory)}` : ""}` : ""}`;
+    const backLabel = selectedCategory === "Todos" ? "Volver al catálogo" : `Volver a ${selectedCategory}`;
     sessionStorage.setItem("catalogScrollPosition", window.scrollY.toString());
+    sessionStorage.setItem("catalogCategory", selectedCategory);
+    sessionStorage.setItem("catalogSubcategory", selectedSubcategory);
+    sessionStorage.setItem("productDetailBackPath", backPath);
+    sessionStorage.setItem("productDetailBackLabel", backLabel);
     navigate(`/productos/${product._id}`);
   };
 
@@ -143,6 +166,36 @@ function AppContent() {
   const navigate = useNavigate();
   const location = useLocation();
 
+  const [categoryDefinitionsState, setCategoryDefinitionsState] = useState(staticCategoryDefinitions);
+  const [productTypesState, setProductTypesState] = useState(staticProductTypes);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const data = await getCategories();
+        if (data && data.categories) {
+          const merged = data.categories.map((dbCat) => {
+            const staticMatch = staticCategoryDefinitions.find(
+              (s) => s.name.toLowerCase() === dbCat.name.toLowerCase()
+            );
+            return {
+              _id: dbCat._id,
+              name: dbCat.name,
+              image: dbCat.image || staticMatch?.image || "",
+              shortDescription: staticMatch?.shortDescription || "Muebles de excelente diseño y calidad.",
+              subcategories: staticMatch?.subcategories || [],
+            };
+          });
+          setCategoryDefinitionsState(merged);
+          setProductTypesState(merged.map((c) => c.name));
+        }
+      } catch (err) {
+        console.error("Error al cargar categorías dinámicas:", err);
+      }
+    };
+    fetchCategories();
+  }, []);
+
   const handleNavigate = (destination) => {
     if (destination.startsWith("/productos")) {
       sessionStorage.removeItem("catalogCurrentPage");
@@ -170,7 +223,10 @@ function AppContent() {
   };
 
   const handleSelectProduct = (product) => {
-    sessionStorage.setItem("catalogScrollPosition", window.scrollY.toString());
+    sessionStorage.setItem("productDetailBackPath", "destacados");
+    sessionStorage.setItem("productDetailBackLabel", "Volver a destacados");
+    sessionStorage.removeItem("catalogCategory");
+    sessionStorage.removeItem("catalogSubcategory");
     navigate(`/productos/${product._id}`);
   };
 
@@ -189,7 +245,7 @@ function AppContent() {
       <ScrollToTop />
       <Header
         onNavigate={handleNavigate}
-        categoryDefinitions={categoryDefinitions}
+        categoryDefinitions={categoryDefinitionsState}
         activeView={
           location.pathname === "/"
             ? "home"
@@ -215,7 +271,7 @@ function AppContent() {
           path="/"
           element={
             <HomePage
-              categoryDefinitions={categoryDefinitions}
+              categoryDefinitions={categoryDefinitionsState}
               products={featuredProducts}
               isLoading={false}
               error={null}
@@ -245,7 +301,7 @@ function AppContent() {
         />
         <Route
           path="/productos"
-          element={<CatalogRoute currentUser={user} />}
+          element={<CatalogRoute currentUser={user} categoryDefinitions={categoryDefinitionsState} productTypes={productTypesState} />}
         />
         <Route path="/productos/:id" element={<ProductDetailRoute />} />
         {/* Route user */}
@@ -265,7 +321,7 @@ function AppContent() {
           path="*"
           element={
             <HomePage
-              categoryDefinitions={categoryDefinitions}
+              categoryDefinitions={categoryDefinitionsState}
               onSelectProduct={handleSelectProduct}
               currentUser={user}
             />

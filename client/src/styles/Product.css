@@ -330,3 +330,114 @@
     width: 100%;
   }
 }
+
+/* ========== CUSTOM CONFIRMATION MODAL ========== */
+.custom-modal-overlay {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  max-width: none !important;
+  background-color: rgba(32, 26, 23, 0.4);
+  backdrop-filter: blur(8px);
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  z-index: 99999 !important;
+  animation: fadeIn 0.25s ease-out;
+}
+
+.custom-modal-card {
+  background: #fbf9f6;
+  border: 1px solid rgba(32, 26, 23, 0.1);
+  border-radius: 12px;
+  padding: 32px;
+  width: 90%;
+  max-width: 440px;
+  box-shadow: 0 20px 40px rgba(32, 26, 23, 0.15);
+  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  text-align: center;
+}
+
+.custom-modal-card h3 {
+  font-family: var(--font-sans, "Inter", sans-serif);
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #201a17;
+  margin-top: 0;
+  margin-bottom: 12px;
+  letter-spacing: -0.02em;
+}
+
+.custom-modal-card p {
+  font-family: var(--font-sans, "Inter", sans-serif);
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: #5c504a;
+  margin-bottom: 28px;
+}
+
+.custom-modal-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.btn-modal-cancel {
+  background: transparent;
+  border: 1px solid rgba(32, 26, 23, 0.2);
+  color: #201a17;
+  padding: 12px 24px;
+  font-family: var(--font-sans, "Inter", sans-serif);
+  font-size: 0.9rem;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 120px;
+}
+
+.btn-modal-cancel:hover {
+  background: rgba(32, 26, 23, 0.05);
+  border-color: #201a17;
+}
+
+.btn-modal-confirm {
+  background: #201a17;
+  border: 1px solid #201a17;
+  color: #fbf9f6;
+  padding: 12px 24px;
+  font-family: var(--font-sans, "Inter", sans-serif);
+  font-size: 0.9rem;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 120px;
+}
+
+.btn-modal-confirm:hover {
+  background: #3e332e;
+  border-color: #3e332e;
+}
+
+.btn-modal-confirm.btn-modal-danger {
+  background: #c95d4e;
+  border-color: #c95d4e;
+}
+
+.btn-modal-confirm.btn-modal-danger:hover {
+  background: #b2483a;
+  border-color: #b2483a;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}

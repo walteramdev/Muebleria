@@ -1488,48 +1488,82 @@ main {
 
   /* Contact page mobile responsiveness */
   .editorial-page-hero__content--contact {
-    padding-top: 100px;
-    padding-bottom: 40px;
-    gap: 28px;
+    padding-top: 120px; /* Safe distance to clear the fixed navbar */
+    padding-bottom: 24px;
+    gap: 16px;
+    width: 100%;
+    padding-inline: 16px;
+    box-sizing: border-box;
+    justify-content: flex-start; /* Ensures content flows downwards naturally */
+  }
+
+  .contact-hero-header {
+    text-align: left;
+    width: 100%;
   }
 
   .contact-hero-header h1 {
-    font-size: clamp(1.75rem, 5vw, 2.4rem);
+    font-size: clamp(1.4rem, 6vw, 2.2rem);
+    text-align: left;
+    max-width: 100%;
+    margin-top: 6px;
+  }
+
+  .contact-hero-header .eyebrow {
+    text-align: left;
+    margin-bottom: 0;
+    font-size: 0.95rem; /* Make it more noticeable */
+    color: #ffffff; /* Make it stand out against the background */
+    letter-spacing: 0.2em;
   }
 
   .contact-hero-body {
     grid-template-columns: 1fr;
-    gap: 28px;
+    gap: 0;
   }
 
   .contact-hero-sidebar {
-    justify-content: center;
-    padding-right: 0;
-  }
-
-  .contact-hero-sidebar .page-hero__text--light {
-    text-align: center;
-    max-width: 100%;
-    font-size: 0.95rem;
+    display: none;
   }
 
   .contact-hero-form {
-    padding: 18px;
-    border-radius: 16px;
+    padding: 16px;
+    border-radius: 12px;
+    margin-top: 0;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .contact-hero-form__eyebrow {
+    margin-bottom: 12px;
+  }
+
+  .contact-hero-form__field textarea {
+    min-height: 70px;
   }
 
   .contact-hero-form__row {
     grid-template-columns: 1fr;
-    gap: 14px;
-  }
-
-  .contact-hero-form__actions {
-    grid-template-columns: 1fr;
     gap: 10px;
   }
 
+  .contact-hero-form__actions {
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 8px;
+    margin-top: 12px;
+  }
+
+  .contact-hero-form__actions button,
   .contact-hero-form__actions .btn-whatsapp {
-    padding: 0.85rem 1.5rem;
-    height: 48px;
+    padding: 0.6rem 0.4rem;
+    height: 44px;
+    font-size: clamp(0.75rem, 3.5vw, 0.85rem);
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    box-sizing: border-box;
+    white-space: nowrap;
   }
 }

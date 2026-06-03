@@ -39,26 +39,31 @@ const collectionCategories = [
     name: "Outdoor",
     fallbackImage:
       "https://images.unsplash.com/photo-1540932239986-30128078f3c5?auto=format&fit=crop&w=800&q=80",
+    createdAt: "2026-05-25T00:00:00Z", // Menos de 2 semanas (Nueva)
   },
   {
     name: "Living",
     fallbackImage:
       "https://images.unsplash.com/photo-1583847268964-b28dc8f51f92?auto=format&fit=crop&w=800&q=80",
+    createdAt: "2026-05-10T00:00:00Z", // Más de 2 semanas
   },
   {
     name: "Sofás",
     fallbackImage:
       "https://images.unsplash.com/photo-1493663284031-b7e3aefcae8e?auto=format&fit=crop&w=800&q=80",
+    createdAt: "2026-05-10T00:00:00Z",
   },
   {
     name: "Comedor",
     fallbackImage:
-      "https://images.unsplash.com/photo-1617806118233-18e1c0945594?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1577140917170-285929fb55b7?auto=format&fit=crop&w=800&q=80",
+    createdAt: "2026-05-10T00:00:00Z",
   },
   {
     name: "Dormitorio",
     fallbackImage:
       "https://images.unsplash.com/photo-1616594039964-ae9021a400a0?auto=format&fit=crop&w=800&q=80",
+    createdAt: "2026-05-10T00:00:00Z",
   },
 ];
 
@@ -95,17 +100,21 @@ const HomePage = ({
   );
 
   const collections = useMemo(() => {
-    return collectionCategories.map((cat) => {
+    return categoryDefinitions.map((cat) => {
       const categoryData = categoryShowcase.find(
-        (item) => item.name === cat.name,
+        (item) => item.name.toLowerCase() === cat.name.toLowerCase(),
+      );
+      const fallbackCat = collectionCategories.find(
+        (c) => c.name.toLowerCase() === cat.name.toLowerCase()
       );
       return {
         id: cat.name,
         name: cat.name,
-        image: categoryData?.featuredProduct?.imagenUrl || cat.fallbackImage,
+        image: cat.image || categoryData?.featuredProduct?.imagenUrl || fallbackCat?.fallbackImage || "https://images.unsplash.com/photo-1540518614846-7eded433c457?auto=format&fit=crop&w=800&q=80",
+        createdAt: cat.createdAt || fallbackCat?.createdAt || null,
       };
     });
-  }, [categoryShowcase]);
+  }, [categoryDefinitions, categoryShowcase]);
 
   const featuredSlides = useMemo(
     () => chunkItems(products.slice(0, 8), carouselItemsPerSlide),

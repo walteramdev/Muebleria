@@ -320,3 +320,16 @@
   cursor: not-allowed;
   transform: none;
 }
+
+.form-actions button.btn-cancel {
+  background: transparent;
+  border: 1px solid rgba(33, 27, 24, 0.3);
+  color: #211B18;
+  box-shadow: none;
+}
+
+.form-actions button.btn-cancel:hover {
+  background: rgba(33, 27, 24, 0.05);
+  color: #211B18;
+  box-shadow: none;
+}

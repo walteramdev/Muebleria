@@ -13,26 +13,26 @@ const FeaturedSection = ({
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
 
-  const handleMouseDown = (e) => {
+  const handleDragStart = (e) => {
     setIsDragging(true);
-    setStartX(e.pageX);
+    setStartX(e.type.includes("mouse") ? e.pageX : e.touches[0].pageX);
   };
 
-  const handleMouseUp = () => {
+  const handleDragEnd = () => {
     setIsDragging(false);
   };
 
-  const handleMouseLeave = () => {
-    setIsDragging(false);
-  };
-
-  const handleMouseMove = (e) => {
+  const handleDragMove = (e) => {
     if (!isDragging) return;
-    e.preventDefault();
-    const x = e.pageX;
+
+    if (e.type.includes("mouse")) {
+      e.preventDefault();
+    }
+
+    const x = e.type.includes("mouse") ? e.pageX : e.touches[0].pageX;
     const walk = x - startX;
 
-    if (Math.abs(walk) > 120) {
+    if (Math.abs(walk) > 40) {
       setIsDragging(false);
       if (walk > 0) {
         document
@@ -56,8 +56,6 @@ const FeaturedSection = ({
       <div className="home-screen__overlay" />
       <div className="home-screen__content home-screen__content--wide is-active-panel">
         <div className="screen-heading screen-heading--light screen-heading--compact">
-          {/* <p className="eyebrow eyebrow--light">Destacados</p> */}
-          {/* <h2>Selección que define a Chenille</h2> */}
           <h2>Novedades</h2>
         </div>
 
@@ -78,6 +76,7 @@ const FeaturedSection = ({
             className="carousel slide home-bootstrap-carousel"
             data-bs-ride="carousel"
             data-bs-interval="4500"
+            data-bs-pause="false"
           >
             <div className="carousel-indicators home-bootstrap-carousel__indicators">
               {featuredSlides.map((slide, index) => (
@@ -95,10 +94,13 @@ const FeaturedSection = ({
 
             <div
               className="carousel-inner"
-              onMouseDown={handleMouseDown}
-              onMouseMove={handleMouseMove}
-              onMouseUp={handleMouseUp}
-              onMouseLeave={handleMouseLeave}
+              onMouseDown={handleDragStart}
+              onMouseMove={handleDragMove}
+              onMouseUp={handleDragEnd}
+              onMouseLeave={handleDragEnd}
+              onTouchStart={handleDragStart}
+              onTouchMove={handleDragMove}
+              onTouchEnd={handleDragEnd}
               style={{
                 cursor: isDragging ? "grabbing" : "grab",
                 userSelect: isDragging ? "none" : "auto",
@@ -136,7 +138,7 @@ const FeaturedSection = ({
                           key={product._id}
                         >
                           <div className="catalog-card__media">
-                            <img src={mainImage} alt={product.name} />
+                            <img src={mainImage} alt={product.name} draggable="false" />
                           </div>
 
                           <div className="catalog-card__body">

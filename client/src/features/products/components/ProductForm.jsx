@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, Link } from "react-router-dom";
+import { API_BASE_URL } from "../../../config";
 import "../../../styles/admin.css";
+import "../../../styles/Product.css";
+import { getCategories } from "../../../services/categoryService";
+
 const AVAILABLE_FEATURES = [
   { value: "medidas", label: "Medidas" },
   { value: "materiales", label: "Materiales" },
@@ -24,13 +28,12 @@ const AVAILABLE_FEATURES = [
   { value: "caracteristica", label: "Característica" },
 ];
 
-const CATEGORY_OPTIONS = ["Living", "Comedor", "Dormitorio"];
-
 function ProductForm() {
   const navigate = useNavigate();
   const { id } = useParams();
   const isEditMode = Boolean(id);
 
+  const [categoryOptions, setCategoryOptions] = useState([]);
   const [formData, setFormData] = useState({
     barcode: "",
     name: "",
@@ -48,6 +51,32 @@ function ProductForm() {
   const [selectedFeature, setSelectedFeature] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [fieldErrors, setFieldErrors] = useState({});
+  const [showConfirmEditModal, setShowConfirmEditModal] = useState(false);
+  const [initialData, setInitialData] = useState(null);
+
+  useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        const data = await getCategories();
+        setCategoryOptions(data.categories.map((c) => c.name));
+      } catch (err) {
+        console.error("Error al cargar categorías en el formulario:", err);
+        setCategoryOptions(["Living", "Comedor", "Dormitorio"]);
+      }
+    };
+    loadCategories();
+  }, []);
+
+  useEffect(() => {
+    if (images && images.length > 0 && fieldErrors.images) {
+      setFieldErrors((prev) => {
+        const updated = { ...prev };
+        delete updated.images;
+        return updated;
+      });
+    }
+  }, [images, fieldErrors.images]);
 
   const uploadToCloudinary = async (file) => {
     try {
@@ -123,6 +152,13 @@ function ProductForm() {
       ...prev,
       [name]: value,
     }));
+    if (fieldErrors[name]) {
+      setFieldErrors((prev) => {
+        const updated = { ...prev };
+        delete updated[name];
+        return updated;
+      });
+    }
   };
 
   const handleFeatureChange = (featureName, value) => {
@@ -148,8 +184,8 @@ function ProductForm() {
       return updated;
     });
   };
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
+   useEffect(() => {
+    window.scrollTo(0, 0);
   }, []);
 
   useEffect(() => {
@@ -159,7 +195,7 @@ function ProductForm() {
       try {
         setLoading(true);
         const response = await fetch(
-          `http://localhost:5000/api/products/${id}`,
+          `${API_BASE_URL}/products/${id}`,
           { credentials: "include" },
         );
 
@@ -169,17 +205,24 @@ function ProductForm() {
 
         const product = data.product;
 
-        setFormData({
-          barcode: product.barcode || "",
-          name: product.name || "",
-          shortDescription: product.shortDescription || "",
-          description: product.description || "",
-          price: product.price || "",
-          stock: product.stock || "",
-          category: product.category || "",
-        });
-        setFeatures(product.features || {});
-        setImages(product.images || []);
+        const initialInfo = {
+          formData: {
+            barcode: product.barcode || "",
+            name: product.name || "",
+            shortDescription: product.shortDescription || "",
+            description: product.description || "",
+            price: product.price || "",
+            stock: product.stock || "",
+            category: product.category || "",
+          },
+          features: product.features || {},
+          images: product.images || [],
+        };
+
+        setFormData(initialInfo.formData);
+        setFeatures(initialInfo.features);
+        setImages(initialInfo.images);
+        setInitialData(initialInfo);
       } catch (err) {
         setError("No se pudo cargar el producto", err);
       } finally {
@@ -196,15 +239,106 @@ function ProductForm() {
     }),
   );
 
+  const hasChanges = () => {
+    if (!initialData) return true;
+
+    const keys = Object.keys(formData);
+    for (const key of keys) {
+      const currentVal = String(formData[key] ?? "").trim();
+      const initialVal = String(initialData.formData[key] ?? "").trim();
+      if (currentVal !== initialVal) {
+        return true;
+      }
+    }
+
+    const initialFilteredFeatures = Object.fromEntries(
+      Object.entries(initialData.features || {}).filter(([, value]) => {
+        return typeof value === "string" && value.trim() !== "";
+      }),
+    );
+    const currentFeaturesKeys = Object.keys(filteredFeatures);
+    const initialFeaturesKeys = Object.keys(initialFilteredFeatures);
+
+    if (currentFeaturesKeys.length !== initialFeaturesKeys.length) {
+      return true;
+    }
+
+    for (const key of currentFeaturesKeys) {
+      if ((filteredFeatures[key] || "").trim() !== (initialFilteredFeatures[key] || "").trim()) {
+        return true;
+      }
+    }
+
+    const currentImages = images || [];
+    const initialImages = initialData.images || [];
+    if (currentImages.length !== initialImages.length) {
+      return true;
+    }
+    for (let i = 0; i < currentImages.length; i++) {
+      if (currentImages[i] !== initialImages[i]) {
+        return true;
+      }
+    }
+
+    return false;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
+    setFieldErrors({});
+
+    const requiredFields = [
+      "name",
+      "barcode",
+      "description",
+      "price",
+      "stock",
+      "category",
+    ];
+    const errors = {};
+    let firstFailedField = null;
+
+    requiredFields.forEach((field) => {
+      if (!formData[field] || String(formData[field]).trim() === "") {
+        errors[field] = "Completar campo";
+        if (!firstFailedField) {
+          firstFailedField = field;
+        }
+      }
+    });
 
     if (!images || images.length === 0) {
-      setError("Debe agregar al menos una imagen al producto.");
-      return;
+      errors.images = "Completar campo";
+      if (!firstFailedField) {
+        firstFailedField = "images-dropzone-group";
+      }
     }
 
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
+      const element = document.getElementById(firstFailedField);
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth", block: "center" });
+        if (element.focus && firstFailedField !== "images-dropzone-group") {
+          element.focus();
+        }
+      }
+      return;
+    }
+    if (isEditMode) {
+      if (hasChanges()) {
+        setShowConfirmEditModal(true);
+      } else {
+        executeSave();
+      }
+    } else {
+      executeSave();
+    }
+  };
+
+  const executeSave = async () => {
+    setShowConfirmEditModal(false);
     try {
       const productData = {
         ...formData,
@@ -221,8 +355,8 @@ function ProductForm() {
 
       const method = isEditMode ? "PUT" : "POST";
       const url = isEditMode
-        ? `http://localhost:5000/api/products/${id}`
-        : `http://localhost:5000/api/products`;
+        ? `${API_BASE_URL}/products/${id}`
+        : `${API_BASE_URL}/products`;
 
       const response = await fetch(url, {
         method,
@@ -237,61 +371,101 @@ function ProductForm() {
         console.error("Error del servidor:", responseData);
         throw new Error(
           responseData.message ||
-            `Error ${response.status}: ${response.statusText}`,
+          `Error ${response.status}: ${response.statusText}`,
         );
       }
 
       console.log("Producto guardado:", responseData);
-      navigate("/products");
+      navigate(getCancelRedirectPath());
     } catch (err) {
       console.error("Error al guardar:", err);
-      setError(err.message || "Hubo un problema al guardar el producto");
+      if (err.message === "Failed to fetch" || err.message === "NetworkError when attempting to fetch resource.") {
+        setError("Error con el servidor. Intente nuevamente.");
+      } else {
+        setError(err.message || "Hubo un problema al guardar el producto");
+      }
     } finally {
       setLoading(false);
     }
   };
 
+  const getCancelRedirectPath = () => {
+    if (isEditMode) {
+      return `/productos/${id}`;
+    }
+    const cat = sessionStorage.getItem("catalogCategory");
+    const sub = sessionStorage.getItem("catalogSubcategory");
+    if (cat && cat !== "Todos") {
+      return `/productos?categoria=${encodeURIComponent(cat)}${sub ? `&subcategoria=${encodeURIComponent(sub)}` : ""}`;
+    }
+    return "/productos";
+  };
+
   return (
     <div className="container-global">
       <div className="container">
-        <h1>{isEditMode ? "Editar Producto" : "Crear Producto"}</h1>
-
-        {error && <p className="error-message">{error}</p>}
-
+        <Link to={getCancelRedirectPath()} className="back-link" style={{ marginBottom: "20px", display: "inline-flex", alignItems: "center", gap: "8px", textDecoration: "none" }}>
+          <svg
+            viewBox="0 0 24 24"
+            width="16"
+            height="16"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <line x1="19" y1="12" x2="5" y2="12" />
+            <polyline points="12 19 5 12 12 5" />
+          </svg>
+          {isEditMode ? "volver al producto" : "volver al catálogo"}
+        </Link>
         <form onSubmit={handleSubmit}>
           <div className="form-section">
             <h3>Datos Básicos</h3>
 
             <div className="form-group">
-              <label htmlFor="name">Nombre</label>
+              <label htmlFor="name">Nombre <span style={{ color: "var(--color-rose, #C95D4E)", marginLeft: "4px" }}>*</span></label>
+              {fieldErrors.name && (
+                <span className="field-error-msg" style={{ color: "var(--color-rose, #C95D4E)", fontSize: "0.8rem", fontWeight: "600", marginBottom: "4px", display: "block" }}>
+                  Completar campo
+                </span>
+              )}
               <input
                 type="text"
                 id="name"
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
-                required
               />
             </div>
             <div className="form-group">
-              <label htmlFor="barcode">Codigo de barras</label>
+              <label htmlFor="barcode">Código de barras <span style={{ color: "var(--color-rose, #C95D4E)", marginLeft: "4px" }}>*</span></label>
+              {fieldErrors.barcode && (
+                <span className="field-error-msg" style={{ color: "var(--color-rose, #C95D4E)", fontSize: "0.8rem", fontWeight: "600", marginBottom: "4px", display: "block" }}>
+                  Completar campo
+                </span>
+              )}
               <input
                 type="text"
                 id="barcode"
                 name="barcode"
                 value={formData.barcode}
                 onChange={handleChange}
-                required
               />
             </div>
             <div className="form-group">
-              <label htmlFor="description">Descripción</label>
+              <label htmlFor="description">Descripción <span style={{ color: "var(--color-rose, #C95D4E)", marginLeft: "4px" }}>*</span></label>
+              {fieldErrors.description && (
+                <span className="field-error-msg" style={{ color: "var(--color-rose, #C95D4E)", fontSize: "0.8rem", fontWeight: "600", marginBottom: "4px", display: "block" }}>
+                  Completar campo
+                </span>
+              )}
               <textarea
                 id="description"
                 name="description"
                 value={formData.description}
                 onChange={handleChange}
-                required
               />
             </div>
             <div className="form-group">
@@ -301,12 +475,16 @@ function ProductForm() {
                 name="shortDescription"
                 value={formData.shortDescription}
                 onChange={handleChange}
-                required
               />
             </div>
 
             <div className="form-group">
-              <label htmlFor="price">Precio</label>
+              <label htmlFor="price">Precio <span style={{ color: "var(--color-rose, #C95D4E)", marginLeft: "4px" }}>*</span></label>
+              {fieldErrors.price && (
+                <span className="field-error-msg" style={{ color: "var(--color-rose, #C95D4E)", fontSize: "0.8rem", fontWeight: "600", marginBottom: "4px", display: "block" }}>
+                  Completar campo
+                </span>
+              )}
               <input
                 type="number"
                 id="price"
@@ -315,12 +493,16 @@ function ProductForm() {
                 onChange={handleChange}
                 min="0"
                 step="0.01"
-                required
               />
             </div>
 
             <div className="form-group">
-              <label htmlFor="stock">Stock</label>
+              <label htmlFor="stock">Stock <span style={{ color: "var(--color-rose, #C95D4E)", marginLeft: "4px" }}>*</span></label>
+              {fieldErrors.stock && (
+                <span className="field-error-msg" style={{ color: "var(--color-rose, #C95D4E)", fontSize: "0.8rem", fontWeight: "600", marginBottom: "4px", display: "block" }}>
+                  Completar campo
+                </span>
+              )}
               <input
                 type="number"
                 id="stock"
@@ -328,21 +510,24 @@ function ProductForm() {
                 value={formData.stock}
                 onChange={handleChange}
                 min="0"
-                required
               />
             </div>
 
             <div className="form-group">
-              <label htmlFor="category">Categoría</label>
+              <label htmlFor="category">Categoría <span style={{ color: "var(--color-rose, #C95D4E)", marginLeft: "4px" }}>*</span></label>
+              {fieldErrors.category && (
+                <span className="field-error-msg" style={{ color: "var(--color-rose, #C95D4E)", fontSize: "0.8rem", fontWeight: "600", marginBottom: "4px", display: "block" }}>
+                  Completar campo
+                </span>
+              )}
               <select
                 id="category"
                 name="category"
                 value={formData.category}
                 onChange={handleChange}
-                required
               >
                 <option value="">Seleccionar categoría</option>
-                {CATEGORY_OPTIONS.map((category) => (
+                {categoryOptions.map((category) => (
                   <option key={category} value={category}>
                     {category}
                   </option>
@@ -350,12 +535,21 @@ function ProductForm() {
               </select>
             </div>
 
-            <div
-              className="image-drop-zone"
-              onDragOver={(e) => e.preventDefault()}
-              onDrop={handleDrop}
-            >
-              <p>Arrastrá imágenes aquí</p>
+            <div className="form-group" id="images-dropzone-group">
+              <label>Imágenes <span style={{ color: "var(--color-rose, #C95D4E)", marginLeft: "4px" }}>*</span></label>
+              {fieldErrors.images && (
+                <span className="field-error-msg" style={{ color: "var(--color-rose, #C95D4E)", fontSize: "0.8rem", fontWeight: "600", marginBottom: "4px", display: "block" }}>
+                  Completar campo
+                </span>
+              )}
+              <div
+                className="image-drop-zone"
+                id="images-dropzone"
+                onDragOver={(e) => e.preventDefault()}
+                onDrop={handleDrop}
+              >
+                <p>Arrastrá imágenes aquí</p>
+              </div>
             </div>
 
             {uploading && <p>Subiendo imagen...</p>}
@@ -447,7 +641,16 @@ function ProductForm() {
             </div>
           </div>
 
-          <div className="form-actions">
+          {error && (
+            <p className="error-message" style={{ marginBottom: "20px", width: "100%", padding: "12px", background: "rgba(201, 93, 78, 0.1)", borderLeft: "4px solid #C95D4E", color: "#C95D4E", borderRadius: "4px", fontSize: "0.95rem" }}>
+              {error}
+            </p>
+          )}
+
+          <div className="form-actions" style={{ display: "flex", gap: "16px" }}>
+            <button type="button" className="btn-cancel" onClick={() => navigate(getCancelRedirectPath())}>
+              Cancelar
+            </button>
             <button type="submit" disabled={loading}>
               {loading
                 ? "Guardando..."
@@ -458,6 +661,23 @@ function ProductForm() {
           </div>
         </form>
       </div>
+
+      {showConfirmEditModal && (
+        <div className="custom-modal-overlay">
+          <div className="custom-modal-card">
+            <h3>¿Guardar cambios?</h3>
+            <p>¿Estás seguro de que deseas aplicar los cambios modificados en el producto?</p>
+            <div className="custom-modal-actions">
+              <button type="button" className="btn-modal-cancel" onClick={() => setShowConfirmEditModal(false)}>
+                Cancelar
+              </button>
+              <button type="button" className="btn-modal-confirm" onClick={executeSave}>
+                Confirmar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

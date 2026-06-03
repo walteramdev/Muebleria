@@ -4,6 +4,7 @@ import "../../../styles/cardEspecial.css";
 const ProductGrid = ({
   products,
   selectedCategory,
+  selectedSubcategory = "",
   onSelectProduct,
   showCreateCard = false,
   currentUser = null,
@@ -26,18 +27,21 @@ const ProductGrid = ({
       {currentUser?.role === "admin" && showCreateCard && (
         <article
           className="catalog-card catalog-card--add-product"
-          onClick={() => navigate("/createProduct")}
+          onClick={() => {
+            sessionStorage.setItem("catalogCategory", selectedCategory);
+            sessionStorage.setItem("catalogSubcategory", selectedSubcategory);
+            navigate("/createProduct");
+          }}
         >
           <div className="catalog-card__body">
-            <p className="product-card__category">Administración</p>
-
             <h2>Agregar nuevo producto</h2>
 
             <p className="catalog-card__description">
               Crear un nuevo producto para el catálogo.
             </p>
-
-            <button className="add-product-btn">+ Crear producto</button>
+          </div>
+          <div className="catalog-card__footer">
+            <button className="add-product-btn" style={{ width: "100%", margin: 0 }}>Crear producto</button>
           </div>
         </article>
       )}

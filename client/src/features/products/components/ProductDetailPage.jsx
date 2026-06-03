@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { API_BASE_URL } from "../../../config";
 import { getProductById } from "../../../services/productService";
 
 import "../../../styles/Product.css";
@@ -12,16 +13,17 @@ const ProductDetailPage = ({ onBack = () => {}, currentUser = null }) => {
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(null);
   const [error, setError] = useState(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [backLabel, setBackLabel] = useState("Volver al catálogo");
 
-  const handleDelete = async () => {
-    const confirmDelete = window.confirm(
-      "¿Estás seguro que querés eliminar este producto?",
-    );
+  const handleDelete = () => {
+    setShowDeleteModal(true);
+  };
 
-    if (!confirmDelete) return;
-
+  const executeDelete = async () => {
+    setShowDeleteModal(false);
     try {
-      const response = await fetch(`http://localhost:5000/api/products/${id}`, {
+      const response = await fetch(`${API_BASE_URL}/products/${id}`, {
         method: "DELETE",
         credentials: "include",
       });
@@ -67,12 +69,11 @@ const ProductDetailPage = ({ onBack = () => {}, currentUser = null }) => {
         setLoading(true);
         const data = await getProductById(id);
         setProduct(data);
-
-        if (data.images && data.images.length > 0) {
+        if (data?.images?.length > 0) {
           setSelectedImage(getOptimizedImage(data.images[0], 800));
         }
       } catch (err) {
-        setError(err.message);
+        setError(err.message || "Error al cargar el producto");
       } finally {
         setLoading(false);
       }
@@ -84,7 +85,18 @@ const ProductDetailPage = ({ onBack = () => {}, currentUser = null }) => {
   }, [id]);
 
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    window.scrollTo(0, 0);
+    const savedLabel = sessionStorage.getItem("productDetailBackLabel");
+    if (savedLabel) {
+      setBackLabel(savedLabel);
+    } else {
+      const cat = sessionStorage.getItem("catalogCategory");
+      if (cat && cat !== "Todos") {
+        setBackLabel(`Volver a ${cat}`);
+      } else {
+        setBackLabel("Volver al catálogo");
+      }
+    }
   }, []);
 
   const renderStateScreen = (title, message, isError = false) => {
@@ -136,7 +148,7 @@ const ProductDetailPage = ({ onBack = () => {}, currentUser = null }) => {
             </p>
             {isError && (
               <button type="button" className="btn-primary" onClick={onBack}>
-                Volver al catálogo
+                {backLabel}
               </button>
             )}
           </div>
@@ -150,12 +162,11 @@ const ProductDetailPage = ({ onBack = () => {}, currentUser = null }) => {
       "Cargando detalle",
       "Obteniendo información de la pieza...",
     );
-  if (error)
-    return renderStateScreen(
-      "No pudimos conectar",
-      `Error de conexión: ${error}`,
-      true,
-    );
+  if (error) {
+    const isNetworkError = error.includes("Failed to fetch") || error.includes("NetworkError") || error.includes("Load failed");
+    const errorMessage = isNetworkError ? "Error con el servidor." : `Error: ${error}`;
+    return renderStateScreen("No pudimos conectar", errorMessage, true);
+  }
   if (!product)
     return renderStateScreen(
       "Pieza no encontrada",
@@ -179,7 +190,7 @@ const ProductDetailPage = ({ onBack = () => {}, currentUser = null }) => {
           <line x1="19" y1="12" x2="5" y2="12" />
           <polyline points="12 19 5 12 12 5" />
         </svg>
-        Volver al catálogo
+        {backLabel}
       </button>
       <section className="detail-layout">
         <div className="detail-media">
@@ -303,6 +314,23 @@ const ProductDetailPage = ({ onBack = () => {}, currentUser = null }) => {
           </div>
         </div>
       </section>
+
+      {showDeleteModal && (
+        <div className="custom-modal-overlay">
+          <div className="custom-modal-card">
+            <h3>¿Estás seguro?</h3>
+            <p>Esta acción eliminará de forma permanente el producto de la colección.</p>
+            <div className="custom-modal-actions">
+              <button className="btn-modal-cancel" onClick={() => setShowDeleteModal(false)}>
+                Cancelar
+              </button>
+              <button className="btn-modal-confirm btn-modal-danger" onClick={executeDelete}>
+                Eliminar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 };

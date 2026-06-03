@@ -12,7 +12,7 @@ const productSchema = new mongoose.Schema(
     shortDescription: {
       type: String,
       trim: true,
-      required: [true, "La descripción resumida es obligatoria."],
+      //required: [true, "La descripción resumida es obligatoria."],
     },
     description: {
       type: String,
@@ -43,7 +43,7 @@ const productSchema = new mongoose.Schema(
     //modificar
     category: {
       type: String,
-      enum: ["Living", "Comedor", "Dormitorio"], //sub categoriia
+      trim: true,
     },
     //revisar
     features: {

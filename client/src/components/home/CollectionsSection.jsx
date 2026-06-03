@@ -5,65 +5,89 @@ const CollectionsSection = ({ sectionRef, collections = [], backgroundImage }) =
   const navigate = useNavigate();
   const carouselRef = useRef(null);
   
-  // Drag to scroll state
+  // Drag to scroll state (like FeaturedSection)
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
-  const [scrollLeft, setScrollLeft] = useState(0);
-  // To prevent click when dragging
-  const [didDrag, setDidDrag] = useState(false);
 
-  // Auto-scroll logic
+  const [itemsPerSlide, setItemsPerSlide] = useState(() => {
+    if (typeof window !== "undefined") {
+      if (window.innerWidth <= 560) return 2;
+      if (window.innerWidth <= 960) return 3;
+    }
+    return 4;
+  });
+
   useEffect(() => {
-    if (collections.length <= 1) return;
-    
-    const intervalId = setInterval(() => {
-      if (carouselRef.current && !isDragging) {
-        const { scrollLeft, scrollWidth, clientWidth } = carouselRef.current;
-        const firstCard = carouselRef.current.querySelector(".collection-carousel-card");
-        const cardWidth = firstCard ? firstCard.clientWidth + 24 : 350; // 24 is the gap
-        
-        if (scrollLeft + clientWidth >= scrollWidth - 10) {
-          carouselRef.current.scrollTo({ left: 0, behavior: "smooth" });
-        } else {
-          carouselRef.current.scrollBy({ left: cardWidth, behavior: "smooth" });
-        }
+    const handleResize = () => {
+      if (window.innerWidth <= 560) {
+        setItemsPerSlide(2);
+      } else if (window.innerWidth <= 960) {
+        setItemsPerSlide(3);
+      } else {
+        setItemsPerSlide(4);
       }
-    }, 4000); // 4 seconds
-    
-    return () => clearInterval(intervalId);
-  }, [collections.length, isDragging]);
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
+  const chunkItems = (items, size) =>
+    items.reduce((groups, item, index) => {
+      if (index % size === 0) {
+        groups.push(items.slice(index, index + size));
+      }
+      return groups;
+    }, []);
 
+  const collectionSlides = chunkItems(collections, itemsPerSlide);
 
-  const handleMouseDown = (e) => {
+  const handleDragStart = (e) => {
+    if (e.type.includes("mouse")) {
+      e.preventDefault(); // Previene que el navegador intercepte el clic para seleccionar texto o arrastrar fantasmas
+    }
     setIsDragging(true);
-    setDidDrag(false);
-    setStartX(e.pageX - carouselRef.current.offsetLeft);
-    setScrollLeft(carouselRef.current.scrollLeft);
+    setStartX(e.type.includes("mouse") ? e.pageX : e.touches[0].pageX);
   };
 
-  const handleMouseLeave = () => {
+  const handleDragEnd = () => {
     setIsDragging(false);
   };
 
-  const handleMouseUp = () => {
-    setIsDragging(false);
-  };
-
-  const handleMouseMove = (e) => {
+  const handleDragMove = (e) => {
     if (!isDragging) return;
-    e.preventDefault();
     
-    const x = e.pageX - carouselRef.current.offsetLeft;
-    const walk = (x - startX); // calculate actual distance moved
-    
-    // Solo consideramos que es un 'drag' si se movió más de 5 píxeles
-    if (Math.abs(walk) > 5) {
-      setDidDrag(true);
+    if (e.type.includes("mouse")) {
+      e.preventDefault();
     }
     
-    const scrollWalk = walk * 2; // scroll speed multiplier
-    carouselRef.current.scrollLeft = scrollLeft - scrollWalk;
+    const x = e.type.includes("mouse") ? e.pageX : e.touches[0].pageX;
+    const walk = x - startX;
+
+    if (Math.abs(walk) > 40) {
+      setIsDragging(false);
+      if (walk > 0) {
+        document
+          .querySelector(".collections-control-btn.prev")
+          ?.click();
+      } else {
+        document
+          .querySelector(".collections-control-btn.next")
+          ?.click();
+      }
+    }
+  };
+
+  const isNewCategory = (createdAt) => {
+    if (!createdAt) return false;
+    try {
+      const createdDate = new Date(createdAt);
+      const now = new Date();
+      const diffTime = Math.abs(now - createdDate);
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      return diffDays <= 14;
+    } catch (e) {
+      return false;
+    }
   };
 
   return (
@@ -78,60 +102,124 @@ const CollectionsSection = ({ sectionRef, collections = [], backgroundImage }) =
       } : {}}
     >
       <div className="home-collections-section__overlay" />
-      <div 
-        className="home-collections-carousel" 
-        ref={carouselRef}
-        onMouseDown={handleMouseDown}
-        onMouseLeave={handleMouseLeave}
-        onMouseUp={handleMouseUp}
-        onMouseMove={handleMouseMove}
-        style={{ 
-          cursor: isDragging ? "grabbing" : "grab",
-          scrollSnapType: isDragging ? "none" : "x mandatory",
-          scrollBehavior: isDragging ? "auto" : "smooth",
-          userSelect: "none",
-          WebkitUserSelect: "none"
-        }}
-      >
-        {collections.map((col) => (
-          <article
-            key={col.id}
-            className="collection-carousel-card"
-          >
-            <div className="collection-carousel-card__media">
-              <img src={col.image} alt={col.name} draggable="false" />
-            </div>
-            <div className="collection-carousel-card__content">
-              <button 
+      
+      <div className="collections-section-content">
+        <div className="collections-section-header">
+          <h2>Explorar colecciones</h2>
+          <div className="collections-carousel-controls">
+            <button 
+              type="button" 
+              className="collections-control-btn prev" 
+              data-bs-target="#collectionsCarousel"
+              data-bs-slide="prev"
+              aria-label="Colección anterior"
+            >
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="15 18 9 12 15 6" />
+              </svg>
+            </button>
+            <button 
+              type="button" 
+              className="collections-control-btn next" 
+              data-bs-target="#collectionsCarousel"
+              data-bs-slide="next"
+              aria-label="Siguiente colección"
+            >
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="9 18 15 12 9 6" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <div
+          id="collectionsCarousel"
+          className="carousel slide home-bootstrap-carousel collections-bootstrap-carousel"
+          data-bs-ride="carousel"
+          data-bs-interval="4500"
+          data-bs-pause="false"
+          style={{ pointerEvents: "auto" }}
+        >
+          <div className="carousel-indicators collections-carousel-indicators">
+            {collectionSlides.map((slide, index) => (
+              <button
+                key={index}
                 type="button"
-                className="collection-carousel-card__title"
-                style={{ cursor: "pointer" }}
-                onClick={(e) => {
-                  if (didDrag) {
-                    e.preventDefault();
-                    return;
-                  }
-                  navigate(`/productos?categoria=${encodeURIComponent(col.name)}`);
-                }}
+                data-bs-target="#collectionsCarousel"
+                data-bs-slide-to={index}
+                className={index === 0 ? "active" : ""}
+                aria-current={index === 0 ? "true" : undefined}
+                aria-label={`Grupo de colecciones ${index + 1}`}
+              />
+            ))}
+          </div>
+
+          <div
+            className="carousel-inner"
+            ref={carouselRef}
+            onMouseDown={handleDragStart}
+            onMouseMove={handleDragMove}
+            onMouseUp={handleDragEnd}
+            onMouseLeave={handleDragEnd}
+            onTouchStart={handleDragStart}
+            onTouchMove={handleDragMove}
+            onTouchEnd={handleDragEnd}
+            style={{
+              cursor: isDragging ? "grabbing" : "grab",
+              userSelect: isDragging ? "none" : "auto",
+              borderRadius: "32px",
+              overflow: "hidden",
+            }}
+          >
+            {collectionSlides.map((slide, index) => (
+              <div
+                className={`carousel-item ${index === 0 ? "active" : ""}`}
+                key={index}
               >
-                {col.name}
-              </button>
-              <div 
-                className="collection-carousel-card__action"
-                style={{ cursor: "pointer" }}
-                onClick={(e) => {
-                  if (didDrag) {
-                    e.preventDefault();
-                    return;
-                  }
-                  navigate(`/productos?categoria=${encodeURIComponent(col.name)}`);
-                }}
-              >
-                Explorar <span>→</span>
+                <div 
+                  className="home-bootstrap-carousel__track"
+                  style={{ 
+                    gridTemplateColumns: `repeat(${itemsPerSlide}, minmax(0, 1fr))`,
+                    padding: "4px 20px 12px" /* Adds padding to left and right edges */
+                  }}
+                >
+                  {slide.map((col) => (
+                    <article
+                      key={col.id}
+                      className="collection-carousel-card"
+                      style={{ width: "100%", margin: 0, minWidth: 0 }}
+                    >
+                      {isNewCategory(col.createdAt) && (
+                        <span className="collection-badge-new">Nuevo</span>
+                      )}
+                      
+                      <div className="collection-carousel-card__media">
+                        <img src={col.image} alt={col.name} draggable="false" />
+                      </div>
+                      
+                      <div className="collection-carousel-card__content">
+                        <span className="collection-carousel-card__title">
+                          {col.name}
+                        </span>
+                        <div className="collection-carousel-card__action">
+                          <button 
+                            type="button" 
+                            className="collection-carousel-card__action-btn btn-secondary"
+                            onClick={() => {
+                              navigate(`/productos?categoria=${encodeURIComponent(col.name)}`);
+                            }}
+                          >
+                            Ver colección
+                          </button>
+                        </div>
+                      </div>
+                    </article>
+                  ))}
+                </div>
               </div>
-            </div>
-          </article>
-        ))}
+            ))}
+          </div>
+        </div>
       </div>
     </section>
   );

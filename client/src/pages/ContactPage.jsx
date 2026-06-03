@@ -42,14 +42,14 @@ const ContactPage = () => {
         <div className="editorial-page-hero__content editorial-page-hero__content--contact">
           <div className="contact-hero-header">
             <p className="eyebrow eyebrow--light">Contacto</p>
-            <h1>Contanos que estas buscando y te respondemos con calma</h1>
+            <h1>Contanos que estas buscando</h1>
           </div>
 
           <div className="contact-hero-body">
             <div className="contact-hero-sidebar">
               <p className="page-hero__text page-hero__text--light">
                 Si queres consultar por medidas, disponibilidad o terminaciones,
-                dejanos tu mensaje por donde prefieras.
+                dejanos tu mensaje por correo o whatsapp.
               </p>
             </div>
 
