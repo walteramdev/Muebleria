@@ -10,12 +10,12 @@ const featuredMarqueeItems = [
 ];
 
 const Header = ({
-  onNavigate = () => { },
+  onNavigate = () => {},
   categoryDefinitions = [],
   activeView = "home",
   isOverlay = false,
   currentUser = null,
-  onLogout = () => { },
+  onLogout = () => {},
   locationPathname = "",
 }) => {
   const [isProductsMenuOpen, setIsProductsMenuOpen] = useState(false);
@@ -72,7 +72,10 @@ const Header = ({
     const updateHeaderHeight = () => {
       const height = headerRef.current?.offsetHeight ?? 0;
       setHeaderHeight(height);
-      document.documentElement.style.setProperty("--header-height", `${height}px`);
+      document.documentElement.style.setProperty(
+        "--header-height",
+        `${height}px`,
+      );
     };
 
     updateHeaderHeight();
@@ -190,11 +193,13 @@ const Header = ({
     >
       <div className="featured-marquee" aria-hidden="true">
         <div className="featured-marquee__track">
-          {[...featuredMarqueeItems, ...featuredMarqueeItems].map((item, index) => (
-            <span className="featured-marquee__item" key={`${item}-${index}`}>
-              {item}
-            </span>
-          ))}
+          {[...featuredMarqueeItems, ...featuredMarqueeItems].map(
+            (item, index) => (
+              <span className="featured-marquee__item" key={`${item}-${index}`}>
+                {item}
+              </span>
+            ),
+          )}
         </div>
       </div>
       <header className="main-header">
@@ -251,7 +256,7 @@ const Header = ({
                 PERFIL
               </button> */}
               <button type="button" onClick={handleLogoutClick}>
-                LOGOUT{" "}
+                Cerrar Sesion{" "}
               </button>
             </>
           ) : (
@@ -352,20 +357,19 @@ const Header = ({
             <button
               key={category.name}
               type="button"
-              className={`nav-dropdown__item ${index === 0
+              className={`nav-dropdown__item ${
+                index === 0
                   ? "nav-dropdown__item--start"
                   : index === categoryDefinitions.length - 1
                     ? "nav-dropdown__item--end"
                     : "nav-dropdown__item--middle"
-                }`}
+              }`}
               onClick={handleNavClick(
                 `/productos?categoria=${encodeURIComponent(category.name)}`,
               )}
             >
               <span className="nav-dropdown__item-name">{category.name}</span>
-              <span className="nav-dropdown__item-link">
-                Ver coleccion
-              </span>
+              <span className="nav-dropdown__item-link">Ver coleccion</span>
             </button>
           ))}
           <button

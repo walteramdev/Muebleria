@@ -108,16 +108,16 @@ function ProductForm() {
       return null;
     }
   };
-  const getOptimizedImage = (image) => {
-    const publicId = typeof image === "object" ? image.public_id : image;
+  // const getOptimizedImage = (image) => {
+  //   const publicId = typeof image === "object" ? image.public_id : image;
 
-    if (!publicId) {
-      console.warn("No public_id provided for image optimization");
-      return "";
-    }
+  //   if (!publicId) {
+  //     console.warn("No public_id provided for image optimization");
+  //     return "";
+  //   }
 
-    return `https://res.cloudinary.com/dueakzjkm/image/upload/w_800,h_800,c_pad,g_auto,f_auto,q_auto/${publicId}`;
-  };
+  //   return `https://res.cloudinary.com/dueakzjkm/image/upload/w_800,h_800,c_pad,g_auto,f_auto,q_auto/${publicId}`;
+  // };
   const handleDrop = async (e) => {
     e.preventDefault();
 
@@ -184,7 +184,7 @@ function ProductForm() {
       return updated;
     });
   };
-   useEffect(() => {
+  useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
 
@@ -194,10 +194,9 @@ function ProductForm() {
     const fetchProduct = async () => {
       try {
         setLoading(true);
-        const response = await fetch(
-          `${API_BASE_URL}/products/${id}`,
-          { credentials: "include" },
-        );
+        const response = await fetch(`${API_BASE_URL}/products/${id}`, {
+          credentials: "include",
+        });
 
         if (!response.ok) throw new Error("Error cargando producto");
 
@@ -264,7 +263,10 @@ function ProductForm() {
     }
 
     for (const key of currentFeaturesKeys) {
-      if ((filteredFeatures[key] || "").trim() !== (initialFilteredFeatures[key] || "").trim()) {
+      if (
+        (filteredFeatures[key] || "").trim() !==
+        (initialFilteredFeatures[key] || "").trim()
+      ) {
         return true;
       }
     }
@@ -371,7 +373,7 @@ function ProductForm() {
         console.error("Error del servidor:", responseData);
         throw new Error(
           responseData.message ||
-          `Error ${response.status}: ${response.statusText}`,
+            `Error ${response.status}: ${response.statusText}`,
         );
       }
 
@@ -379,7 +381,10 @@ function ProductForm() {
       navigate(getCancelRedirectPath());
     } catch (err) {
       console.error("Error al guardar:", err);
-      if (err.message === "Failed to fetch" || err.message === "NetworkError when attempting to fetch resource.") {
+      if (
+        err.message === "Failed to fetch" ||
+        err.message === "NetworkError when attempting to fetch resource."
+      ) {
         setError("Error con el servidor. Intente nuevamente.");
       } else {
         setError(err.message || "Hubo un problema al guardar el producto");
@@ -404,7 +409,17 @@ function ProductForm() {
   return (
     <div className="container-global">
       <div className="container">
-        <Link to={getCancelRedirectPath()} className="back-link" style={{ marginBottom: "20px", display: "inline-flex", alignItems: "center", gap: "8px", textDecoration: "none" }}>
+        <Link
+          to={getCancelRedirectPath()}
+          className="back-link"
+          style={{
+            marginBottom: "20px",
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "8px",
+            textDecoration: "none",
+          }}
+        >
           <svg
             viewBox="0 0 24 24"
             width="16"
@@ -425,9 +440,28 @@ function ProductForm() {
             <h3>Datos Básicos</h3>
 
             <div className="form-group">
-              <label htmlFor="name">Nombre <span style={{ color: "var(--color-rose, #C95D4E)", marginLeft: "4px" }}>*</span></label>
+              <label htmlFor="name">
+                Nombre{" "}
+                <span
+                  style={{
+                    color: "var(--color-rose, #C95D4E)",
+                    marginLeft: "4px",
+                  }}
+                >
+                  *
+                </span>
+              </label>
               {fieldErrors.name && (
-                <span className="field-error-msg" style={{ color: "var(--color-rose, #C95D4E)", fontSize: "0.8rem", fontWeight: "600", marginBottom: "4px", display: "block" }}>
+                <span
+                  className="field-error-msg"
+                  style={{
+                    color: "var(--color-rose, #C95D4E)",
+                    fontSize: "0.8rem",
+                    fontWeight: "600",
+                    marginBottom: "4px",
+                    display: "block",
+                  }}
+                >
                   Completar campo
                 </span>
               )}
@@ -440,9 +474,28 @@ function ProductForm() {
               />
             </div>
             <div className="form-group">
-              <label htmlFor="barcode">Código de barras <span style={{ color: "var(--color-rose, #C95D4E)", marginLeft: "4px" }}>*</span></label>
+              <label htmlFor="barcode">
+                Código de barras{" "}
+                <span
+                  style={{
+                    color: "var(--color-rose, #C95D4E)",
+                    marginLeft: "4px",
+                  }}
+                >
+                  *
+                </span>
+              </label>
               {fieldErrors.barcode && (
-                <span className="field-error-msg" style={{ color: "var(--color-rose, #C95D4E)", fontSize: "0.8rem", fontWeight: "600", marginBottom: "4px", display: "block" }}>
+                <span
+                  className="field-error-msg"
+                  style={{
+                    color: "var(--color-rose, #C95D4E)",
+                    fontSize: "0.8rem",
+                    fontWeight: "600",
+                    marginBottom: "4px",
+                    display: "block",
+                  }}
+                >
                   Completar campo
                 </span>
               )}
@@ -455,9 +508,28 @@ function ProductForm() {
               />
             </div>
             <div className="form-group">
-              <label htmlFor="description">Descripción <span style={{ color: "var(--color-rose, #C95D4E)", marginLeft: "4px" }}>*</span></label>
+              <label htmlFor="description">
+                Descripción{" "}
+                <span
+                  style={{
+                    color: "var(--color-rose, #C95D4E)",
+                    marginLeft: "4px",
+                  }}
+                >
+                  *
+                </span>
+              </label>
               {fieldErrors.description && (
-                <span className="field-error-msg" style={{ color: "var(--color-rose, #C95D4E)", fontSize: "0.8rem", fontWeight: "600", marginBottom: "4px", display: "block" }}>
+                <span
+                  className="field-error-msg"
+                  style={{
+                    color: "var(--color-rose, #C95D4E)",
+                    fontSize: "0.8rem",
+                    fontWeight: "600",
+                    marginBottom: "4px",
+                    display: "block",
+                  }}
+                >
                   Completar campo
                 </span>
               )}
@@ -479,9 +551,28 @@ function ProductForm() {
             </div>
 
             <div className="form-group">
-              <label htmlFor="price">Precio <span style={{ color: "var(--color-rose, #C95D4E)", marginLeft: "4px" }}>*</span></label>
+              <label htmlFor="price">
+                Precio{" "}
+                <span
+                  style={{
+                    color: "var(--color-rose, #C95D4E)",
+                    marginLeft: "4px",
+                  }}
+                >
+                  *
+                </span>
+              </label>
               {fieldErrors.price && (
-                <span className="field-error-msg" style={{ color: "var(--color-rose, #C95D4E)", fontSize: "0.8rem", fontWeight: "600", marginBottom: "4px", display: "block" }}>
+                <span
+                  className="field-error-msg"
+                  style={{
+                    color: "var(--color-rose, #C95D4E)",
+                    fontSize: "0.8rem",
+                    fontWeight: "600",
+                    marginBottom: "4px",
+                    display: "block",
+                  }}
+                >
                   Completar campo
                 </span>
               )}
@@ -497,9 +588,28 @@ function ProductForm() {
             </div>
 
             <div className="form-group">
-              <label htmlFor="stock">Stock <span style={{ color: "var(--color-rose, #C95D4E)", marginLeft: "4px" }}>*</span></label>
+              <label htmlFor="stock">
+                Stock{" "}
+                <span
+                  style={{
+                    color: "var(--color-rose, #C95D4E)",
+                    marginLeft: "4px",
+                  }}
+                >
+                  *
+                </span>
+              </label>
               {fieldErrors.stock && (
-                <span className="field-error-msg" style={{ color: "var(--color-rose, #C95D4E)", fontSize: "0.8rem", fontWeight: "600", marginBottom: "4px", display: "block" }}>
+                <span
+                  className="field-error-msg"
+                  style={{
+                    color: "var(--color-rose, #C95D4E)",
+                    fontSize: "0.8rem",
+                    fontWeight: "600",
+                    marginBottom: "4px",
+                    display: "block",
+                  }}
+                >
                   Completar campo
                 </span>
               )}
@@ -514,9 +624,28 @@ function ProductForm() {
             </div>
 
             <div className="form-group">
-              <label htmlFor="category">Categoría <span style={{ color: "var(--color-rose, #C95D4E)", marginLeft: "4px" }}>*</span></label>
+              <label htmlFor="category">
+                Categoría{" "}
+                <span
+                  style={{
+                    color: "var(--color-rose, #C95D4E)",
+                    marginLeft: "4px",
+                  }}
+                >
+                  *
+                </span>
+              </label>
               {fieldErrors.category && (
-                <span className="field-error-msg" style={{ color: "var(--color-rose, #C95D4E)", fontSize: "0.8rem", fontWeight: "600", marginBottom: "4px", display: "block" }}>
+                <span
+                  className="field-error-msg"
+                  style={{
+                    color: "var(--color-rose, #C95D4E)",
+                    fontSize: "0.8rem",
+                    fontWeight: "600",
+                    marginBottom: "4px",
+                    display: "block",
+                  }}
+                >
                   Completar campo
                 </span>
               )}
@@ -536,9 +665,28 @@ function ProductForm() {
             </div>
 
             <div className="form-group" id="images-dropzone-group">
-              <label>Imágenes <span style={{ color: "var(--color-rose, #C95D4E)", marginLeft: "4px" }}>*</span></label>
+              <label>
+                Imágenes{" "}
+                <span
+                  style={{
+                    color: "var(--color-rose, #C95D4E)",
+                    marginLeft: "4px",
+                  }}
+                >
+                  *
+                </span>
+              </label>
               {fieldErrors.images && (
-                <span className="field-error-msg" style={{ color: "var(--color-rose, #C95D4E)", fontSize: "0.8rem", fontWeight: "600", marginBottom: "4px", display: "block" }}>
+                <span
+                  className="field-error-msg"
+                  style={{
+                    color: "var(--color-rose, #C95D4E)",
+                    fontSize: "0.8rem",
+                    fontWeight: "600",
+                    marginBottom: "4px",
+                    display: "block",
+                  }}
+                >
                   Completar campo
                 </span>
               )}
@@ -558,11 +706,7 @@ function ProductForm() {
               {images && images.length > 0 ? (
                 images.map((img, index) => (
                   <div key={index} className="image-item">
-                    <img
-                      src={getOptimizedImage(img)}
-                      alt={`producto-${index}`}
-                      className="product-image"
-                    />
+                    <img src={img.url} alt={`producto-${index}`} />
                     <button
                       type="button"
                       onClick={() =>
@@ -642,13 +786,32 @@ function ProductForm() {
           </div>
 
           {error && (
-            <p className="error-message" style={{ marginBottom: "20px", width: "100%", padding: "12px", background: "rgba(201, 93, 78, 0.1)", borderLeft: "4px solid #C95D4E", color: "#C95D4E", borderRadius: "4px", fontSize: "0.95rem" }}>
+            <p
+              className="error-message"
+              style={{
+                marginBottom: "20px",
+                width: "100%",
+                padding: "12px",
+                background: "rgba(201, 93, 78, 0.1)",
+                borderLeft: "4px solid #C95D4E",
+                color: "#C95D4E",
+                borderRadius: "4px",
+                fontSize: "0.95rem",
+              }}
+            >
               {error}
             </p>
           )}
 
-          <div className="form-actions" style={{ display: "flex", gap: "16px" }}>
-            <button type="button" className="btn-cancel" onClick={() => navigate(getCancelRedirectPath())}>
+          <div
+            className="form-actions"
+            style={{ display: "flex", gap: "16px" }}
+          >
+            <button
+              type="button"
+              className="btn-cancel"
+              onClick={() => navigate(getCancelRedirectPath())}
+            >
               Cancelar
             </button>
             <button type="submit" disabled={loading}>
@@ -666,12 +829,23 @@ function ProductForm() {
         <div className="custom-modal-overlay">
           <div className="custom-modal-card">
             <h3>¿Guardar cambios?</h3>
-            <p>¿Estás seguro de que deseas aplicar los cambios modificados en el producto?</p>
+            <p>
+              ¿Estás seguro de que deseas aplicar los cambios modificados en el
+              producto?
+            </p>
             <div className="custom-modal-actions">
-              <button type="button" className="btn-modal-cancel" onClick={() => setShowConfirmEditModal(false)}>
+              <button
+                type="button"
+                className="btn-modal-cancel"
+                onClick={() => setShowConfirmEditModal(false)}
+              >
                 Cancelar
               </button>
-              <button type="button" className="btn-modal-confirm" onClick={executeSave}>
+              <button
+                type="button"
+                className="btn-modal-confirm"
+                onClick={executeSave}
+              >
                 Confirmar
               </button>
             </div>
