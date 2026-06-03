@@ -289,7 +289,12 @@ const CatalogPage = ({
       try {
         setLoading(true);
         const data = await getAllProducts();
-        setProducts(data);
+  setProducts(
+          [...data].sort(
+            (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
+          ),
+        );
+
       } catch (err) {
         setError(err.message);
       } finally {

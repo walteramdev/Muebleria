@@ -5,7 +5,7 @@ import HeroSection from "../components/home/HeroSection";
 import CollectionsSection from "../components/home/CollectionsSection";
 import FeaturedSection from "../components/home/FeaturedSection";
 import ManifestoSection from "../components/home/ManifestoSection";
-
+import { getAllProducts } from "../services/productService.js";
 import { formatPrice } from "../utils/formatters.js";
 import "../styles/home.css";
 
@@ -71,11 +71,32 @@ const collectionCategories = [
 const HomePage = ({
   categoryDefinitions = [],
   onSelectProduct = () => {},
-  products = [],
-  isLoading = false,
-  error = null,
+
   currentUser = null,
 }) => {
+  const [products, setProducts] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        setIsLoading(true);
+
+        const data = await getAllProducts();
+
+        setProducts(data);
+      } catch (err) {
+        console.error(err);
+        setError(err.message);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
   const sectionRefs = useRef({});
   const homeRef = useRef(null);
   const contentRef = useRef(null);
@@ -106,21 +127,28 @@ const HomePage = ({
         (item) => item.name.toLowerCase() === cat.name.toLowerCase(),
       );
       const fallbackCat = collectionCategories.find(
-        (c) => c.name.toLowerCase() === cat.name.toLowerCase()
+        (c) => c.name.toLowerCase() === cat.name.toLowerCase(),
       );
       return {
         id: cat.name,
         name: cat.name,
-        image: cat.image || categoryData?.featuredProduct?.imagenUrl || fallbackCat?.fallbackImage || "https://images.unsplash.com/photo-1540518614846-7eded433c457?auto=format&fit=crop&w=800&q=80",
+        image:
+          cat.image ||
+          categoryData?.featuredProduct?.imagenUrl ||
+          fallbackCat?.fallbackImage ||
+          "https://images.unsplash.com/photo-1540518614846-7eded433c457?auto=format&fit=crop&w=800&q=80",
         createdAt: cat.createdAt || fallbackCat?.createdAt || null,
       };
     });
   }, [categoryDefinitions, categoryShowcase]);
 
-  const featuredSlides = useMemo(
-    () => chunkItems(products.slice(0, 8), carouselItemsPerSlide),
-    [products, carouselItemsPerSlide],
-  );
+  const featuredSlides = useMemo(() => {
+    const latestProducts = [...products]
+      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+      .slice(0, 8);
+
+    return chunkItems(latestProducts, carouselItemsPerSlide);
+  }, [products, carouselItemsPerSlide]);
 
   useEffect(() => {
     const updateItemsPerSlide = () => {
