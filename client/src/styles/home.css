@@ -1,8 +1,4 @@
-.home-page,
-.catalog-page,
-.detail-page,
-.cart-page,
-.info-page {
+.home-page {
   width: min(1240px, calc(100% - 32px));
   margin: 0 auto;
   padding: 24px 0 56px;
@@ -192,11 +188,7 @@
     border: 1px solid rgba(217, 179, 130, 0.2);
   }
 
-  .home-page,
-  .catalog-page,
-  .detail-page,
-  .cart-page,
-  .info-page {
+  .home-page {
     width: min(100% - 20px, 1180px);
     padding-bottom: 32px;
   }
