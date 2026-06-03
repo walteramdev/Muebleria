@@ -6,7 +6,6 @@ const ContactPage = () => {
     "https://images.pexels.com/photos/6585756/pexels-photo-6585756.jpeg?auto=compress&cs=tinysrgb&w=1600";
   const [formData, setFormData] = useState({
     name: "",
-    email: "",
     message: "",
   });
 
@@ -24,7 +23,6 @@ const ContactPage = () => {
     const mailSubject = "Consulta desde la web";
     const mailBody = [
       `Nombre: ${formData.name || "-"}`,
-      `Correo: ${formData.email || "-"}`,
       "",
       formData.message || "",
     ].join("\n");
@@ -67,18 +65,6 @@ const ContactPage = () => {
                     placeholder="Tu nombre"
                   />
                 </label>
-
-                <label className="contact-hero-form__field">
-                  <span>Correo</span>
-                  <input
-                    type="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    placeholder="tuemail@ejemplo.com"
-                    required
-                  />
-                </label>
               </div>
 
               <label className="contact-hero-form__field">
@@ -94,10 +80,7 @@ const ContactPage = () => {
               </label>
 
               <div className="contact-hero-form__actions">
-                <button
-                  type="submit"
-                  className="btn-primary"
-                >
+                <button type="submit" className="btn-primary">
                   Enviar consulta
                 </button>
                 <a href="https://wa.me/5491100000000" className="btn-whatsapp">
