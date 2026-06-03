@@ -60,14 +60,16 @@
   justify-content: center;
   justify-self: start;
   width: max-content;
-  padding: 0.35rem 0.6rem;
-  border-radius: var(--radius-md);
-  background: var(--color-background);
-  border: 1px solid rgba(217, 179, 130, 0.5);
-  box-shadow: 0 10px 18px rgba(45, 42, 38, 0.08);
+  padding: 0.25rem 0;
+  border-radius: 0;
+  background: transparent;
+  border-top: 1px solid rgba(217, 179, 130, 0.5);
+  border-bottom: 1px solid rgba(217, 179, 130, 0.5);
+  border-left: none;
+  border-right: none;
+  box-shadow: none;
   transition: transform 0.2s ease;
   cursor: pointer;
-  border-width: 1px;
   color: inherit;
 }
 
@@ -637,8 +639,9 @@
 }
 
 .main-header-wrapper.is-overlay .recuadro-logo {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.18);
+  background: transparent;
+  border-top-color: rgba(255, 255, 255, 0.4);
+  border-bottom-color: rgba(255, 255, 255, 0.4);
   box-shadow: none;
 }
 

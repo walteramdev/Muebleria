@@ -312,7 +312,7 @@
 .home-immersive-hero__copy h1 {
   margin: 0;
   font-family: var(--font-display);
-  font-size: clamp(3.2rem, 6.4vw, 5.6rem);
+  font-size: clamp(2.8rem, 4.8vw, 5.8rem);
   line-height: 0.9;
   color: #fff;
   max-width: 680px;
@@ -499,8 +499,7 @@
   align-items: stretch;
   justify-content: flex-start;
   overflow: hidden;
-  padding-top: 140px;
-  /* Increased to ensure title clears the sticky header */
+  padding-top: clamp(100px, 18svh, 230px);
   padding-bottom: 32px;
 }
 
@@ -511,8 +510,8 @@
   display: flex;
   flex-direction: column;
   align-items: stretch;
+  justify-content: center;
   gap: 32px;
-  /* Increased gap to give title room to breathe */
   width: min(1180px, 100%);
   margin: 0 auto;
   padding-top: 0;
@@ -590,18 +589,12 @@
 }
 
 .home-bootstrap-carousel {
-  flex: 1 1 auto;
-  height: 100%;
-  max-height: 440px;
-  /* Much more compact cards */
+  flex: 0 1 auto;
   margin-top: 16px;
-  /* Space from title, no auto vertical centering */
-  margin-bottom: auto;
-  /* Push any remaining space below the carousel */
   min-height: 0;
   display: flex;
   flex-direction: column;
-  padding: 0 72px 44px;
+  padding: 0 72px 32px;
 }
 
 .home-bootstrap-carousel__track {
@@ -609,7 +602,6 @@
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 18px;
   align-items: stretch;
-  height: 100%;
   padding: 0 8px;
 }
 
@@ -623,7 +615,7 @@
 .home-bootstrap-carousel .carousel-item {
   height: 100%;
   transition: transform 0.8s ease-in-out;
-  padding: 2px 0 8px;
+  padding: 2px 0 0px;
 }
 
 .home-bootstrap-carousel .category-spotlight-card,
@@ -631,10 +623,12 @@
   width: 100%;
   margin: 0;
   min-width: 0;
+  height: auto;
+  aspect-ratio: 2 / 3;
 }
 
 .home-bootstrap-carousel__indicators {
-  bottom: 8px;
+  bottom: 0px;
   margin-bottom: 0;
 }
 
@@ -660,7 +654,7 @@
 .home-bootstrap-carousel__control {
   width: 52px;
   height: 52px;
-  top: 50%;
+  top: calc(50% - 16px);
   bottom: auto;
   transform: translateY(-50%);
   border-radius: 999px;
@@ -708,22 +702,24 @@
     inset 0 1px 0 rgba(255, 255, 255, 0.24);
 }
 
-.category-spotlight-card__media,
-.featured-spotlight-card__media {
-  min-height: 0;
-  flex: 0 0 50%;
-  overflow: hidden;
+.category-spotlight-card .catalog-card__media,
+.featured-spotlight-card .catalog-card__media {
+  flex: 1 1 auto;
+  display: flex;
+  padding: 12px;
+  box-sizing: border-box;
 }
 
-.category-spotlight-card__media img,
-.featured-spotlight-card__media img {
+.category-spotlight-card .catalog-card__media img,
+.featured-spotlight-card .catalog-card__media img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
+  mix-blend-mode: darken;
 }
 
-.category-spotlight-card__body,
-.featured-spotlight-card__body {
+.category-spotlight-card .catalog-card__body,
+.featured-spotlight-card .catalog-card__body {
   display: flex;
   flex: 1 1 auto;
   flex-direction: column;
@@ -733,8 +729,8 @@
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.12));
 }
 
-.category-spotlight-card__body h3,
-.featured-spotlight-card__body h3 {
+.category-spotlight-card .catalog-card__body h3,
+.featured-spotlight-card .catalog-card__body h3 {
   margin: 0;
   font-family: var(--font-display);
   font-size: 0.95rem;
@@ -742,29 +738,29 @@
   color: var(--color-ink);
 }
 
-.category-spotlight-card__body p,
-.featured-spotlight-card__body p {
+.category-spotlight-card .catalog-card__body p,
+.featured-spotlight-card .catalog-card__body p {
   margin: 0;
   font-size: 0.88rem;
   line-height: 1.42;
   color: var(--color-ink-soft);
 }
 
-.featured-spotlight-card__footer {
+.featured-spotlight-card .catalog-card__footer {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
   gap: 12px;
   margin-top: auto;
-  flex-wrap: wrap;
 }
 
-.featured-spotlight-card__footer strong {
+.featured-spotlight-card .catalog-card__footer strong {
   color: var(--color-primary);
   font-size: 1rem;
 }
 
-.featured-spotlight-card__link {
+.featured-spotlight-card .catalog-card__link {
   background: transparent;
   color: var(--color-primary);
   text-transform: uppercase;
@@ -775,21 +771,13 @@
 }
 
 @media (min-width: 961px) {
-  .featured-spotlight-card {
-    min-height: 0;
-    height: 100%;
-    max-height: 100%;
-  }
 
-  .featured-spotlight-card__media {
-    flex: 0 0 41%;
-  }
 
-  .featured-spotlight-card__body {
+  .featured-spotlight-card .catalog-card__body {
     gap: 8px;
   }
 
-  .featured-spotlight-card__description {
+  .featured-spotlight-card .catalog-card__description {
     display: -webkit-box;
     overflow: hidden;
     line-height: 1.42;
@@ -900,14 +888,27 @@
   }
 
   .home-bootstrap-carousel__control {
-    display: none;
+    display: flex;
+    width: 40px;
+    height: 40px;
+    top: -62px;
   }
 
-  .category-spotlight-card,
-  .featured-spotlight-card {
+  .home-bootstrap-carousel__control.carousel-control-prev {
+    left: auto;
+    right: 50px;
+  }
+
+  .home-bootstrap-carousel__control.carousel-control-next {
+    right: 0;
+  }
+
+  .home-bootstrap-carousel .category-spotlight-card,
+  .home-bootstrap-carousel .featured-spotlight-card {
     min-height: auto;
     height: auto;
     max-height: none;
+    aspect-ratio: auto;
   }
 
   .screen-heading h2,
@@ -938,8 +939,8 @@
     padding: 0 4px;
   }
 
-  .category-spotlight-card,
-  .featured-spotlight-card {
+  .home-bootstrap-carousel .category-spotlight-card,
+  .home-bootstrap-carousel .featured-spotlight-card {
     height: 372px;
     min-height: 372px;
     max-height: 372px;
@@ -1030,7 +1031,8 @@
       black 150px,
       black calc(100% - 150px),
       transparent 100%);
-  pointer-events: none; /* Let clicks pass through the overlap gradient onto adjacent sections */
+  pointer-events: none;
+  /* Let clicks pass through the overlap gradient onto adjacent sections */
 }
 
 .home-collections-section__overlay {
@@ -1073,6 +1075,17 @@
   transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 0.3s ease;
 }
 
+@media (max-height: 800px) and (min-width: 961px) {
+  .home-collections-section {
+    padding-top: 190px;
+    padding-bottom: 190px;
+  }
+
+  .collection-carousel-card {
+    height: 360px;
+  }
+}
+
 @media (max-width: 960px) {
   .collection-carousel-card {
     background: #FFFAF4;
@@ -1085,10 +1098,12 @@
     height: 300px;
     border-radius: 18px;
   }
+
   .collection-carousel-card__content {
     padding: 14px 16px;
     gap: 6px;
   }
+
   .collection-carousel-card__title {
     font-size: 1.15rem;
   }
@@ -1466,14 +1481,17 @@
     min-height: auto !important;
     height: auto !important;
     max-height: none !important;
-    padding-top: 112px !important; /* Restaurado al espacio original del header */
+    padding-top: 112px !important;
+    /* Restaurado al espacio original del header */
     padding-bottom: 12px !important;
   }
 
   .home-collections-section {
     min-height: auto !important;
-    margin-top: -80px !important; /* Desfase hacia arriba para difuminado con el hero */
-    margin-bottom: 0 !important; /* Sin desfase hacia abajo para no tapar Destacados */
+    margin-top: -80px !important;
+    /* Desfase hacia arriba para difuminado con el hero */
+    margin-bottom: 0 !important;
+    /* Sin desfase hacia abajo para no tapar Destacados */
     padding-top: 100px !important;
     padding-bottom: 12px !important;
     mask-image: linear-gradient(to bottom, transparent 0%, black 80px, black 100%) !important;
