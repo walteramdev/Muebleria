@@ -54,18 +54,16 @@ const ContactPage = () => {
             <form className="contact-hero-form" onSubmit={handleSubmit}>
               <p className="contact-hero-form__eyebrow">Consulta directa</p>
 
-              <div className="contact-hero-form__row">
-                <label className="contact-hero-form__field">
-                  <span>Nombre</span>
-                  <input
-                    type="text"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleChange}
-                    placeholder="Tu nombre"
-                  />
-                </label>
-              </div>
+              <label className="contact-hero-form__field">
+                <span>Nombre</span>
+                <input
+                  type="text"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  placeholder="Tu nombre"
+                />
+              </label>
 
               <label className="contact-hero-form__field">
                 <span>Mensaje</span>

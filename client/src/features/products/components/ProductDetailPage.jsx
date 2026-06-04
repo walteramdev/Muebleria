@@ -300,7 +300,7 @@ const ProductDetailPage = ({ onBack = () => {}, currentUser = null }) => {
               </a>
             )}
             {currentUser?.role === "admin" && (
-              <>
+              <div style={{ display: "flex", gap: "15px", width: "100%" }}>
                 <button
                   className="edit-product-btn"
                   onClick={() => navigate(`/productos/editar/${id}`)}
@@ -310,7 +310,7 @@ const ProductDetailPage = ({ onBack = () => {}, currentUser = null }) => {
                 <button className="delete-product-btn" onClick={handleDelete}>
                   Eliminar producto
                 </button>
-              </>
+              </div>
             )}
           </div>
         </div>
