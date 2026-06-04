@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 150 150">
+  <rect width="150" height="150" fill="#F3E7D8"/>
+  <line x1="10" y1="58" x2="140" y2="58" stroke="#7E8A92" stroke-width="1.5"/>
+  <text x="12" y="82"
+        font-family="Arial, Helvetica, sans-serif"
+        font-size="28"
+        font-weight="700"
+        fill="#4F5F7A">CHENILLE</text>
+  <text x="75" y="108"
+        text-anchor="middle"
+        font-family="Arial, Helvetica, sans-serif"
+        font-size="14"
+        fill="#C28A56">10 años</text>
+</svg>
