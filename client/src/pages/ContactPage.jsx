@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { API_BASE_URL } from "../config";
 import "../styles/contact.css";
 
 const ContactPage = () => {
@@ -8,6 +9,8 @@ const ContactPage = () => {
     name: "",
     message: "",
   });
+  const [status, setStatus] = useState("idle");
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -17,17 +20,42 @@ const ContactPage = () => {
     }));
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
 
-    const mailSubject = "Consulta desde la web";
-    const mailBody = [
-      `Nombre: ${formData.name || "-"}`,
-      "",
-      formData.message || "",
-    ].join("\n");
+    setStatus("loading");
+    setErrorMessage("");
 
-    window.location.href = `yessica.carrizo80@gmail.com?subject=${encodeURIComponent(mailSubject)}&body=${encodeURIComponent(mailBody)}`;
+    try {
+      const response = await fetch(`${API_BASE_URL}/contact/send`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Error al enviar el mensaje");
+      }
+
+      setStatus("success");
+      setFormData({ name: "", message: "" });
+    } catch (error) {
+      console.error("Error al enviar consulta:", error);
+      setStatus("error");
+      setErrorMessage(error.message);
+    }
+  };
+
+  const generateWhatsAppUrl = () => {
+    let text = "¡Hola! Me gustaría hacer una consulta.";
+    if (formData.name || formData.message) {
+      text = `¡Hola! Mi nombre es ${formData.name || "..."}.\n\nMi consulta es: ${formData.message || "..."}`;
+    }
+    return `https://wa.me/5493804660709?text=${encodeURIComponent(text)}`;
   };
 
   return (
@@ -78,13 +106,24 @@ const ContactPage = () => {
               </label>
 
               <div className="contact-hero-form__actions">
-                <button type="submit" className="btn-primary">
-                  Enviar consulta
+                <button type="submit" className="btn-primary" disabled={status === "loading"}>
+                  {status === "loading" ? "Enviando..." : "Enviar consulta"}
                 </button>
-                <a href="https://wa.me/5491100000000" className="btn-whatsapp">
+                <a href={generateWhatsAppUrl()} target="_blank" rel="noopener noreferrer" className="btn-whatsapp">
                   WhatsApp
                 </a>
               </div>
+              
+              {status === "success" && (
+                <p style={{ color: "#4caf50", marginTop: "16px", fontWeight: "600", fontSize: "0.95rem", textAlign: "center" }}>
+                  ¡Tu consulta fue enviada con éxito! Te contactaremos pronto.
+                </p>
+              )}
+              {status === "error" && (
+                <p style={{ color: "#c95d4e", marginTop: "16px", fontWeight: "600", fontSize: "0.95rem", textAlign: "center" }}>
+                  No se pudo enviar: {errorMessage}
+                </p>
+              )}
             </form>
           </div>
         </div>

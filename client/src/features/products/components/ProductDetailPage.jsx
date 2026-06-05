@@ -15,6 +15,7 @@ const ProductDetailPage = ({ onBack = () => {}, currentUser = null }) => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [error, setError] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [backLabel, setBackLabel] = useState("Volver al catálogo");
 
   const handleDelete = () => {
@@ -35,8 +36,7 @@ const ProductDetailPage = ({ onBack = () => {}, currentUser = null }) => {
         throw new Error(data.message || "Error al eliminar producto");
       }
 
-      alert("Producto eliminado correctamente");
-      navigate("/productos");
+      setShowSuccessModal(true);
     } catch (error) {
       console.error("Error eliminando producto:", error);
       alert("Hubo un problema al eliminar el producto");
@@ -327,6 +327,38 @@ const ProductDetailPage = ({ onBack = () => {}, currentUser = null }) => {
               </button>
               <button className="btn-modal-confirm btn-modal-danger" onClick={executeDelete}>
                 Eliminar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showSuccessModal && (
+        <div className="custom-modal-overlay">
+          <div className="custom-modal-card">
+            <svg
+              viewBox="0 0 24 24"
+              width="48"
+              height="48"
+              fill="none"
+              stroke="#5ba862"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              style={{ margin: "0 auto 16px", display: "block" }}
+            >
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+              <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+            <h3>¡Producto eliminado!</h3>
+            <p>El producto ha sido eliminado de la colección correctamente.</p>
+            <div className="custom-modal-actions">
+              <button
+                className="btn-modal-confirm"
+                onClick={onBack}
+                style={{ width: "100%" }}
+              >
+                {backLabel}
               </button>
             </div>
           </div>
