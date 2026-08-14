@@ -1,4 +1,5 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useContext } from "react";
+import { CartContext } from "../context/CartContext";
 import "../styles/header.css";
 
 const featuredMarqueeItems = [
@@ -12,6 +13,7 @@ const featuredMarqueeItems = [
 const Header = ({
   onNavigate = () => {},
   categoryDefinitions = [],
+
   activeView = "home",
   isOverlay = false,
   currentUser = null,
@@ -26,6 +28,10 @@ const Header = ({
   const headerRef = useRef(null);
   const closeProductsMenuTimeoutRef = useRef(null);
   const productsMenuRef = useRef(null);
+
+  const { cartItems } = useContext(CartContext);
+
+  const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
   useEffect(() => {
     const scrollContainer =
@@ -185,7 +191,6 @@ const Header = ({
   };
 
   const isActive = (view) => activeView === view;
-
   return (
     <div
       ref={headerRef}
@@ -232,6 +237,15 @@ const Header = ({
               Productos
             </button>
           </div>
+          {/* {currentUser && (
+            <button
+              type="button"
+              className={isActive("sales") ? "active" : ""}
+              onClick={handleNavClick("/ventas")}
+            >
+              Ventas
+            </button>
+          )} */}
           <button
             type="button"
             className={isActive("about") ? "active" : ""}
@@ -246,6 +260,29 @@ const Header = ({
           >
             Contacto
           </button>
+
+          {currentUser?.role === "client" && (
+            <button
+              type="button"
+              className={`cart-button ${isActive("cart") ? "active" : ""}`}
+              onClick={handleNavClick("/carrito")}
+              aria-label={`Abrir carrito (${totalItems} productos)`}
+            >
+              <div className="cart-icon-container">
+                <img
+                  className="iconCart"
+                  src="/carrito.svg"
+                  alt=""
+                  aria-hidden="true"
+                />
+
+                {totalItems > 0 && (
+                  <span className="cart-badge">{totalItems}</span>
+                )}
+              </div>
+            </button>
+          )}
+
           {currentUser ? (
             <>
               {/* <button
@@ -255,8 +292,14 @@ const Header = ({
               >
                 PERFIL
               </button> */}
-              <button type="button" onClick={handleLogoutClick}>
-                Cerrar Sesion{" "}
+              <button
+                type="button"
+                onClick={(event) => {
+                  handleLogoutClick();
+                  handleNavClick("/iniciar-sesion")(event);
+                }}
+              >
+                Cerrar Sesion
               </button>
             </>
           ) : (
@@ -425,6 +468,11 @@ const Header = ({
         <button type="button" onClick={handleNavClick("/nosotros")}>
           Nosotros
         </button>
+        {/* {currentUser && (
+          <button type="button" onClick={handleNavClick("/ventas")}>
+            Ventas
+          </button>
+        )} */}
         <button type="button" onClick={handleNavClick("/contacto")}>
           Contacto
         </button>

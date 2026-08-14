@@ -15,6 +15,8 @@ import Footer from "./layouts/Footer";
 import CatalogPage from "./features/products/components/CatalogPage.jsx";
 import ProductDetailPage from "./features/products/components/ProductDetailPage.jsx";
 import ProductForm from "./features/products/components/ProductForm.jsx";
+import SalesPage from "./features/sales/components/SalesPage.jsx";
+import CartPage from "./features/cart/CartPage.jsx";
 import HomePage from "./pages/HomePage.jsx";
 import AboutPage from "./pages/AboutPage.jsx";
 import ContactPage from "./pages/ContactPage.jsx";
@@ -28,6 +30,9 @@ import LoginPage from "./pages/LoginPage.jsx";
 import { AuthProvider } from "../auth/AuthProvider.jsx";
 import { AuthContext } from "../auth/AuthContext.js";
 import { getCategories } from "./services/categoryService";
+
+import { CartContext } from "./context/CartContext.js";
+import { CartProvider } from "./context/CartProvider.jsx";
 
 const ScrollToTop = () => {
   const { pathname } = useLocation();
@@ -110,7 +115,10 @@ const CatalogRoute = ({ currentUser, categoryDefinitions, productTypes }) => {
 
   const handleSelectProduct = (product) => {
     const backPath = `/productos${selectedCategory !== "Todos" ? `?categoria=${encodeURIComponent(selectedCategory)}${selectedSubcategory ? `&subcategoria=${encodeURIComponent(selectedSubcategory)}` : ""}` : ""}`;
-    const backLabel = selectedCategory === "Todos" ? "Volver al catálogo" : `Volver a ${selectedCategory}`;
+    const backLabel =
+      selectedCategory === "Todos"
+        ? "Volver al catálogo"
+        : `Volver a ${selectedCategory}`;
     sessionStorage.setItem("catalogScrollPosition", window.scrollY.toString());
     sessionStorage.setItem("catalogCategory", selectedCategory);
     sessionStorage.setItem("catalogSubcategory", selectedSubcategory);
@@ -166,8 +174,11 @@ function AppContent() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [categoryDefinitionsState, setCategoryDefinitionsState] = useState(staticCategoryDefinitions);
-  const [productTypesState, setProductTypesState] = useState(staticProductTypes);
+  const [categoryDefinitionsState, setCategoryDefinitionsState] = useState(
+    staticCategoryDefinitions,
+  );
+  const [productTypesState, setProductTypesState] =
+    useState(staticProductTypes);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -176,13 +187,15 @@ function AppContent() {
         if (data && data.categories) {
           const merged = data.categories.map((dbCat) => {
             const staticMatch = staticCategoryDefinitions.find(
-              (s) => s.name.toLowerCase() === dbCat.name.toLowerCase()
+              (s) => s.name.toLowerCase() === dbCat.name.toLowerCase(),
             );
             return {
               _id: dbCat._id,
               name: dbCat.name,
               image: dbCat.image || staticMatch?.image || "",
-              shortDescription: staticMatch?.shortDescription || "Muebles de excelente diseño y calidad.",
+              shortDescription:
+                staticMatch?.shortDescription ||
+                "Muebles de excelente diseño y calidad.",
               subcategories: staticMatch?.subcategories || [],
             };
           });
@@ -251,13 +264,17 @@ function AppContent() {
             ? "home"
             : location.pathname.startsWith("/productos")
               ? "catalog"
-              : location.pathname === "/nosotros"
-                ? "about"
-                : location.pathname === "/contacto"
-                  ? "contact"
-                  : location.pathname === "/iniciar-sesion"
-                    ? "login"
-                    : ""
+              : location.pathname === "/ventas"
+                ? "sales"
+                : location.pathname === "/nosotros"
+                  ? "about"
+                  : location.pathname === "/contacto"
+                    ? "contact"
+                    : location.pathname === "/carrito"
+                      ? "cart"
+                      : location.pathname === "/iniciar-sesion"
+                        ? "login"
+                        : ""
         }
         isOverlay
         currentUser={user}
@@ -301,9 +318,25 @@ function AppContent() {
         />
         <Route
           path="/productos"
-          element={<CatalogRoute currentUser={user} categoryDefinitions={categoryDefinitionsState} productTypes={productTypesState} />}
+          element={
+            <CatalogRoute
+              currentUser={user}
+              categoryDefinitions={categoryDefinitionsState}
+              productTypes={productTypesState}
+            />
+          }
         />
         <Route path="/productos/:id" element={<ProductDetailRoute />} />
+        <Route
+          path="/ventas"
+          element={
+            <ProtectedRoute>
+              <SalesPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="/carrito" element={<CartPage />} />
+
         {/* Route user */}
         <Route
           path="/iniciar-sesion"
@@ -340,7 +373,9 @@ function AppContent() {
 function App() {
   return (
     <AuthProvider>
-      <AppContent />
+      <CartProvider>
+        <AppContent />
+      </CartProvider>
     </AuthProvider>
   );
 }
