@@ -9,6 +9,7 @@ const productRouter = require("./src/routes/productRoutes");
 const clientRouter = require("./src/routes/clientRoutes");
 const categoryRouter = require("./src/routes/categoryRoutes");
 const contactRouter = require("./src/routes/contactRoutes");
+const saleRouter = require("./src/routes/saleRoutes");
 
 const loggerMiddleware = require("./src/middleware/loggerMiddleware");
 const cookieParser = require("cookie-parser");
@@ -80,6 +81,7 @@ app.use("/api/products", productRouter);
 app.use("/api/clients", clientRouter);
 app.use("/api/categories", categoryRouter);
 app.use("/api/contact", contactRouter);
+app.use("/api/sales", saleRouter);
 
 // Manejo centralizado para rutas inexistentes.
 app.use((req, res, next) => {
