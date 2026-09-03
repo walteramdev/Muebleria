@@ -19,11 +19,11 @@ const userSchema = new mongoose.Schema(
     password: {
       type: String,
       required: true,
-      password: { select: false },
+      select: false,
     },
     role: {
       type: String,
-      enum: ["client", , "employee", "admin"],
+      enum: ["client", "employee", "admin"],
       default: "client",
     },
     isActive: {

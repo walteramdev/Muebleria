@@ -22,7 +22,7 @@ const createEmployee = async (req, res, next) => {
       return res.status(404).json({ message: "Usuario no encontrado." });
     }
 
-    if (!user.roles.includes("employee")) {
+    if (!user.role.includes("employee")) {
       return res
         .status(403)
         .json({ message: "El usuario no tiene rol de empleado." });

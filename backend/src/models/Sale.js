@@ -23,6 +23,7 @@ const saleSchema = new mongoose.Schema(
       required: true,
       index: true,
     },
+
     order: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Order",
@@ -80,18 +81,6 @@ const saleSchema = new mongoose.Schema(
       },
     ],
 
-    subtotal: {
-      type: Number,
-      required: true,
-      min: 0,
-    },
-
-    totalDiscount: {
-      type: Number,
-      default: 0,
-      min: 0,
-    },
-
     total: {
       type: Number,
       required: true,
@@ -105,6 +94,7 @@ const saleSchema = new mongoose.Schema(
           enum: ["cash", "card", "transfer"],
           required: true,
         },
+
         amount: {
           type: Number,
           required: true,
@@ -122,4 +112,5 @@ const saleSchema = new mongoose.Schema(
   },
   { timestamps: true },
 );
+
 module.exports = mongoose.model("Sale", saleSchema);

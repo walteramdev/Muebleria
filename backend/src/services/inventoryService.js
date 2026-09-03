@@ -10,6 +10,8 @@ const Product = require("../models/Product");
  * - Obtener el precio actual.
  * - Aplicar descuentos.
  * - Calcular subtotales.
+ * - Calcular subtotal general.
+ * - Calcular descuento total.
  * - Calcular total.
  * - Crear snapshots de los productos.
  *
@@ -22,7 +24,10 @@ const processProducts = async ({ products, session = null }) => {
     throw error;
   }
 
+  let subtotal = 0;
+  let totalDiscount = 0;
   let total = 0;
+
   const processedProducts = [];
 
   for (const item of products) {
@@ -135,26 +140,36 @@ const processProducts = async ({ products, session = null }) => {
     }
 
     // -----------------------------
-    // Calcular subtotal
+    // Calcular subtotal del producto
     // -----------------------------
 
-    const subtotalWithoutDiscount = price * qty;
+    const productSubtotal = Number((price * qty).toFixed(2));
 
-    let subtotal;
+    let productDiscount;
 
     if (discountType === "percentage") {
-      subtotal = subtotalWithoutDiscount * (1 - disc / 100);
+      productDiscount = productSubtotal * (disc / 100);
     } else {
-      subtotal = subtotalWithoutDiscount - disc;
+      productDiscount = disc;
     }
 
-    if (subtotal < 0) {
-      subtotal = 0;
-    }
+    // Nunca permitimos que el descuento
+    // supere el subtotal del producto.
+    productDiscount = Math.min(productDiscount, productSubtotal);
 
-    subtotal = Number(subtotal.toFixed(2));
+    productDiscount = Number(productDiscount.toFixed(2));
 
-    total += subtotal;
+    const finalProductSubtotal = Number(
+      (productSubtotal - productDiscount).toFixed(2),
+    );
+
+    // -----------------------------
+    // Acumular totales
+    // -----------------------------
+
+    subtotal += productSubtotal;
+    totalDiscount += productDiscount;
+    total += finalProductSubtotal;
 
     // -----------------------------
     // Crear snapshot
@@ -168,14 +183,22 @@ const processProducts = async ({ products, session = null }) => {
       price,
       discount: disc,
       discountType,
-      subtotal,
+      subtotal: finalProductSubtotal,
     });
   }
 
+  // -----------------------------
+  // Redondear totales
+  // -----------------------------
+
+  subtotal = Number(subtotal.toFixed(2));
+  totalDiscount = Number(totalDiscount.toFixed(2));
   total = Number(total.toFixed(2));
 
   return {
     products: processedProducts,
+    subtotal,
+    totalDiscount,
     total,
   };
 };

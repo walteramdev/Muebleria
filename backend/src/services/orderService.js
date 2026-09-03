@@ -1,5 +1,12 @@
 const mongoose = require("mongoose");
 const Order = require("../models/Order");
+// console.log("Order paths:", Object.keys(Order.schema.paths));
+// console.log(JSON.stringify(Order.schema.obj, null, 2));
+// console.log("ORDER SCHEMA:");
+// console.log(Order.schema.path("subtotal"));
+// console.log("PRODUCT SUBTOTAL SCHEMA:");
+// console.log(Order.schema.path("products.subtotal"));
+
 const Sale = require("../models/Sale");
 const { processProducts, decreaseStock } = require("./inventoryService");
 
@@ -63,24 +70,39 @@ const createOrder = async ({ client, products, paymentMethod }) => {
   // Procesar productos
   // ---------------------------------
 
-  const { products: processedProducts, total } = await processProducts({
+  const {
+    products: processedProducts,
+    subtotal,
+    totalDiscount,
+    total,
+  } = await processProducts({
     products,
   });
 
   // ---------------------------------
   // Generar número de pedido
   // ---------------------------------
+  // console.log("PROCESSED PRODUCTS:");
+  // console.log(JSON.stringify(processedProducts, null, 2));
 
+  // console.log("TOTAL:");
+  // console.log(total);
   const orderNumber = generateOrderNumber();
 
   // ---------------------------------
   // Crear Order
   // ---------------------------------
-
+  // console.log(
+  //   "¿Tiene subtotal el primer producto?",
+  //   processedProducts[0]?.subtotal,
+  // );
+  // console.log("Processed products:", processedProducts);
   const order = await Order.create({
     orderNumber,
     client,
     products: processedProducts,
+    subtotal,
+    totalDiscount,
     total,
     status: "pending",
 
@@ -101,20 +123,13 @@ const createOrder = async ({ client, products, paymentMethod }) => {
  * Esta operación se realiza dentro de una
  * transacción MongoDB.
  */
-const confirmOrder = async (orderId, employeeId) => {
-  // ---------------------------------
-  // Validar Order ID
-  // ---------------------------------
 
+const confirmOrder = async (orderId, employeeId) => {
   if (!mongoose.Types.ObjectId.isValid(orderId)) {
     const error = new Error("ID de pedido inválido.");
     error.status = 400;
     throw error;
   }
-
-  // ---------------------------------
-  // Validar empleado
-  // ---------------------------------
 
   if (!employeeId || !mongoose.Types.ObjectId.isValid(employeeId)) {
     const error = new Error("Empleado inválido.");
@@ -125,10 +140,6 @@ const confirmOrder = async (orderId, employeeId) => {
   const session = await mongoose.startSession();
 
   try {
-    // ---------------------------------
-    // Iniciar transacción
-    // ---------------------------------
-
     session.startTransaction();
 
     // ---------------------------------
@@ -144,7 +155,7 @@ const confirmOrder = async (orderId, employeeId) => {
     }
 
     // ---------------------------------
-    // Verificar estado del pedido
+    // Verificar estado
     // ---------------------------------
 
     if (order.status !== "pending") {
@@ -192,9 +203,11 @@ const confirmOrder = async (orderId, employeeId) => {
 
           order: order._id,
 
-          // Snapshot tomado directamente
-          // del Order.
           products: order.products,
+
+          subtotal: order.subtotal,
+
+          totalDiscount: order.totalDiscount,
 
           total: order.total,
 
@@ -208,9 +221,7 @@ const confirmOrder = async (orderId, employeeId) => {
           status: "completed",
         },
       ],
-      {
-        session,
-      },
+      { session },
     );
 
     // ---------------------------------
@@ -233,12 +244,7 @@ const confirmOrder = async (orderId, employeeId) => {
       sale: sale[0],
     };
   } catch (error) {
-    // ---------------------------------
-    // Revertir transacción
-    // ---------------------------------
-
     await session.abortTransaction();
-
     throw error;
   } finally {
     await session.endSession();
